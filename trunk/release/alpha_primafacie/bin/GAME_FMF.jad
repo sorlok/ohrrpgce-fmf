@@ -1,0 +1,9 @@
+Content-Folder: Applications
+MIDlet-1: OHRRPGCE, , ohrrpgce.mobile.RunnerMidlet
+MIDlet-Jar-Size: 1304146
+MIDlet-Jar-URL: GAME_FMF.jar
+MIDlet-Name: GAME FMF
+MIDlet-Vendor: Vendor
+MIDlet-Version: 5.0
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0

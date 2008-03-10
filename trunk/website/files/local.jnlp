@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sample JNLP File -->
+
+<jnlp spec="1.0+"
+      codebase="file:///C:\Program Files\eclipse3.2.1\projects\OHRRPGCE FMF\website\files\"
+      href="local.jnlp">
+   <information>
+      <title>OHRRPGCE FMF Demo</title>
+      <vendor>Undetermined</vendor>
+      <description>Demo of the FMF</description>
+      <homepage href="http://fmf.ohrdev.com/"/>
+      <offline-allowed/>
+   </information>
+   <resources>     
+   	<jar href="WEB_FMF_v_5_0h.jar"/>   
+	<j2se version="1.4.2_15"
+	      href="http://java.sun.com/products/autodl/j2se"/>
+   </resources>
+   
+   <application-desc main-class="ohrrpgce.web.Slackulator" />
+</jnlp>

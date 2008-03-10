@@ -1,0 +1,121 @@
+<html>
+<head><title>What's New in OHRRPGCEFMF (Alpha) Amphitheatre</title></head>
+
+<body style="background:#222222; color:#EEEEEE">
+<h3>OHRRPGCEFMF (Alpha) Amphitheatre</h3>
+<b><i>What's New?</i></b>
+<hr>
+<br><b>Contents</b>
+<ul><li>Requisite Bugs</li>
+	<li>Version History</li>
+</ul>
+
+<br><br><b>Requisite Bugs</b>
+<br>According to the OHRRPGCE FMF's license, the program must always contain at least one bug. This bug need not be mentioned (or even known) but it must be there. As it happens, each version of the OHRRPGCEFMF has traditionally hallmarked <i>one</i> bug as the most notorious bug for this version. This bug is then fixed for the next release. Here is the current bug history.
+<table border=1>
+	<tr>
+		<td><i>Picture</i></td>
+		<td><i>Version of the FMF</i></td>
+		<td><i>Bug Name</i></td>
+		<td><i>Bug Type</i></td>
+		<td><i>Description</i></td>
+	</tr>
+	<tr>
+		<td><img src="images/alpha_5_bug.PNG"></td>
+		<td><i>Alpha: Five Percent</i></td>
+		<td><b>Seth Can't Read</b></td>
+		<td><i>Bohr Bug</i></td>
+		<td>Due to a misread of "max tilesets in TIL" as "<i>number</i> of tilesets in TIL", the last tileset in any game was never loaded. Crescent Dream would crash because of this.</td>
+	</tr>
+	<tr>
+		<td><img src="images/alpha_gt_bug.PNG"></td>
+		<td><i>Alpha: Ghost Town</i></td>
+		<td><b>The Energizer Tile Anim</b></td>
+		<td><i>Heisenbug</i></td>
+		<td>After one loop, a tile animation would not reset to the initial tile. Usually, developers did this automatically, but for some animations (like the teleporter in Wandering Hamster) this functionality was relied upon. This bug only appeared on the hardware; testing in an emulator just rendered the animation tile as a white square.</td>
+	</tr>
+	<tr>
+		<td><img src="images/alpha_amph_bug.PNG"></td>
+		<td><i>Alpha: Amphitheatre</i></td>
+		<td><b>Hit & Run</b></td>
+		<td><i>Dodo Bug</i></td>
+		<td><i>Vehicles had a peculiar penchant for incorporating hero graphics in with their own. This bug up and vanished when an unrelated issue (NPCs walking too slowly) was fixed.</i></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><i>Alpha: Prima Facie</i></td>
+		<td><b>&nbsp;</b></td>
+		<td><i>&nbsp;</i></td>
+		<td><i>Currently Undecided</i></td>
+	</tr>
+</table>
+
+<br><br><b>Version History</b>
+<br>Each version of the OHRRPGCEFMF is special; here's why:
+<table border=1>
+	<tr>
+		<td><i>Screenshot</i></td>
+		<td><i>Version Name</i></td>
+		<td><i>Load Time*</i></td>
+		<td><i>Notable Features</i></td>
+		<td><i>Comments</i></td>
+	</tr>
+	<tr>
+		<td><img src="images/alpha_5_pic.PNG"></td>
+		<td><b>Alpha: Five Percent</b></td>
+		<td>????</td>
+		<td><ul>
+			<li>Loaded all simple map tiles; user could explore them by hitting "5"</li>
+			<li>Caching of tilesets was implemented even at this early stage (although it actually provided no performance gain, due to large .RPG file sizes.</li>
+			<li>Main menu & extensible format for drag-and-drop adding of RPGs to the GAME_FMF.JAR file</li>
+		</ul></td>
+		<td>This version took about two weeks for me to patch together, and I was immensely proud of it. Most people were non-plussed.</td>
+	</tr>
+	<tr>
+		<td><img src="images/alpha_gt_pic.PNG"></td>
+		<td><b>Alpha: Ghost Town</b></td>
+		<td>15 minutes</td>
+		<td><ul>
+			<li>Tile-based movement for one hero</li>
+			<li>Ability to switch heroes with "1" key</li>
+			<li>Passability enabled. Overhead tiles enabled. Doors enabled.</li>
+			<li>A loading bar was extended to show which lump/piece of a lump was currently being parsed.</li>
+			<li>Walkabout graphics cached, obviously. They also pre-loaded, which <i>did</i> save time.</li>
+		</ul></td>
+		<td>This was when I knew I was doing something right: waiting a hideous quarter of an hour actually gave one the chance to experience what this platform had to offer. It <i>felt</i> like an OHR game when played on a real phone. There just... wasn't much to do yet. Hence the version name.</td>
+	</tr>
+	<tr>
+		<td><img src="images/alpha_amph_pic.PNG"></td>
+		<td><b>Alpha: Amphitheatre</b></td>
+		<td>12 seconds</td>
+		<td><ul>
+			<li>Introduction of XRPG format; loading time dramatically reduced. Selected lumps compressed by roughly 79%</li>
+			<li>Tilesets and backdrops saved as PNGs, which was more fitting to the mobile format</li>
+			<li>For impatient players, the hero (and all NPCs) can be sped up by any increment of the walking speed.</li>
+			<li>NPCs, Message Boxes, Vehicles, and more!</li>
+		</ul></td>
+		<td>Don't let the list's brevity sway your opinion: switching to the XRPG format was a difficult decision, and supporting it took every trick in the book (Huffman Coding, <i>faux</i>-Huffman Coding, assumption-based aggregation). Yet to see the map actually pop up before my phone darkened the display was satisfying. The other features were nice, too.</td>
+	</tr>
+	<tr>
+		<td><img src="images/alpha_prima_pic.PNG"></td>
+		<td><b>Alpha: Prima Facie</b></td>
+		<td>20 seconds</td>
+		<td><ul>
+			<li>The Menu</li>
+			<li>Pushable NPCs and chained message boxes</li>
+			<li>Player is informed of random encounters.</li>
+			<li>Games menu threads loading games list. Also, the "back" button on phones should work in the menu now.</li>
+		</ul></td>
+		<td>I'm quite happy with the menu, though it's a bit heavy. The encounters, strange as it may sound, add a huge boost to the feel that one's actually playing an RPG. Checking for bugs on the ride home, I could actually immerse myself in the tiny town of Flannat.</td>
+	</tr>
+</table>
+*<i>On hardware</i>
+
+<br><br><b>Comments</b>
+<br>There's not much to say... enjoy the current release because who knows when adding another feature will be too much for a simple phone and production'll grind to a halt. Compare my top-of-the-line desktop with my top-of-the-line phone in terms of resources, and you might encourage me to give up right now. But I'm nothing if not temerarious.
+<br><img src="images/ohr_reqs.PNG">
+
+
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<html>
+<head><title>README: OHRRPGCEFMF Demo Alpha 5%</title></head>
+
+<body>
+<h3>OHRRPGCEFMF Demo Alpha 5%</h3>
+<b><i>Readme</i></b>
+<hr>
+<br><b>Super-Fast Overview & License Information</b>
+<br>The OHRRPGCEFMF is an Open-Source port of the OHRRPGCE's GAME.EXE to the J2ME platform. It is licensed under the GPL, with the added stipulation that any intent to change or branch the source code be reported at least once to the OHRRPGCE developers either on the <a href="http://gilgamesh.hamsterrepublic.com/wiki/ohrrpgce/index.php/Talk:OHRRPGCE_Source_Ports">talk page of the Wiki</a> or by email (sorlok_reaves@yahoo.com). This code is provided as-is; the only guarentee is that there will always be at least one bug in the code. Any third-party libraries/emulators included with the source code maintain their own licenses, and every intent has been made to comply with them.
+
+<br><br><b>Running on an Emulator</b>
+<br>The "bin" folder contains compiled .jad and .jar files (since compiling J2ME applications from source can be confusing.) It also contains the default Netbeans emulator, just for convenience. Note that this emulator only works under Windows, but any J2ME emulator (except the newest Nokia prototype) should run the jar/jad files. Open an MS dos prompt and browse to the bin directory. Now type:
+<br><pre>emulator.exe -Xdescriptor:GAME_FMF.jad -Xheapsize:20M</pre>
+<br>The heapsize is necessary to keep your emulator from running out of memory. At this point, the emulator should open in a seperate window, displaying your Midlet:
+<br><img src="images/ohrrpgcefmf_menu.png"/>
+<br><br>Hit Enter (or use the mouse to hit the phone's upper-right button) to select the OHRRPGCEFMF. At this point, the program will launch. If nothing crashes, you should see:
+<br><img src="images/ohrrpgcefmf_gamelist.png"/>
+<br><br>Use the arrow keys to selecta game, and hit "Enter" to launch it. (Alternatively, use 2,4,6,8 and 5 on the mobile keypad.) Now, you'll be asked to confirm (see below-left). Hit Enter, and a progress bar will appear (see below-right).
+<br><img src="images/ohrrpgcefmf_gameselected.png"/><img src="images/ohrrpgcefmf_loading.png"/>
+<br><br>Eventually (a white "L" in a red circle may appear; just keep waiting) the first map in the game will be displayed, with no animating tiles, NPCs, heroes, doors, or anything, really:
+<br><img src="images/ohrrpgcefmf_worldmap.png"/>
+<br><br>Move with the arrow keys, and hit Enter to change the map. If you happen upon a map whose tileset hasn't been loaded yet, you'll see a small icon in the top-right corner of the screen that informs you your phone is reading from the jar directly:
+<br><img src="images/ohrrpgcefmf_loadfromcache.png"/>
+<br><br>High-end phones will (someday) have an option to bypass all this; and low-end ones should eventually pre-fetch the first few levels in the game. For now, just be patient. On a decent phone, this icon will appear for maybe 1/3 of a second.
+
+<br><br><b>Problems</b>
+<br>The program should run as described on this emulator; if you copy the jar/jad files to your phone and it crashes, I wouldn't be surprised in the least. Also, only two games (the ones I test with) are in the list; it's easy to add your own game by hacking the jar, but I'll provide a utility later that does it for you (and maintains saved games, versions, etc.) Remember, this is an <b><i>alpha</i></b> demo, which means "It doesn't work." Even the standards of the game_list file will probably change before the first release, with absolutely no regard for backwards compatability. And I'm looking into a way to decrease both loading time and file size by zipping an un-lumped game, and pre-converting certain key graphics to pngs. But enough of that. For now, enjoy your preview.
+
+
+
+</body>
+</html>
