@@ -1,0 +1,2 @@
+WANDER	Wandering Hamster	wander.png	4285187	1	bob_error.png
+NPC_TAG	NPC Tag Tutorial	npc_tag.png	144879	1	null

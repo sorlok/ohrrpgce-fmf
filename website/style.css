@@ -1,0 +1,93 @@
+a {
+	font-weight: bold;
+	text-decoration: none;
+	color: #1199ee;
+}
+
+.info {
+	font-family: Trebuchet MS, Helvetica, sans-serif;
+	font-size: 12pt;
+	color: #ffffff;
+	text-align: justify;
+	margin-right: 20px;
+}
+.code {
+	font-family: Courier New, Helvetica, sans-serif;
+	font-size: 12pt;
+	color: #ffffff;
+	text-align: justify;
+	margin-right: 20px;
+}
+.paragraph {
+	font-family: Trebuchet MS, Helvetica, sans-serif;
+	font-size: 12pt;
+	color: #ffffff;
+	text-align: justify;
+	margin-bottom: 10px;
+	margin-right: 20px;
+}
+.placeTitle {
+	font-weight: bold;
+	color: #33ee55;
+}
+
+.title {
+	font-family: Trebuchet MS, Helvetica, sans-serif;
+	font-size: 16pt;
+	color: #ffffff;
+	text-align: justify;
+}
+.subtitle {
+	font-family: Trebuchet MS, Helvetica, sans-serif;
+	font-size: 12.5pt;
+	color: #ffffff;
+	text-align: justify;
+}
+
+.navHeader {
+	font-family: Trebuchet MS, Helvetica, sans-serif;
+	font-size: 12pt;
+	color: #ffffff;
+	text-align: center;
+}
+.mePic {
+	position: relative; left: 639px; top: 215px; z-index: 2;
+}
+.menuPic {
+	position: relative; left: 312px; top: 52px; z-index: 3;
+}
+.menuButton1 {
+	background-image: url(images/menu_button_home_d.png);
+	background-repeat:no-repeat;
+}
+.menuButton1:hover{
+	background-image: url(images/menu_button_home.png);
+}
+.menuButton2 {
+	background-image: url(images/menu_button_1_d.png);
+	background-repeat:no-repeat;
+}
+.menuButton2:hover{
+	background-image: url(images/menu_button_1.png);
+}
+.menuButton3 {
+	background-image: url(images/menu_button_2_d.png);
+	background-repeat:no-repeat;
+}
+.menuButton3:hover{
+	background-image: url(images/menu_button_2.png);
+}
+.menuButton4 {
+	background-image: url(images/menu_button_3_d.png);
+	background-repeat:no-repeat;
+}
+.menuButton4:hover{
+	background-image: url(images/menu_button_3.png);
+}
+.menuButton5 {
+	background-image: url(images/menu_button_4_d.png);
+	background-repeat:no-repeat;
+}
+.menuButton5:hover{
+	background-image: url(images/menu_button_4.png);
+}

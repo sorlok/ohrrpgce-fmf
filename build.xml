@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+   <project name="Web Demo Creator" default="makejar" basedir=".">
+   
+	  <taskdef name="sevenzip" classname="ohrrpgce.tool.SevenZipTask"/>
+   	
+      <target name ="makejar" description="JAR up the source files; don't compress PNGS">
+       	<!-- Create an empty (manifest-only) jar file -->
+      	<delete file="website/files/WEB_FMF.jar" />
+        <jar jarfile="website/files/WEB_FMF.jar" excludes="**/*" basedir=""/>
+      	
+      	<!-- Add all non-PNG files under the best compression -->
+      	<sevenzip archivename="website/files/WEB_FMF.jar" command="add" level="9" nonrecursiveincludes="ohrrpgce\games\WANDER\* ohrrpgce\games\NPC_TAG\*" includes="*.class ohrrpgce\games\game_list.txt" excludes="*.png *\.svn" />
+      	
+      	<!-- Add all PNGs at no compression. It's a waste trying, and it messes up JRE 1.4 -->
+      	<sevenzip archivename="website/files/WEB_FMF.jar" command="add" level="0" nonrecursiveincludes="ohrrpgce\games\*.png ohrrpgce\games\WANDER\*.png ohrrpgce\games\NPC_TAG\*.png ohrrpgce\games\main_icons\*.png" excludes="ohrrpgce\games\error.png" />
+  
+      </target>
+      
+</project>
