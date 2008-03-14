@@ -10,8 +10,8 @@ import ohrrpgce.adapter.GraphicsAdapter;
  *
  * @author Seth N. Hetu
  */
-public class TranslucentBox implements Box{
-    protected int width;
+public class TranslucentBox /*implements Box*/{
+    /*protected int width;
     protected int height;
     protected int[] pos = new int[]{0,0};
     protected int layoutRule = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
@@ -20,24 +20,24 @@ public class TranslucentBox implements Box{
     //Change to private and see what crashes.
     protected int[] boxData;
     
-    /**
+    **
      * Create an empty box with no certain width and height. 
      * Primarily intended for use by sub-classes.
-     */
+     *
     public TranslucentBox() {}
     
-    /**
+    **
      * Create a box with a certain background color.
      * @param bgColor AARRGGBB format; the background for the box. Fills the entire box.
-     */
+     *
     public TranslucentBox (int width, int height, int bgColor) {
         resize(width, height);
         fillBackground(bgColor);
     }
     
-    /*
+    *
      * The position of a box is optional.
-     */
+     *
     public void setPosition(int x, int y) {
         pos[0] = x;
         pos[1] = y;
@@ -59,12 +59,12 @@ public class TranslucentBox implements Box{
         return pos[1];
     }
     
-    /**
+    **
      * Create a box with a certain background color and some border lines.
      * @width, height MUST assume that "borderColors.length"*2 pixels for the borders
      * @param bgColor AARRGGBB format; the background for the box. Fills the entire box.
      * @param borderColors An array of AARRGGBB values to be applies, from outer to inner, to the box.
-     */
+     *
     public TranslucentBox (int width, int height, int bgColor, int[] borderColors) {
         this(width, height, bgColor);
         drawBorders(borderColors);
@@ -104,9 +104,9 @@ public class TranslucentBox implements Box{
     }
     
     
-    /**
+    **
      * "Draw flags" contains the Graphics flags. 
-     */
+     *
     public void paint(int x, int y, int drawFlags) {
         if ((drawFlags&GraphicsAdapter.RIGHT)!=0)
             x -= width;
@@ -137,9 +137,9 @@ public class TranslucentBox implements Box{
         return new int[]{posX, posY};
     }
     
-    /**
+    **
      * Paint this object, assuming it has sensible, given values for its x/y co-ordinates.
-     */
+     *
     public void paint() {
     	paint(pos[0], pos[1], layoutRule);
     }
@@ -151,5 +151,5 @@ public class TranslucentBox implements Box{
 
     public int getHeight() {
         return height;
-    }
+    }*/
 }

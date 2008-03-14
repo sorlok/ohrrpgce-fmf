@@ -8,13 +8,14 @@ package ohrrpgce.data;
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
+import ohrrpgce.menu.Canvas;
 
 /**
  * An extension to Box which allows for the placement of (possibly shadowed)
  *  text. Has support for word-wrap and hyphenation.
  * @author sethhetu
  */
-public class TextBox extends TranslucentBox {
+public class TextBox extends Canvas {
     
     private int borderColor;
     private int bkgrdColor;
@@ -35,9 +36,9 @@ public class TextBox extends TranslucentBox {
         MAX_HEIGHT = height;
     }
     
-    public static final int TRANSP_TRANSLUCENT = 0;
+/*    public static final int TRANSP_TRANSLUCENT = 0;
     public static final int TRANSP_OPAQUE = 1;
-    public static final int TRANSP_CLEAR = 2;
+    public static final int TRANSP_CLEAR = 2;*/
     
     
     private boolean calcd; //Because I'm superstitious that a null check is more costly than a boolean check.
@@ -53,6 +54,8 @@ public class TextBox extends TranslucentBox {
      * @param forcedSize overrides the MAX_WIDTH, MAX_HEIGHT default.
      */
     public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency, boolean skipNLSymbol, int[] forcedSize) {
+    	super(0xDD000000|bkgrdColor, new int[]{borderColor, 0}, transparency);
+    	
         //Defer expensive computations until later.
         this.borderColor = borderColor;
         this.bkgrdColor = bkgrdColor;
@@ -72,7 +75,7 @@ public class TextBox extends TranslucentBox {
      * @shade if true will draw a shadow for each character. This increases the box size.
      */
     public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade) {
-        this(lines, font, borderColor, bkgrdColor, shade, TRANSP_TRANSLUCENT, false, new int[]{MAX_WIDTH, MAX_HEIGHT});
+        this(lines, font, borderColor, bkgrdColor, shade, Canvas.FILL_TRANSLUCENT, false, new int[]{MAX_WIDTH, MAX_HEIGHT});
     }
     
     public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency) {
@@ -200,14 +203,14 @@ public class TextBox extends TranslucentBox {
         maxHeight = maxHeight*blockSize  + Message.FONT_MARGIN + 4;
         
         //Create the box.
-        this.resize(maxWidth, maxHeight);
-        int alpha = 0xFF000000;
-        if (transparencyFlag==TRANSP_TRANSLUCENT)
-            alpha = 0xDD000000;
-        if (transparencyFlag!=TRANSP_CLEAR) {
-            this.fillBackground(alpha|bkgrdColor);
-            this.drawBorders(new int[] {0xFF000000|borderColor, 0xFF000000});
-        }
+        this.setSize(maxWidth, maxHeight);
+//        int alpha = 0xFF000000;
+     //   if (transparencyFlag==Canvas.FILL_TRANSLUCENT)
+      //      alpha = 0xDD000000;
+        //if (transparencyFlag) {
+            /*this.fillBackground(alpha|bkgrdColor);
+            this.drawBorders(new int[] {0xFF000000|borderColor, 0xFF000000});*/
+        //}
     }
 
     public void drawText() {
@@ -235,7 +238,7 @@ public class TextBox extends TranslucentBox {
                         for (int y=0; y<fs; y++) {
                             for (int x=0; x<fs; x++) {
                                 if ((letter[y*fs + x]&0x00FFFFFF)!=0)
-                                    boxData[(yPos+y+offset)*width + xPos+x+offset] = color;
+                                    setPixel((yPos+y+offset)*getWidth() + xPos+x+offset,  color);
                             }
                         }
                     }
@@ -254,13 +257,13 @@ public class TextBox extends TranslucentBox {
         if (!calcd) {
             calculateBox();
         }
-        return width;
+        return super.getWidth();
     }
 
     public int getHeight() {
         if (!calcd) {
             calculateBox();
         }
-        return height;
+        return super.getHeight();
     }
 }

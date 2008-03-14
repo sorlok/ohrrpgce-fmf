@@ -7,7 +7,6 @@ package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
-import ohrrpgce.data.Box;
 import ohrrpgce.data.Message;
 import ohrrpgce.data.TranslucentBox;
 
@@ -23,7 +22,7 @@ public class List extends MenuItem {
    // private int[] size;
     private int numBorders;
     
-    private Box background;
+    private Canvas background;
     private int[] foreground;
     private int[] foregroundSize = new int[2];
     
@@ -64,7 +63,7 @@ public class List extends MenuItem {
         this.font = font;
         setSize(prefWidth, prefHeight);
         this.numBorders = borderColors.length;
-        background = new TranslucentBox(prefWidth, prefHeight, bkgrdColor, borderColors);
+        background = new Canvas(prefWidth, prefHeight, bkgrdColor, borderColors, Canvas.FILL_GUESS);
         onscreenItems = prefHeight/(Message.FONT_SIZE+1+margin);
         
     }

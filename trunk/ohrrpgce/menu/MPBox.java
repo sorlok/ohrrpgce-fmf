@@ -6,7 +6,6 @@
 package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.data.Box;
 import ohrrpgce.data.Message;
 import ohrrpgce.data.RPG;
 import ohrrpgce.data.SolidBox;
@@ -19,7 +18,7 @@ import ohrrpgce.data.TextBox;
 public class MPBox extends MenuItem {
     
     private TextBox mpTxt;
-    private Box bkgrdBox;
+    private Canvas bkgrdBox;
     
     private int[] bar;
     private int barWidth;
@@ -46,13 +45,13 @@ public class MPBox extends MenuItem {
             txt += "99";
         int[] colors = game.getTextBoxColors(txtBoxColorID);
         
-        mpTxt = new TextBox(txt, game.font, 0, 0, true, TextBox.TRANSP_CLEAR);
+        mpTxt = new TextBox(txt, game.font, 0, 0, true, Canvas.FILL_NONE);
         int halfMargin = (mpTxt.getHeight()-Message.FONT_SIZE)/2;
-        bkgrdBox = new SolidBox(
+        bkgrdBox = new Canvas(
                 mpTxt.getWidth(),
                 mpTxt.getHeight()+halfMargin+barColors.length+2,
                 0xFF000000|colors[0],
-                new int[]{0xFF000000|colors[1], 0xFF000000});
+                new int[]{0xFF000000|colors[1], 0xFF000000}, Canvas.FILL_SOLID);
         this.setSize(bkgrdBox.getWidth(), bkgrdBox.getHeight());
     }
     
@@ -70,7 +69,7 @@ public class MPBox extends MenuItem {
     
     private void reloadData(String txt, int midPointX) {        
         //First, reset the text box
-        mpTxt =  new TextBox(txt, parentGame.font, 0, 0, true, TextBox.TRANSP_CLEAR);
+        mpTxt =  new TextBox(txt, parentGame.font, 0, 0, true, Canvas.FILL_NONE);
         mpTxt.setPosition((getWidth()-mpTxt.getWidth())/2, 0);
         
         

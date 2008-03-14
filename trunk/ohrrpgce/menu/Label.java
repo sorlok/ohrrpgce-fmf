@@ -6,7 +6,6 @@
 package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.data.Box;
 import ohrrpgce.data.TextBox;
 import ohrrpgce.data.TranslucentBox;
 
@@ -16,7 +15,7 @@ import ohrrpgce.data.TranslucentBox;
  */
 public class Label extends MenuItem {
     
-    private Box bkgrdBox;
+    private Canvas bkgrdBox;
     private TextBox baseBox;
     
     
@@ -29,7 +28,7 @@ public class Label extends MenuItem {
      * Constructs a label with a fixed size.
      */
     public Label(int setWidth, int setHeight, int bkgrd, int[] borders) {
-        bkgrdBox = new TranslucentBox(setWidth, setHeight, bkgrd, borders);
+        bkgrdBox = new Canvas(setWidth, setHeight, bkgrd, borders, Canvas.FILL_GUESS);
         setSize(setWidth, setHeight);
     }
     
