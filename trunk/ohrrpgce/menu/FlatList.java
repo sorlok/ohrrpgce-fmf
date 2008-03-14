@@ -8,6 +8,7 @@ package ohrrpgce.menu;
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.Box;
+import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.TextBox;
 import ohrrpgce.game.MenuEngine;
 
@@ -86,7 +87,7 @@ public class FlatList extends MenuItem {
         int[] colors = engine.getRPG().getTextBoxColors(textBoxColor);
         if (rArrow==null)
             makeBoxes(dummy.getHeight());
-        bkgrdBox = new Box(dummy.getWidth(), dummy.getHeight(), 0xFF000000|colors[0], new int[]{0xFF000000|colors[1], 0xFF000000});
+        bkgrdBox = new SolidBox(dummy.getWidth(), dummy.getHeight(), 0xFF000000|colors[0], new int[]{0xFF000000|colors[1], 0xFF000000});
         setSize(bkgrdBox.getWidth(), bkgrdBox.getHeight());
         setPosition(margin, margin);
 

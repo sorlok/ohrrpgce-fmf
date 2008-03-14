@@ -77,7 +77,7 @@ public class BattlePrompt {
             outcomeChoice = new TextBox("Win\nLose\nRun", parent.font, 0xDD000000|clrs[0], 0xDD000000|clrs[0], true, TextBox.TRANSP_OPAQUE);
             outcomeChoice.setLayoutRule(GraphicsAdapter.RIGHT|GraphicsAdapter.TOP);
             
-            highlight = new Box(outcomeChoice.getWidth()-1, Message.FONT_MARGIN+Message.FONT_SIZE+2, 0x66FF0000, new int[]{0xFFFF0000});
+            highlight = new TranslucentBox(outcomeChoice.getWidth()-1, Message.FONT_MARGIN+Message.FONT_SIZE+2, 0x66FF0000, new int[]{0xFFFF0000});
             processInput(NPC.DIR_RIGHT); //Just set its position...
         }
         
@@ -85,7 +85,7 @@ public class BattlePrompt {
         setEnemySpecificData(form);
         
         //Prepare the background box
-        background = new Box(dispWidth, dispHeight/2+enemyNames.getHeight(), 0xDD000000|clrs[0], new int[]{0xFF000000|clrs[1], 0xFF000000});
+        background = new TranslucentBox(dispWidth, dispHeight/2+enemyNames.getHeight(), 0xDD000000|clrs[0], new int[]{0xFF000000|clrs[1], 0xFF000000});
     }
     
     private void setEnemySpecificData(BattleFormation form) {

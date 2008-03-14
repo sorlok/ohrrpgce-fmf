@@ -9,6 +9,7 @@ import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.Box;
 import ohrrpgce.data.Message;
 import ohrrpgce.data.RPG;
+import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.TextBox;
 
 /**
@@ -47,7 +48,7 @@ public class MPBox extends MenuItem {
         
         mpTxt = new TextBox(txt, game.font, 0, 0, true, TextBox.TRANSP_CLEAR);
         int halfMargin = (mpTxt.getHeight()-Message.FONT_SIZE)/2;
-        bkgrdBox = new Box(
+        bkgrdBox = new SolidBox(
                 mpTxt.getWidth(),
                 mpTxt.getHeight()+halfMargin+barColors.length+2,
                 0xFF000000|colors[0],

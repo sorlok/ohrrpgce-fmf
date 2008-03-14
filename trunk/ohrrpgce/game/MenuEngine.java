@@ -13,10 +13,12 @@ import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.adapter.InputAdapter;
 
 import ohrrpgce.data.Hero;
+import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.Spell;
 import ohrrpgce.data.TextBox;
 import ohrrpgce.data.Box;
 import ohrrpgce.data.RPG;
+import ohrrpgce.data.TranslucentBox;
 import ohrrpgce.menu.Action;
 import ohrrpgce.menu.Button;
 import ohrrpgce.menu.Composite;
@@ -203,7 +205,7 @@ public class MenuEngine extends Engine {
         //System.out.println("null?" + (coOrds==null));
         //System.out.println("Len: " + coOrds.length);
         //System.out.println("vals: " + coOrds[0] + "," + coOrds[1] + "," + coOrds[2] + "," + coOrds[3] );
-        currCursor = new Box(coOrds[2], coOrds[3],
+        currCursor = new TranslucentBox(coOrds[2], coOrds[3],
                 0x66FF0000,
                 new int[]{0xFFFF0000}
                 );
@@ -481,9 +483,9 @@ public class MenuEngine extends Engine {
                 //Create the relevant top-level controls
                 int currItemID = ((Integer)mainMenu.getActiveSubItem().getData()).intValue();
                 int[] clr = getRPG().getTextBoxColors(mainColors[currItemID]);
-                boxOverlay = new Box(
+                boxOverlay = new SolidBox(
                         width-MARGIN*2, height-(mainMenu.getPosY()+mainMenu.getHeight()+MARGIN),
-                        0xFF000000|clr[0], new int[]{0xFF000000|clr[1], 0xFF000000}
+                        clr[0], new int[]{clr[1], 0}
                 );
                 boxOverlay.setPosition(MARGIN, -boxOverlay.getHeight()+mainMenu.getPosY()+mainMenu.getHeight()+2);
                 
@@ -862,19 +864,19 @@ public class MenuEngine extends Engine {
                 heroName.getPosY()+heroName.getHeight()+
                 heroPicture.getPosY()/2
                 +1;
-        topBkgrd = new Box(width, combinedHeight, colors[0], new int[]{colors[1], 0xFF000000});
-        btmBkgrd = new Box(width, height-combinedHeight+1, colors[0], new int[]{colors[1], 0xFF000000});
+        topBkgrd = new SolidBox(width, combinedHeight, colors[0], new int[]{colors[1], 0xFF000000});
+        btmBkgrd = new SolidBox(width, height-combinedHeight+1, colors[0], new int[]{colors[1], 0xFF000000});
         btmBkgrd.setPosition(0, combinedHeight-1);
         //Pre-compute our "darkening" effect.
         blackOverlays = new Box[darkenInterval];
         for (int i=0; i<darkenInterval; i++) {
             int alpha = (i*0xBB)/(darkenInterval-1);
-            blackOverlays[i] = new Box(width, height, alpha*0x1000000, new int[]{});
+            blackOverlays[i] = new TranslucentBox(width, height, alpha*0x1000000, new int[]{});
         }
         colorOverlays = new Box[colorInIntervals];
         for (int i=0; i<colorInIntervals; i++) {
             int alpha = (i*0xBB)/(colorInIntervals-1);
-            colorOverlays[i] = new Box(width, height, alpha*0x1000000+clr0[0], new int[]{});            
+            colorOverlays[i] = new TranslucentBox(width, height, alpha*0x1000000+clr0[0], new int[]{});            
         }
         
         //SET

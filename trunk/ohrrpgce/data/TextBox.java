@@ -14,7 +14,7 @@ import ohrrpgce.adapter.ImageAdapter;
  *  text. Has support for word-wrap and hyphenation.
  * @author sethhetu
  */
-public class TextBox extends Box {
+public class TextBox extends TranslucentBox {
     
     private int borderColor;
     private int bkgrdColor;

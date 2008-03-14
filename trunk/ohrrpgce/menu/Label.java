@@ -8,6 +8,7 @@ package ohrrpgce.menu;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.Box;
 import ohrrpgce.data.TextBox;
+import ohrrpgce.data.TranslucentBox;
 
 /**
  * Some text. Really just a wrapper for TextBox
@@ -28,7 +29,7 @@ public class Label extends MenuItem {
      * Constructs a label with a fixed size.
      */
     public Label(int setWidth, int setHeight, int bkgrd, int[] borders) {
-        bkgrdBox = new Box(setWidth, setHeight, bkgrd, borders);
+        bkgrdBox = new TranslucentBox(setWidth, setHeight, bkgrd, borders);
         setSize(setWidth, setHeight);
     }
     
