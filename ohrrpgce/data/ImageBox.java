@@ -11,7 +11,7 @@ import ohrrpgce.tool.HQ2X;
  * A box which displays an image inside it.
  * @author Seth N. Hetu
  */
-public class ImageBox extends Box {
+public class ImageBox extends TranslucentBox {
     
     public static final int SCALE_NN = 0;
     public static final int SCALE_HQ2X = 1;

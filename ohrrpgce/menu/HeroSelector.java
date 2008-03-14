@@ -10,6 +10,7 @@ import ohrrpgce.data.Box;
 import ohrrpgce.data.Hero;
 import ohrrpgce.data.ImageBox;
 import ohrrpgce.data.RPG;
+import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.loader.PictureParser;
 
 /**
@@ -86,7 +87,7 @@ public class HeroSelector extends Composite {
         currItem = items[0];
         
         //Prepare background, set size, etc.
-        background = new Box(
+        background = new SolidBox(
                 border.length*2 + MARGIN + (PictureParser.PT_WALKABOUT_SIZES[0]+MARGIN)*toShow,
                 border.length*2 + PictureParser.PT_WALKABOUT_SIZES[1] + MARGIN*2 + 2 + cursorSize,
                 game.getTextBoxColors(0)[0],

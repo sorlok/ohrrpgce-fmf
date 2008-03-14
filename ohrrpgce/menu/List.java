@@ -9,6 +9,7 @@ import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Box;
 import ohrrpgce.data.Message;
+import ohrrpgce.data.TranslucentBox;
 
 /**
  * A vertical list of items
@@ -63,7 +64,7 @@ public class List extends MenuItem {
         this.font = font;
         setSize(prefWidth, prefHeight);
         this.numBorders = borderColors.length;
-        background = new Box(prefWidth, prefHeight, bkgrdColor, borderColors);
+        background = new TranslucentBox(prefWidth, prefHeight, bkgrdColor, borderColors);
         onscreenItems = prefHeight/(Message.FONT_SIZE+1+margin);
         
     }

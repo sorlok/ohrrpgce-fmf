@@ -9,6 +9,7 @@ import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Box;
 import ohrrpgce.data.ImageBox;
+import ohrrpgce.data.SolidBox;
 
 /**
  * A box which uses an Image as its content.
@@ -36,7 +37,7 @@ public class Button extends MenuItem {
             alreadyMerged = true;
             setSize(manual.getWidth(), manual.getHeight());
         } else {
-            background = new Box(pic.getWidth()+borderColors.length*2, pic.getHeight()+borderColors.length*2, bgColor, borderColors);
+            background = new SolidBox(pic.getWidth()+borderColors.length*2, pic.getHeight()+borderColors.length*2, bgColor, borderColors);
             margin = borderColors.length;
             this.foreground = pic;
             setSize(background.getWidth(), background.getHeight());
