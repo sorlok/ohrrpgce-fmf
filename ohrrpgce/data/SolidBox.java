@@ -14,7 +14,8 @@ import ohrrpgce.adapter.GraphicsAdapter;
  * @author Seth N. Hetu
  * @version 0.1
  */
-public class SolidBox implements Box {
+public class SolidBox /*implements Box */{
+	/*
     protected int width;
     protected int height;
     protected int[] pos = new int[]{0,0};
@@ -24,24 +25,24 @@ public class SolidBox implements Box {
     protected int[] borderColors;
     //protected int[] boxData;
     
-    /**
+    **
      * Create an empty box with no certain width and height. 
      * Primarily intended for use by sub-classes.
-     */
+     *
     public SolidBox() {}
     
-    /**
+    **
      * Create a box with a certain background color.
      * @param bgColor AARRGGBB format; the background for the box. Fills the entire box.
-     */
+     *
     public SolidBox (int width, int height, int bgColor) {
         resize(width, height);
         this.bgColor = bgColor;
     }
     
-    /*
+    *
      * The position of a box is optional.
-     */
+     *
     public void setPosition(int x, int y) {
         pos[0] = x;
         pos[1] = y;
@@ -63,12 +64,12 @@ public class SolidBox implements Box {
         return pos[1];
     }
     
-    /**
+    **
      * Create a box with a certain background color and some border lines.
      * @width, height MUST assume that "borderColors.length"*2 pixels for the borders
      * @param bgColor AARRGGBB format; the background for the box. Fills the entire box.
      * @param borderColors An array of AARRGGBB values to be applies, from outer to inner, to the box.
-     */
+     *
     public SolidBox (int width, int height, int bgColor, int[] borderColors) {
         this(width, height, bgColor);
         
@@ -83,9 +84,9 @@ public class SolidBox implements Box {
     }
     
     
-    /**
+    **
      * "Draw flags" contains the Graphics flags. 
-     */
+     *
     public void paint(int x, int y, int drawFlags) {
         if ((drawFlags&GraphicsAdapter.RIGHT)!=0)
             x -= width;
@@ -134,9 +135,9 @@ public class SolidBox implements Box {
         return new int[]{posX, posY};
     }
     
-    /**
+    **
      * Paint this object, assuming it has sensible, given values for its x/y co-ordinates.
-     */
+     *
     public void paint() {
     	paint(pos[0], pos[1], layoutRule);
     }
@@ -148,6 +149,6 @@ public class SolidBox implements Box {
 
     public int getHeight() {
         return height;
-    }
+    }*/
     
 }

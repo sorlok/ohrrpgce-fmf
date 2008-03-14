@@ -8,9 +8,9 @@ package ohrrpgce.data;
  * The simplest of drawables...
  * @author Seth N. Hetu
  */
-public interface Box {
+/*public interface Box {
     
-/*    public abstract void setPosition(int x, int y);
+    public abstract void setPosition(int x, int y);
     public abstract void setLayoutRule(int rule);
     public abstract int getLayoutRule();
     public abstract int getPosX();
@@ -21,5 +21,5 @@ public interface Box {
     public abstract int[] getTopLeftCorner(int posX, int posY, int drawRule);
     public abstract void paint();
     public abstract int getWidth();
-    public abstract int getHeight();*/
-}
+    public abstract int getHeight();
+}*/

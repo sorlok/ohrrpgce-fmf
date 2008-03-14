@@ -5,13 +5,14 @@
 
 package ohrrpgce.data;
 
+import ohrrpgce.menu.Canvas;
 import ohrrpgce.tool.HQ2X;
 
 /**
  * A box which displays an image inside it.
  * @author Seth N. Hetu
  */
-public class ImageBox extends TranslucentBox {
+public class ImageBox extends Canvas {
     
     public static final int SCALE_NN = 0;
     public static final int SCALE_HQ2X = 1;
@@ -20,8 +21,8 @@ public class ImageBox extends TranslucentBox {
     /**
      * Init an image box of a specified width/height, presumably to be built with overlayImage()
      */
-    public ImageBox(int width, int height, int bgColor, int[] borders) {
-        super(width, height, bgColor, borders);
+    public ImageBox(int width, int height, int bgColor, int[] borders, int fillType) {
+        super(width, height, bgColor, borders, fillType);
     }
     
     
@@ -39,7 +40,7 @@ public class ImageBox extends TranslucentBox {
             for (int x=startX; x<endX; x++) {
                 int currColor = rpg.getIndexedColor(palette, imgData[y*dest[2]+x]);
                 if ((currColor&0xFF000000)!=0)
-                    boxData[getWidth()*(y+dest[1])+x+dest[0]] = currColor;
+                	setPixel(getWidth()*(y+dest[1])+x+dest[0], currColor);
             }
         }
     }
@@ -54,8 +55,8 @@ public class ImageBox extends TranslucentBox {
      * @param scale How much to (linearly) scale the image by.
      * @param bgColor,borderColors See documentation for Box
      */
-    public ImageBox(int[] imageData, int palette, RPG rpg, int[] dimensions, int scale, int bgColor, int[] borderColors, int scaleAlgorithm) {
-        super(dimensions[0]*scale+borderColors.length*2, dimensions[1]*scale+borderColors.length*2, bgColor, borderColors);
+    public ImageBox(int[] imageData, int palette, RPG rpg, int[] dimensions, int scale, int bgColor, int[] borderColors, int scaleAlgorithm, int fillType) {
+        super(dimensions[0]*scale+borderColors.length*2, dimensions[1]*scale+borderColors.length*2, bgColor, borderColors, fillType);
         if (scaleAlgorithm==SCALE_HQ2X && scale==2) {
             //Prepare
             int[] oldData = new int[dimensions[0]*dimensions[1]];
@@ -75,7 +76,7 @@ public class ImageBox extends TranslucentBox {
                 for (int w=0; w<dimensions[0]*2; w++) {
                     int newY = borderColors.length + h;
                     int newX = borderColors.length + w;
-                    boxData[newY*width+newX] = 0xFF000000|oldData[h*dimensions[0]*2 + w];
+                    setPixel(newY*getWidth()+newX, oldData[h*dimensions[0]*2 + w]);
                 }
             }
         } else {
@@ -88,7 +89,7 @@ public class ImageBox extends TranslucentBox {
                         for (int xP=0; xP<scale; xP++) {
                             int newY = borderColors.length + h*scale + yP;
                             int newX = borderColors.length + w*scale + xP;
-                            boxData[newY*width+newX] = currColor;
+                            setPixel(newY*getWidth()+newX, currColor);
                         }
                     }
                 }

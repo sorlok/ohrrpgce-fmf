@@ -7,7 +7,6 @@ package ohrrpgce.menu;
 
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.data.Box;
 import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.TextBox;
 import ohrrpgce.game.MenuEngine;
@@ -22,14 +21,14 @@ public class FlatList extends MenuItem {
     private MenuEngine engine;
     private Vector itemText; //Vector of boxes; we assume the text is implicit.
     private String currLongestText;
-    private Box bkgrdBox; //For obvious reasons
+    private Canvas bkgrdBox; //For obvious reasons
     private int textBoxColor;
     private int currItem;
     private int margin;
     
     private boolean useArrows;
-    private static Box lArrow;
-    private static Box rArrow;
+    private static Canvas lArrow;
+    private static Canvas rArrow;
     
     private Action listItemChangedListener;
     private Action resizeListener;
@@ -60,8 +59,8 @@ public class FlatList extends MenuItem {
     private void makeBoxes(int size) {
         int[] clr0 = engine.getRPG().getTextBoxColors(0);
       //  lArrow = new ArrowBox(size, , ArrowBox.LEFT);
-        lArrow = new TextBox("<", engine.getRPG().font, clr0[1], clr0[0], true, TextBox.TRANSP_OPAQUE);
-        rArrow = new TextBox(">", engine.getRPG().font, clr0[1], clr0[0], true, TextBox.TRANSP_OPAQUE);
+        lArrow = new TextBox("<", engine.getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID);
+        rArrow = new TextBox(">", engine.getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID);
       //  rArrow = new ArrowBox(size, engine.getRPG().getTextBoxColors(0), ArrowBox.RIGHT);
     }
     
@@ -87,7 +86,7 @@ public class FlatList extends MenuItem {
         int[] colors = engine.getRPG().getTextBoxColors(textBoxColor);
         if (rArrow==null)
             makeBoxes(dummy.getHeight());
-        bkgrdBox = new SolidBox(dummy.getWidth(), dummy.getHeight(), 0xFF000000|colors[0], new int[]{0xFF000000|colors[1], 0xFF000000});
+        bkgrdBox = new Canvas(dummy.getWidth(), dummy.getHeight(), colors[0], new int[]{colors[1], 0}, Canvas.FILL_SOLID);
         setSize(bkgrdBox.getWidth(), bkgrdBox.getHeight());
         setPosition(margin, margin);
 
@@ -104,7 +103,7 @@ public class FlatList extends MenuItem {
     public void addItem(String item) {
         if (item.length()>currLongestText.length())
             throw new RuntimeException("FlatList cannot be dynamically resized to acoomodate \"" + item + "\"");
-        itemText.addElement(new TextBox(item, engine.getRPG().font, 0, 0, true, TextBox.TRANSP_CLEAR));
+        itemText.addElement(new TextBox(item, engine.getRPG().font, 0, 0, true, Canvas.FILL_NONE));
     }
 
     
@@ -167,7 +166,7 @@ public class FlatList extends MenuItem {
         //Paint our two boxes.
         bkgrdBox.paint(originOffset[0]+getPosX(), originOffset[1]+getPosY(), GraphicsAdapter.TOP|GraphicsAdapter.LEFT);
         if (itemText.size()>0) //Sometimes we don't have any text; e.g., a hero with no spell groups at all!
-            ((Box)itemText.elementAt(currItem)).paint(originOffset[0]+getPosX()+getWidth()/2, originOffset[1]+getPosY()+1, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
+            ((Canvas)itemText.elementAt(currItem)).paint(originOffset[0]+getPosX()+getWidth()/2, originOffset[1]+getPosY()+1, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
         
         //Paint arrows?
         if (useArrows) {

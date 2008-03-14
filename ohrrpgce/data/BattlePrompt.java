@@ -9,6 +9,7 @@ import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.loader.BattleFormationParser;
 import ohrrpgce.data.loader.PictureParser;
+import ohrrpgce.menu.Canvas;
 
 /**
  * A simple class that informs the user of random encounters. 
@@ -23,8 +24,8 @@ public class BattlePrompt {
     private RPG parent;
     
     //Display components
-    private static Box background;
-    private static Box highlight;
+    private static Canvas background;
+    private static Canvas highlight;
     private static TextBox enemyNames;
     private static TextBox outcomeChoice;
     private ImageBox enemiesBox;
@@ -74,10 +75,10 @@ public class BattlePrompt {
         //Prepare the "choice" box
         int[] clrs = parent.getTextBoxColors(0);
         if (outcomeChoice==null) {
-            outcomeChoice = new TextBox("Win\nLose\nRun", parent.font, 0xDD000000|clrs[0], 0xDD000000|clrs[0], true, TextBox.TRANSP_OPAQUE);
+            outcomeChoice = new TextBox("Win\nLose\nRun", parent.font, 0xDD000000|clrs[0], 0xDD000000|clrs[0], true, Canvas.FILL_SOLID);
             outcomeChoice.setLayoutRule(GraphicsAdapter.RIGHT|GraphicsAdapter.TOP);
             
-            highlight = new TranslucentBox(outcomeChoice.getWidth()-1, Message.FONT_MARGIN+Message.FONT_SIZE+2, 0x66FF0000, new int[]{0xFFFF0000});
+            highlight = new Canvas(outcomeChoice.getWidth()-1, Message.FONT_MARGIN+Message.FONT_SIZE+2, 0x66FF0000, new int[]{0xFF0000}, Canvas.FILL_TRANSLUCENT);
             processInput(NPC.DIR_RIGHT); //Just set its position...
         }
         
@@ -85,11 +86,11 @@ public class BattlePrompt {
         setEnemySpecificData(form);
         
         //Prepare the background box
-        background = new TranslucentBox(dispWidth, dispHeight/2+enemyNames.getHeight(), 0xDD000000|clrs[0], new int[]{0xFF000000|clrs[1], 0xFF000000});
+        background = new Canvas(dispWidth, dispHeight/2+enemyNames.getHeight(), 0xDD000000|clrs[0], new int[]{clrs[1], 0}, Canvas.FILL_TRANSLUCENT);
     }
     
     private void setEnemySpecificData(BattleFormation form) {
-        enemyNames = new TextBox("1\n2\n3\n4", parent.font, 0, 0, true, TextBox.TRANSP_CLEAR);
+        enemyNames = new TextBox("1\n2\n3\n4", parent.font, 0, 0, true, Canvas.FILL_NONE);
         numBoxChars = (dispWidth-4)/(Message.FONT_SIZE+Message.FONT_MARGIN+1);
         enBoxWidth = dispWidth-4 - 2*MARGIN;
         enBoxHeight = dispHeight/2-MARGIN-2;
@@ -109,7 +110,7 @@ public class BattlePrompt {
         //Reset enemy names
         StringBuffer sb = new StringBuffer("");
         Vector v = new Vector();
-        enemiesBox = new ImageBox(enBoxWidth, enBoxHeight, 0x44DDDDDD, new int[]{});
+        enemiesBox = new ImageBox(enBoxWidth, enBoxHeight, 0x44DDDDDD, new int[]{}, Canvas.FILL_TRANSLUCENT);
         enemiesBox.setPosition(MARGIN+2, MARGIN+2);
         OUTER:
         for (int id=0; id<form.enemies.length; id++) {
@@ -164,7 +165,7 @@ public class BattlePrompt {
             }
         }
         
-        enemyNames = new TextBox(sb.toString(), parent.font, 0, 0, true, TextBox.TRANSP_CLEAR);
+        enemyNames = new TextBox(sb.toString(), parent.font, 0, 0, true, Canvas.FILL_NONE);
         enemyNames.setLayoutRule(GraphicsAdapter.TOP|GraphicsAdapter.LEFT);
         enemyNames.setPosition(2+MARGIN, dispHeight/2);
         outcomeChoice.setPosition(dispWidth-MARGIN-2, dispHeight/2+enemyNames.getHeight()+MARGIN);

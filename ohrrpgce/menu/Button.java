@@ -7,7 +7,6 @@ package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
-import ohrrpgce.data.Box;
 import ohrrpgce.data.ImageBox;
 import ohrrpgce.data.SolidBox;
 
@@ -16,7 +15,7 @@ import ohrrpgce.data.SolidBox;
  * @author Seth N. Hetu
  */
 public class Button extends MenuItem {
-    private Box background;
+    private Canvas background;
     private ImageAdapter foreground;
     private ImageBox merged;
     private boolean alreadyMerged;
@@ -37,7 +36,7 @@ public class Button extends MenuItem {
             alreadyMerged = true;
             setSize(manual.getWidth(), manual.getHeight());
         } else {
-            background = new SolidBox(pic.getWidth()+borderColors.length*2, pic.getHeight()+borderColors.length*2, bgColor, borderColors);
+            background = new Canvas(pic.getWidth()+borderColors.length*2, pic.getHeight()+borderColors.length*2, bgColor, borderColors, Canvas.FILL_GUESS);
             margin = borderColors.length;
             this.foreground = pic;
             setSize(background.getWidth(), background.getHeight());

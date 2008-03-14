@@ -16,11 +16,11 @@ import ohrrpgce.data.Hero;
 import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.Spell;
 import ohrrpgce.data.TextBox;
-import ohrrpgce.data.Box;
 import ohrrpgce.data.RPG;
 import ohrrpgce.data.TranslucentBox;
 import ohrrpgce.menu.Action;
 import ohrrpgce.menu.Button;
+import ohrrpgce.menu.Canvas;
 import ohrrpgce.menu.Composite;
 import ohrrpgce.menu.FlatList;
 import ohrrpgce.menu.HeroSelector;
@@ -128,15 +128,15 @@ public class MenuEngine extends Engine {
     //We'll actually implement highlight shapes using our own event handlers.
     // That way, we test events, and at the same time do not limit others
     // from making their own cursor (a hand, etc.)
-    private Box currCursor;
+    private Canvas currCursor;
     
     //Backgrounds
-    private Box topBkgrd;
-    private Box btmBkgrd;
-    private Box blackOverlay;
-    private Box boxOverlay;
-    private Box[] blackOverlays;
-    private Box[] colorOverlays;
+    private Canvas topBkgrd;
+    private Canvas btmBkgrd;
+    private Canvas blackOverlay;
+    private Canvas boxOverlay;
+    private Canvas[] blackOverlays;
+    private Canvas[] colorOverlays;
     private static final int colorInIntervals = 8; //Ticks
    
     
@@ -205,9 +205,9 @@ public class MenuEngine extends Engine {
         //System.out.println("null?" + (coOrds==null));
         //System.out.println("Len: " + coOrds.length);
         //System.out.println("vals: " + coOrds[0] + "," + coOrds[1] + "," + coOrds[2] + "," + coOrds[3] );
-        currCursor = new TranslucentBox(coOrds[2], coOrds[3],
+        currCursor = new Canvas(coOrds[2], coOrds[3],
                 0x66FF0000,
-                new int[]{0xFFFF0000}
+                new int[]{0xFFFF0000}, Canvas.FILL_TRANSLUCENT
                 );
         currCursor.setPosition(coOrds[0], coOrds[1]);
     }
@@ -483,16 +483,16 @@ public class MenuEngine extends Engine {
                 //Create the relevant top-level controls
                 int currItemID = ((Integer)mainMenu.getActiveSubItem().getData()).intValue();
                 int[] clr = getRPG().getTextBoxColors(mainColors[currItemID]);
-                boxOverlay = new SolidBox(
+                boxOverlay = new Canvas(
                         width-MARGIN*2, height-(mainMenu.getPosY()+mainMenu.getHeight()+MARGIN),
-                        clr[0], new int[]{clr[1], 0}
+                        clr[0], new int[]{clr[1], 0}, Canvas.FILL_SOLID
                 );
                 boxOverlay.setPosition(MARGIN, -boxOverlay.getHeight()+mainMenu.getPosY()+mainMenu.getHeight()+2);
                 
                 //Re-create components from scratch.
                 currItemBtn = new Button((((Button)mainMenu.getActiveSubItem()).getImage()), null,  0xFF000000|clr[0], new int[]{0xFF000000|clr[1], 0xFF000000});
                 currItemTxt = new SpecialLabel(
-                        new TextBox(mainTexts[currItemID], getRPG().font, clr[1], clr[0], true, TextBox.TRANSP_OPAQUE),
+                        new TextBox(mainTexts[currItemID], getRPG().font, clr[1], clr[0], true, Canvas.FILL_SOLID),
                         new int[]{0, 0, width, height}
                         );
                 itemReturnPos = mainMenu.getActiveSubItem().getLastPaintedOffsetX()+mainMenu.getActiveSubItem().getPosX();
@@ -748,7 +748,7 @@ public class MenuEngine extends Engine {
         /////////////////////////////////////////////////
         // Section 2, Spells
         /////////////////////////////////////////////////
-        lblSpells = new Label(new TextBox("Spells", getRPG().font, clr0[1], clr0[0], true, TextBox.TRANSP_OPAQUE));
+        lblSpells = new Label(new TextBox("Spells", getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID));
         currSpellGroup = new FlatList(this, getOHRRPG().getCurrHero().getSpellGroupNames(), 0, MARGIN);
         currSpellGroup.setListItemChangedListener(new Action() {
             public boolean perform(Object o) {                    
@@ -780,7 +780,7 @@ public class MenuEngine extends Engine {
                     if (currBox==null) {
                         currBox = new TextBox(
                                 ((Spell[])spellList.getData())[spellList.getCurrItemID()].spellDescription,
-                                getRPG().font, 0, 0, true, TextBox.TRANSP_CLEAR, true,
+                                getRPG().font, 0, 0, true, Canvas.FILL_NONE, true,
                                 new int[]{spellDesc.getWidth(), spellDesc.getHeight()});
                         ((TextBox[])spellDesc.getData())[spellList.getCurrItemID()] = currBox;
                     }
@@ -864,19 +864,19 @@ public class MenuEngine extends Engine {
                 heroName.getPosY()+heroName.getHeight()+
                 heroPicture.getPosY()/2
                 +1;
-        topBkgrd = new SolidBox(width, combinedHeight, colors[0], new int[]{colors[1], 0xFF000000});
-        btmBkgrd = new SolidBox(width, height-combinedHeight+1, colors[0], new int[]{colors[1], 0xFF000000});
+        topBkgrd = new Canvas(width, combinedHeight, colors[0], new int[]{colors[1], 0xFF000000}, Canvas.FILL_SOLID);
+        btmBkgrd = new Canvas(width, height-combinedHeight+1, colors[0], new int[]{colors[1], 0xFF000000}, Canvas.FILL_SOLID);
         btmBkgrd.setPosition(0, combinedHeight-1);
         //Pre-compute our "darkening" effect.
-        blackOverlays = new Box[darkenInterval];
+        blackOverlays = new Canvas[darkenInterval];
         for (int i=0; i<darkenInterval; i++) {
             int alpha = (i*0xBB)/(darkenInterval-1);
-            blackOverlays[i] = new TranslucentBox(width, height, alpha*0x1000000, new int[]{});
+            blackOverlays[i] = new Canvas(width, height, alpha*0x1000000, new int[]{}, Canvas.FILL_GUESS);
         }
-        colorOverlays = new Box[colorInIntervals];
+        colorOverlays = new Canvas[colorInIntervals];
         for (int i=0; i<colorInIntervals; i++) {
             int alpha = (i*0xBB)/(colorInIntervals-1);
-            colorOverlays[i] = new TranslucentBox(width, height, alpha*0x1000000+clr0[0], new int[]{});            
+            colorOverlays[i] = new Canvas(width, height, alpha*0x1000000+clr0[0], new int[]{}, Canvas.FILL_GUESS);            
         }
         
         //SET
@@ -897,7 +897,7 @@ public class MenuEngine extends Engine {
      */
     class ButtonMoveTransition extends Transition {
         private MenuItem finalConnect;
-        private Box savedBoxOverlay;
+        private Canvas savedBoxOverlay;
         
         private static final int PHASE_ONE = 1;
         private static final int PHASE_TWO = 2;
@@ -1023,7 +1023,7 @@ public class MenuEngine extends Engine {
      */
     class ButtonRevertTransition extends Transition {
      //   private MenuItem finalConnect;
-        private Box savedBoxOverlay;
+        private Canvas savedBoxOverlay;
         
         private static final int PHASE_ONE = 1;
         private static final int PHASE_TWO = 2;
