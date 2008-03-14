@@ -9,7 +9,6 @@ import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.Hero;
 import ohrrpgce.data.ImageBox;
 import ohrrpgce.data.RPG;
-import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.loader.PictureParser;
 
 /**

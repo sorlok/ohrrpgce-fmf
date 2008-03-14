@@ -8,7 +8,6 @@ package ohrrpgce.menu;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.ImageBox;
-import ohrrpgce.data.SolidBox;
 
 /**
  * A box which uses an Image as its content.

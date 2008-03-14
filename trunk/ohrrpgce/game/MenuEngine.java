@@ -13,11 +13,9 @@ import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.adapter.InputAdapter;
 
 import ohrrpgce.data.Hero;
-import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.Spell;
 import ohrrpgce.data.TextBox;
 import ohrrpgce.data.RPG;
-import ohrrpgce.data.TranslucentBox;
 import ohrrpgce.menu.Action;
 import ohrrpgce.menu.Button;
 import ohrrpgce.menu.Canvas;

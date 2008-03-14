@@ -8,7 +8,6 @@ package ohrrpgce.menu;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Message;
-import ohrrpgce.data.TranslucentBox;
 
 /**
  * A vertical list of items
