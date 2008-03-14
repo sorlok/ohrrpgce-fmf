@@ -7,7 +7,6 @@ package ohrrpgce.menu;
 
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.data.SolidBox;
 import ohrrpgce.data.TextBox;
 import ohrrpgce.game.MenuEngine;
 

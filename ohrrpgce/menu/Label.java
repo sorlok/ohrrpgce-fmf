@@ -7,7 +7,6 @@ package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.TextBox;
-import ohrrpgce.data.TranslucentBox;
 
 /**
  * Some text. Really just a wrapper for TextBox
