@@ -159,17 +159,17 @@ public class Canvas {
     private int crop(int start, int incr, boolean isX) throws ArrayIndexOutOfBoundsException {
     	//Just count up/down until we overflow the array. :) 
     	for (;;) {
-    		//Check this line for non-transparent pixels.
+    		//Check this line for non-clear pixels.
     		if (isX) {
     			//Check this line -vert
     			for (int currY=0; currY<getHeight(); currY++) {
-    				if ((pixelBuffer[currY*getWidth()+start]&0xFF000000)!=0xFF000000)
+    				if ((pixelBuffer[currY*getWidth()+start]&0xFF000000)!=0)
     					return start;
     			}
     		} else {
     			//Check this line -horiz
     			for (int currX=0; currX<getWidth(); currX++) {
-    				if ((pixelBuffer[start*getWidth()+currX]&0xFF000000)!=0xFF000000)
+    				if ((pixelBuffer[start*getWidth()+currX]&0xFF000000)!=0)
     					return start;
     			}
     		}
@@ -194,16 +194,22 @@ public class Canvas {
     			
     			//It's possible nothing's changed...
     			if (xMin!=0 || xMax!=getWidth()-1 || yMin!=0 || yMax!=getHeight()-1) {
+    				//System.out.println("Cropped window to: " + xMin + "," + xMax + " : " + yMin + "," + yMax);
+    				//System.out.println("  Orig. size: " + getWidth() + "," + getHeight());
+    				
     				//Else, copy over the entire array
     				pixelBufferSize = new int[]{xMin, yMin, xMax-xMin+1, yMax-yMin+1};
+    				//System.out.println("New rectangle: " + pixelBufferSize[X] + "," + pixelBufferSize[Y] + "," + pixelBufferSize[WIDTH] + "," + pixelBufferSize[HEIGHT]);
     				int[] newBuffer = new int[pixelBufferSize[HEIGHT]*pixelBufferSize[WIDTH]];
     				for (int destY=0; destY<pixelBufferSize[HEIGHT]; destY++) {
     					for (int destX=0; destX<pixelBufferSize[WIDTH]; destX++) {
     						int srcX = destX+pixelBufferSize[X];
     						int srcY = destY+pixelBufferSize[Y];
+    					//	System.out.println("From: " + srcX + "," + srcY + "  to  " + destX + "," + destY);
     						newBuffer[destY*pixelBufferSize[WIDTH]+destX] = pixelBuffer[srcY*getWidth()+srcX];
     					}
     				}
+    				pixelBuffer = newBuffer;
     			}
     		} catch (ArrayIndexOutOfBoundsException ex) {
     			//Special case: Nothing left!
