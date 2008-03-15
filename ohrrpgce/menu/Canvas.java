@@ -247,18 +247,13 @@ public class Canvas {
     /**
      * Handle with care
      */
-    protected void setSize(int w, int h) { 
+    public void setSize(int w, int h) { 
     	//Set size
     	rectangle[WIDTH] = w;
     	rectangle[HEIGHT] = h;
     	
     	//Copy buffer over...
-    	if (fillType==FILL_TRANSLUCENT) {
-    		System.out.println("Get width: ");
-    		System.out.println("+"+getWidth());
-    		System.out.println("Get height: ");
-    		System.out.println("+"+getHeight());
-    		
+    	if (fillType==FILL_TRANSLUCENT) {   		
     		pixelBuffer = new int[getWidth()*getHeight()];
     		for (int i=0; i<pixelBuffer.length; i++)
     			pixelBuffer[i] = bgColor;

@@ -15,7 +15,7 @@ import ohrrpgce.menu.Canvas;
  *  text. Has support for word-wrap and hyphenation.
  * @author sethhetu
  */
-public class TextBox extends Canvas {
+public class TextBox  {
     
     private int borderColor;
     private int bkgrdColor;
@@ -36,9 +36,8 @@ public class TextBox extends Canvas {
         MAX_HEIGHT = height;
     }
     
-/*    public static final int TRANSP_TRANSLUCENT = 0;
-    public static final int TRANSP_OPAQUE = 1;
-    public static final int TRANSP_CLEAR = 2;*/
+
+    private Canvas background;
     
     
     private boolean calcd; //Because I'm superstitious that a null check is more costly than a boolean check.
@@ -54,7 +53,7 @@ public class TextBox extends Canvas {
      * @param forcedSize overrides the MAX_WIDTH, MAX_HEIGHT default.
      */
     public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency, boolean skipNLSymbol, int[] forcedSize) {
-    	super(0xDD000000|bkgrdColor, new int[]{borderColor, 0}, transparency);
+    	background = new Canvas(0xDD000000|bkgrdColor, new int[]{borderColor, 0}, transparency);
     	
         //Defer expensive computations until later.
         this.borderColor = borderColor;
@@ -97,7 +96,7 @@ public class TextBox extends Canvas {
         if (!calcd) {
             calculateBox();
         }
-        super.paint(screenWidth/2, offset, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
+        background.paint(screenWidth/2, offset, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
     }
 
 
@@ -105,7 +104,11 @@ public class TextBox extends Canvas {
         if (!calcd) {
             calculateBox();
         }
-        super.paint(x, y, drawFlags);
+        background.paint(x, y, drawFlags);
+    }
+    
+    public void paint() {
+    	paint(getPosX(), getPosY(), background.getLayoutRule());
     }
     
 
@@ -203,7 +206,7 @@ public class TextBox extends Canvas {
         maxHeight = maxHeight*blockSize  + Message.FONT_MARGIN + 4;
         
         //Create the box.
-        this.setSize(maxWidth, maxHeight);
+        background.setSize(maxWidth, maxHeight);
 //        int alpha = 0xFF000000;
      //   if (transparencyFlag==Canvas.FILL_TRANSLUCENT)
       //      alpha = 0xDD000000;
@@ -238,7 +241,7 @@ public class TextBox extends Canvas {
                         for (int y=0; y<fs; y++) {
                             for (int x=0; x<fs; x++) {
                                 if ((letter[y*fs + x]&0x00FFFFFF)!=0)
-                                    setPixel((yPos+y+offset)*getWidth() + xPos+x+offset,  color);
+                                	background.setPixel((yPos+y+offset)*getWidth() + xPos+x+offset,  color);
                             }
                         }
                     }
@@ -257,13 +260,33 @@ public class TextBox extends Canvas {
         if (!calcd) {
             calculateBox();
         }
-        return super.getWidth();
+        return background.getWidth();
     }
 
     public int getHeight() {
         if (!calcd) {
             calculateBox();
         }
-        return super.getHeight();
+        return background.getHeight();
+    }
+    
+    public int getPosX() {
+    	return background.getPosX();
+    }
+    
+    public int getPosY() {
+    	return background.getPosY();
+    }
+    
+    public void setPosition(int x, int y) {
+    	background.setPosition(x, y);
+    }
+    
+    public int getLayoutRule() {
+    	return background.getLayoutRule();
+    }
+    
+    public void setLayoutRule(int rule) {
+    	background.setLayoutRule(rule);
     }
 }
