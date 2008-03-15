@@ -137,13 +137,14 @@ public class Canvas {
         	GraphicsAdapter.setColor(bgColor);
             GraphicsAdapter.fillRect(x, y, getWidth(), getHeight());
         }
+
         
         //Draw the pixel buffer
        // System.out.println("pixbuf: " + (fillType==FILL_TRANSLUCENT));
         if (pixelBuffer!=null) {
-        	GraphicsAdapter.drawRGB(pixelBuffer, 0, pixelBufferSize[WIDTH], x+pixelBufferSize[X], y+pixelBufferSize[Y], pixelBufferSize[WIDTH], pixelBufferSize[WIDTH], true);
+        	GraphicsAdapter.drawRGB(pixelBuffer, 0, pixelBufferSize[WIDTH], x+pixelBufferSize[X], y+pixelBufferSize[Y], pixelBufferSize[WIDTH], pixelBufferSize[HEIGHT], true);
         }
-        
+
         //Draw the borders as ever-decreasing rectangles.
        // System.out.println("border");
         for (int i=0; i<borderColors.length; i++) {
@@ -181,7 +182,7 @@ public class Canvas {
     
     
     private void contract() {
-    	System.out.println("contract");
+    //	System.out.println("contract");
     	//Shrink our pixel buffer to avoid storing transparent pixels
     	if (pixelBuffer!=null && (fillType==FILL_SOLID || fillType==FILL_NONE)) {
     		try {
@@ -209,7 +210,7 @@ public class Canvas {
         		pixelBuffer = null;
     		}
     	}
-    	System.out.println("end contract");
+    //	System.out.println("end contract");
     	
     	hasExpanded = false;
     }
