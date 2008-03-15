@@ -2,7 +2,6 @@ package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.game.LiteException;
-import sun.swing.BakedArrayList;
 
 /**
  * The canvas is the default drawable object for all menu items.
