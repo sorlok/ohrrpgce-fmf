@@ -121,7 +121,7 @@ public class Canvas {
      * "Draw flags" contains the Graphics flags. 
      */
     public void paint(int x, int y, int drawFlags) {
-    	System.out.println("Paint");
+  //  	System.out.println("Paint");
     	//Transform based on the draw flags
     	int[] TL = getTopLeftCorner(x, y, drawFlags);
     	x = TL[X];
@@ -132,22 +132,25 @@ public class Canvas {
         	contract();
         
         //Draw the background
+  //      System.out.println("background");
         if (fillType==FILL_SOLID) {
         	GraphicsAdapter.setColor(bgColor);
             GraphicsAdapter.fillRect(x, y, getWidth(), getHeight());
         }
         
         //Draw the pixel buffer
+       // System.out.println("pixbuf: " + (fillType==FILL_TRANSLUCENT));
         if (pixelBuffer!=null) {
         	GraphicsAdapter.drawRGB(pixelBuffer, 0, pixelBufferSize[WIDTH], x+pixelBufferSize[X], y+pixelBufferSize[Y], pixelBufferSize[WIDTH], pixelBufferSize[WIDTH], true);
         }
         
         //Draw the borders as ever-decreasing rectangles.
+       // System.out.println("border");
         for (int i=0; i<borderColors.length; i++) {
             GraphicsAdapter.setColor(borderColors[i]);
             GraphicsAdapter.drawRect(x+i, y+i, getWidth()-2*i, getHeight()-2*i);
         }
-        System.out.println("Paint Done");
+       // System.out.println("Paint Done");
     }
     
     
@@ -178,7 +181,7 @@ public class Canvas {
     
     
     private void contract() {
-    //	System.out.println("contract");
+    	System.out.println("contract");
     	//Shrink our pixel buffer to avoid storing transparent pixels
     	if (pixelBuffer!=null && (fillType==FILL_SOLID || fillType==FILL_NONE)) {
     		try {
@@ -206,7 +209,7 @@ public class Canvas {
         		pixelBuffer = null;
     		}
     	}
-    //	System.out.println("end contract");
+    	System.out.println("end contract");
     	
     	hasExpanded = false;
     }
@@ -255,6 +258,10 @@ public class Canvas {
     	//Copy buffer over...
     	if (fillType==FILL_TRANSLUCENT) {   		
     		pixelBuffer = new int[getWidth()*getHeight()];
+    		pixelBufferSize[X] = 0;
+    		pixelBufferSize[Y] = 0;
+    		pixelBufferSize[WIDTH] = getWidth();
+    		pixelBufferSize[HEIGHT] = getHeight();
     		for (int i=0; i<pixelBuffer.length; i++)
     			pixelBuffer[i] = bgColor;
     	}
