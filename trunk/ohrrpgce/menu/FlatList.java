@@ -26,8 +26,8 @@ public class FlatList extends MenuItem {
     private int margin;
     
     private boolean useArrows;
-    private static Canvas lArrow;
-    private static Canvas rArrow;
+    private static TextBox lArrow;
+    private static TextBox rArrow;
     
     private Action listItemChangedListener;
     private Action resizeListener;
