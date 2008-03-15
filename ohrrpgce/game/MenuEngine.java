@@ -291,6 +291,7 @@ public class MenuEngine extends Engine {
         
         
         //Paint the background box(es)
+      //  System.out.println("Painting background");
         topBkgrd.paint();
         btmBkgrd.paint();
         
@@ -299,6 +300,7 @@ public class MenuEngine extends Engine {
         topLeftMI.clearPaintFlag();
         
         //Minor hack
+       // System.out.println("hacking...");
         GraphicsAdapter.setColor(getRPG().getTextBoxColors(0)[1]);
         GraphicsAdapter.drawLine(0, 0, 0, height);
         GraphicsAdapter.drawLine(width, 0, width, height);

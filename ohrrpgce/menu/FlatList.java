@@ -165,8 +165,9 @@ public class FlatList extends MenuItem {
     protected void paint(int[] originOffset) {
         //Paint our two boxes.
         bkgrdBox.paint(originOffset[0]+getPosX(), originOffset[1]+getPosY(), GraphicsAdapter.TOP|GraphicsAdapter.LEFT);
-        if (itemText.size()>0) //Sometimes we don't have any text; e.g., a hero with no spell groups at all!
-            ((Canvas)itemText.elementAt(currItem)).paint(originOffset[0]+getPosX()+getWidth()/2, originOffset[1]+getPosY()+1, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
+        if (itemText.size()>0) { //Sometimes we don't have any text; e.g., a hero with no spell groups at all!
+            ((TextBox)itemText.elementAt(currItem)).paint(originOffset[0]+getPosX()+getWidth()/2, originOffset[1]+getPosY()+1, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
+        }
         
         //Paint arrows?
         if (useArrows) {

@@ -190,7 +190,9 @@ public abstract class MenuItem {
         System.out.println("    (w,h) " + "___" + "," + getHeight());*/
         
         //Paint self
+     //   System.out.println("Painting self: " + this.getClass().getName().toString());
         paint(originOffset);
+      //  System.out.println(" >done");
         lastPaintedOffset[0] = originOffset[0];
         lastPaintedOffset[1] = originOffset[1];
         paintedFlag = true;
