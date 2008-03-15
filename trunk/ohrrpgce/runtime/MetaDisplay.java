@@ -196,8 +196,8 @@ public abstract class MetaDisplay {
     
     public static void drawError(LiteException lastError, int width, int height) {
         //In case we're out of memory:
-    	long memInUse = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory(); 
         System.gc();
+        long memInUse = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory(); 
         
         //Fill the background
         GraphicsAdapter.setColor(0xFFFFFF);
