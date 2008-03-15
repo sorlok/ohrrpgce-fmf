@@ -46,7 +46,7 @@ public class FlatList extends MenuItem {
         this.textBoxColor = textBoxColor;
         this.margin = margin;
         this.useArrows = useArrows;
-       
+
         reloadItemSet(items);
     }
     
@@ -79,6 +79,7 @@ public class FlatList extends MenuItem {
         //Figure out the longest string in the list
         itemText = new Vector();
         String currLongestText = getLongestText(newItems);
+       
         
         //Create the background box
         TextBox dummy = new TextBox(currLongestText, engine.getRPG().font, 0, 0, true);

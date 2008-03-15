@@ -82,7 +82,7 @@ public class Canvas {
    
     
     private void expand() {
-    	System.out.println("Expand");
+  //  	System.out.println("Expand");
     	if (fillType == FILL_NONE || fillType == FILL_SOLID) {
     		//Create a new integer array
     		int[] newBuffer = new int[getWidth()*getHeight()];
@@ -106,7 +106,7 @@ public class Canvas {
     		pixelBufferSize[HEIGHT]= getHeight();
     	}
     	
-    	System.out.println("end expand");
+  //  	System.out.println("end expand");
 
     	hasExpanded = true;
     }
@@ -178,7 +178,7 @@ public class Canvas {
     
     
     private void contract() {
-    	System.out.println("contract");
+    //	System.out.println("contract");
     	//Shrink our pixel buffer to avoid storing transparent pixels
     	if (pixelBuffer!=null && (fillType==FILL_SOLID || fillType==FILL_NONE)) {
     		try {
@@ -206,7 +206,7 @@ public class Canvas {
         		pixelBuffer = null;
     		}
     	}
-    	System.out.println("end contract");
+    //	System.out.println("end contract");
     	
     	hasExpanded = false;
     }
