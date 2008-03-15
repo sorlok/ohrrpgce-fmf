@@ -54,7 +54,14 @@ public class TextBox  {
      * @param forcedSize overrides the MAX_WIDTH, MAX_HEIGHT default.
      */
     public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency, boolean skipNLSymbol, int[] forcedSize) {
-    	background = new Canvas(0xDD000000|bkgrdColor, new int[]{borderColor, 0}, transparency);
+    	if (transparency==Canvas.FILL_NONE)
+    		background = new Canvas(0, new int[]{}, transparency);
+    	else if (transparency==Canvas.FILL_SOLID)
+    		background = new Canvas(bkgrdColor, new int[]{borderColor, 0}, transparency);
+    	else if (transparency==Canvas.FILL_TRANSLUCENT)
+    		background = new Canvas(0xDD000000|bkgrdColor, new int[]{borderColor, 0}, transparency);
+    	else if (transparency==Canvas.FILL_GUESS)
+    		throw new LiteException(this, null, "Cannot \"GUESS\" a text box's background");
     	
         //Defer expensive computations until later.
         this.borderColor = borderColor;
