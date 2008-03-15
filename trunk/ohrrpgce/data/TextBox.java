@@ -8,6 +8,7 @@ package ohrrpgce.data;
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
+import ohrrpgce.game.LiteException;
 import ohrrpgce.menu.Canvas;
 
 /**
@@ -58,6 +59,7 @@ public class TextBox  {
         //Defer expensive computations until later.
         this.borderColor = borderColor;
         this.bkgrdColor = bkgrdColor;
+//        System.out.println("make: " + (lines==null));
         this.rawString = lines;
         this.shade = shade;
         this.font = font;
@@ -121,8 +123,9 @@ public class TextBox  {
      *  Also, ditch multiple newlines which are followed by nothing.
      */
     public void fitLines() {
+  //  	System.out.println("fit lines");
         if (MAX_WIDTH==-1 || MAX_HEIGHT==-1)
-            throw new RuntimeException("Message Boxe constants not initialized.");
+            throw new LiteException(this, null, "Message Boxe constants not initialized.");
         
         int blockSize = Message.FONT_MARGIN+Message.FONT_SIZE;
         if (shade)
@@ -133,6 +136,8 @@ public class TextBox  {
         //Temporary structures
         StringBuffer sb = new StringBuffer((3*charsPerLine)/2);
         Vector res = new Vector();
+        
+   //     System.out.println("compute " +  (rawString==null));
         
         for (int i=0; i<rawString.length(); i++) {
             char c = rawString.charAt(i);
@@ -180,6 +185,8 @@ public class TextBox  {
             }
         }
         rawString = null; //Save space.
+        
+  //      System.out.println("copy");
         
         //Copy over
         lines = new String[res.size()];
@@ -241,7 +248,7 @@ public class TextBox  {
                         for (int y=0; y<fs; y++) {
                             for (int x=0; x<fs; x++) {
                                 if ((letter[y*fs + x]&0x00FFFFFF)!=0)
-                                	background.setPixel((yPos+y+offset)*getWidth() + xPos+x+offset,  color);
+                                	background.setPixel((yPos+y+offset)*background.getWidth() + xPos+x+offset,  color);
                             }
                         }
                     }
@@ -257,6 +264,7 @@ public class TextBox  {
     
     
     public int getWidth() {
+  //  	System.out.println("GET WIDTH: " + calcd);
         if (!calcd) {
             calculateBox();
         }
@@ -264,6 +272,7 @@ public class TextBox  {
     }
 
     public int getHeight() {
+    //	System.out.println("GET HEIGHT: " + calcd);
         if (!calcd) {
             calculateBox();
         }

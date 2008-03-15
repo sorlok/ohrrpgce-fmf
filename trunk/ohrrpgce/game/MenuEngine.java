@@ -362,8 +362,12 @@ public class MenuEngine extends Engine {
     public void reset() {
         System.out.println("MENU was called, and asked to RESET.");
         if (!initDoneOnce) {
-            initMenu();
-            initDoneOnce = true;
+        	try {
+        		initMenu();
+        		initDoneOnce = true;
+        	} catch (Exception ex) {
+        		throw new LiteException(this, ex, "Menu failed on INIT");
+        	}
         }
         
         //In case the party's changed
@@ -590,8 +594,8 @@ public class MenuEngine extends Engine {
                 return true;
             }
         };
-        
 
+        
         /////////////////////////////////////////////////
         // Section 1, Main Menu
         /////////////////////////////////////////////////
