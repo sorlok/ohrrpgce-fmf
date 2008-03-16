@@ -131,10 +131,15 @@ public class MenuEngine extends Engine {
     //Backgrounds
     private Canvas topBkgrd;
     private Canvas btmBkgrd;
-    private Canvas blackOverlay;
     private Canvas boxOverlay;
-    private Canvas[] blackOverlays;
-    private Canvas[] colorOverlays;
+    
+    private Canvas blackOverlay;
+    private Canvas colorOverlay;
+   
+    
+    //private Canvas[] blackOverlays;
+    //private Canvas[] colorOverlays;
+    private int colorOverlayRGB;
     private static final int colorInIntervals = 8; //Ticks
    
     
@@ -280,7 +285,11 @@ public class MenuEngine extends Engine {
             int yStart = (height-boxBounds)/2;
             
             //Draw the faded background
-            colorOverlays[trans.getColorOverlayIndex()].paint();
+            if (colorOverlay != null) {
+                colorOverlay.paint();
+            }
+            /*System.out.println("COLOR: " + Integer.toHexString(alpha*0x1000000) + "|" + Integer.toHexString(colorOverlayRGB));
+            System.out.println("  " + width + "," + height);*/
             
             //Draw the arc
             GraphicsAdapter.setColor(clr0[0]);
@@ -321,7 +330,7 @@ public class MenuEngine extends Engine {
             //Paint all top-level components
             currItemBtn.repaint(new int[]{0, 0});
             currItemBtn.clearPaintFlag();
-        }
+        } 
         
         //Highlight it!
         if (dirtyHighlight) {
@@ -872,16 +881,19 @@ public class MenuEngine extends Engine {
         btmBkgrd = new Canvas(width, height-combinedHeight+1, colors[0], new int[]{colors[1], 0xFF000000}, Canvas.FILL_SOLID);
         btmBkgrd.setPosition(0, combinedHeight-1);
         //Pre-compute our "darkening" effect.
-        blackOverlays = new Canvas[darkenInterval];
+        // Edit: Nope! This is a big space-waster!
+        colorOverlayRGB = clr0[0];
+        /*blackOverlays = new Canvas[darkenInterval];
         for (int i=0; i<darkenInterval; i++) {
             int alpha = (i*0xBB)/(darkenInterval-1);
             blackOverlays[i] = new Canvas(width, height, alpha*0x1000000, new int[]{}, Canvas.FILL_GUESS);
         }
+         
         colorOverlays = new Canvas[colorInIntervals];
         for (int i=0; i<colorInIntervals; i++) {
             int alpha = (i*0xBB)/(colorInIntervals-1);
             colorOverlays[i] = new Canvas(width, height, alpha*0x1000000+clr0[0], new int[]{}, Canvas.FILL_GUESS);            
-        }
+        }*/
         
         //SET
         topLeftMI = mainMenu;
@@ -957,7 +969,9 @@ public class MenuEngine extends Engine {
                     
                     //Darken the box?
                     if (currBlackIndex<darkenInterval) {
-                        blackOverlay = blackOverlays[currBlackIndex];
+                        int alpha = (currBlackIndex*0xBB)/(darkenInterval-1);
+                        blackOverlay = new Canvas(width, height, alpha*0x1000000, new int[]{}, Canvas.FILL_GUESS);
+                        
                         currBlackIndex++;
                     }
                     
@@ -982,6 +996,7 @@ public class MenuEngine extends Engine {
                         currItemBtn.blockConnection(MenuItem.CONNECT_BOTTOM);
                         currMI = finalConnect.moveTo();
                         dirtyHighlight = true;
+                        //blackOverlay = null;
                         
                         phase = PHASE_DONE;
                     //    phaseFirstStep = true;
@@ -1051,7 +1066,7 @@ public class MenuEngine extends Engine {
         public void reset() {
             phase = PHASE_ONE;
             
-            currBlackIndex = blackOverlays.length-1;
+            currBlackIndex = darkenInterval-1;
             destBoxX = itemReturnPos;
             destTxtX = -currItemTxt.getWidth();
             destBkgrdY = -boxOverlay.getHeight()+mainMenu.getPosY()+mainMenu.getHeight()+2;
@@ -1112,6 +1127,7 @@ public class MenuEngine extends Engine {
                         currMI.moveTo();
 
                         dirtyHighlight = true;
+                        blackOverlay = null;
                         
                         phase = PHASE_DONE;
                         break;
@@ -1119,7 +1135,8 @@ public class MenuEngine extends Engine {
                     
                     //Darken the box?
                     if (currBlackIndex>=0) {
-                        blackOverlay = blackOverlays[currBlackIndex];
+                        int alpha = (currBlackIndex*0xBB)/(darkenInterval-1);
+                        blackOverlay = new Canvas(width, height, alpha*0x1000000, new int[]{}, Canvas.FILL_GUESS);
                         currBlackIndex--;
                     }
                     
@@ -1373,15 +1390,16 @@ public class MenuEngine extends Engine {
         public int getAngle() {
             return currAngle;
         }
-        public int getColorOverlayIndex() {
+     /*   public int getColorOverlayIndex() {
             return currFadeIndex;
-        }
+        }*/
         
          public boolean step() {
              switch (phase) {
                  case PHASE_ONE:
                      //Are we done?
-                     if (currAngle==maxAngle && currFadeIndex==colorOverlays.length-1) {
+                     if (currAngle==maxAngle && currFadeIndex==colorInIntervals-1) {
+                        colorOverlay = null;
                         phase = PHASE_DONE;
                         break;
                      }
@@ -1394,8 +1412,11 @@ public class MenuEngine extends Engine {
                      }
                      
                     //Darken our coloring
-                    if (currAngle>angleIncr*(colorInIntervals+2) && currFadeIndex<colorOverlays.length-1) {
+                    if (currAngle>angleIncr*(colorInIntervals+2) && currFadeIndex<colorInIntervals-1) {
                         currFadeIndex++;
+                        
+                        int alpha = (currFadeIndex*0xBB)/(colorInIntervals-1);
+                        colorOverlay = new Canvas(width, height, alpha*0x1000000+colorOverlayRGB, new int[]{}, Canvas.FILL_TRANSLUCENT);
                     }
                      
                      break;
