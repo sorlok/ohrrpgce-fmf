@@ -54,6 +54,7 @@ public class TextBox  {
      * @param forcedSize overrides the MAX_WIDTH, MAX_HEIGHT default.
      */
     public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency, boolean skipNLSymbol, int[] forcedSize) {
+    //    System.out.println("new Text Box: " + lines + " t: " + transparency);
     	if (transparency==Canvas.FILL_NONE)
     		background = new Canvas(0, new int[]{}, transparency);
     	else if (transparency==Canvas.FILL_SOLID)
@@ -103,6 +104,7 @@ public class TextBox  {
      */
     public void paint(int offset, int screenWidth) {
         if (!calcd) {
+            //System.out.println("Calculate: " + rawString);
             calculateBox();
         }
         background.paint(screenWidth/2, offset, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
@@ -111,6 +113,7 @@ public class TextBox  {
 
     public void paint(int x, int y, int drawFlags) {
         if (!calcd) {
+            //System.out.println("Calculate: " + rawString);
             calculateBox();
         }
         background.paint(x, y, drawFlags);
@@ -237,7 +240,7 @@ public class TextBox  {
         int blockSize = Message.FONT_MARGIN+Message.FONT_SIZE;
         if (shade)
             blockSize++;
-        
+   //     System.out.println("Setting text box pixels: " + lines[0]);
         for (int lineNum=0; lineNum<lines.length; lineNum++) {
             char[] currLine = lines[lineNum].toCharArray();
             int yPos = Message.FONT_MARGIN + 2 + blockSize*lineNum; //+2 for borders
@@ -255,18 +258,22 @@ public class TextBox  {
                         for (int y=0; y<fs; y++) {
                             for (int x=0; x<fs; x++) {
                                 if ((letter[y*fs + x]&0x00FFFFFF)!=0)
-                                	background.setPixel((yPos+y+offset)*background.getWidth() + xPos+x+offset,  color);
+                                  //  System.out.print(".");
+                                	background.setPixel(xPos+x+offset, yPos+y+offset,  color);
                             }
                         }
                     }
    
                     color = 0xFFFFFFFF;
                 }
+              //  System.out.println("");
+                
 
                 //Increment
                 xPos += blockSize;
             }
         }
+       // System.out.println("Done");
     }
     
     

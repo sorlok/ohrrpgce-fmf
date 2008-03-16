@@ -52,6 +52,8 @@ public class Canvas {
     	this.borderColors = borderColors;
     	this.rectangle = new int[]{0,0,0,0};
     	
+       // System.out.println("  New canvas: " + fillType);
+        
     	if (fillType==FILL_GUESS) {
     		//We are asking the system to try and guess the fill type for us, from the argument sent...
     		//IMPORTANT: This assumes that there IS an alpha channel.
@@ -71,39 +73,47 @@ public class Canvas {
     
     
     public void setPixel(int x, int y, int colorRGB) {
-    	setPixel(y*getWidth()+x, colorRGB);
+        x -= borderColors.length;
+        y -= borderColors.length;
+        if (!hasExpanded)
+            expand();
+        pixelBuffer[y*pixelBufferSize[WIDTH] + x] = 0xFF000000|colorRGB;
     }
     
-    public void setPixel(int offset, int colorRGB) {
-    	if (!hasExpanded)
-    		expand();
-    	pixelBuffer[offset] = 0xFF000000|colorRGB;
-    }
+    /*public void setPixel(int offset, int colorRGB) {
+
+    	
+    }*/
    
     
     private void expand() {
-  //  	System.out.println("Expand");
+    //	System.out.println("  Expand" );
     	if (fillType == FILL_NONE || fillType == FILL_SOLID) {
     		//Create a new integer array
-    		int[] newBuffer = new int[getWidth()*getHeight()];
+                int newW = getWidth()-borderColors.length*2;
+                int newH = getHeight()-borderColors.length*2;
+    		int[] newBuffer = new int[newW * newH];
     		
     		//Copy over the old one
     		if (pixelBuffer != null) {
+           //         System.out.println("  Copy buffer");
     			for (int srcY=0; srcY<pixelBufferSize[HEIGHT]; srcY++) {
     				for (int srcX=0; srcX<pixelBufferSize[WIDTH]; srcX++) {
     					int destX = srcX + pixelBufferSize[X];
     					int destY = srcY + pixelBufferSize[Y];
-    					newBuffer[destY*getWidth()+destX] = pixelBuffer[srcY*pixelBufferSize[WIDTH]+srcX];
+    					newBuffer[destY*newW+destX] = pixelBuffer[srcY*pixelBufferSize[WIDTH]+srcX];
     				}
     			}
     		}
     		
+           //     System.out.println("  Buffer size: " + newW + "," + newH);
+                
     		//Assign the buffer
     		pixelBuffer = newBuffer;
     		pixelBufferSize[X]= 0;
     		pixelBufferSize[Y]= 0;
-    		pixelBufferSize[WIDTH]= getWidth();
-    		pixelBufferSize[HEIGHT]= getHeight();
+    		pixelBufferSize[WIDTH] = newW;
+    		pixelBufferSize[HEIGHT] = newH;
     	}
     	
   //  	System.out.println("end expand");
@@ -142,7 +152,9 @@ public class Canvas {
         //Draw the pixel buffer
        // System.out.println("pixbuf: " + (fillType==FILL_TRANSLUCENT));
         if (pixelBuffer!=null) {
-        	GraphicsAdapter.drawRGB(pixelBuffer, 0, pixelBufferSize[WIDTH], x+pixelBufferSize[X], y+pixelBufferSize[Y], pixelBufferSize[WIDTH], pixelBufferSize[HEIGHT], true);
+            //GraphicsAdapter.setColor(0xFF0000);
+           // GraphicsAdapter.drawRect(x+pixelBufferSize[X]+borderColors.length, y+pixelBufferSize[Y]+borderColors.length, pixelBufferSize[WIDTH], pixelBufferSize[HEIGHT]);
+        	GraphicsAdapter.drawRGB(pixelBuffer, 0, pixelBufferSize[WIDTH], x+pixelBufferSize[X]+borderColors.length, y+pixelBufferSize[Y]+borderColors.length, pixelBufferSize[WIDTH], pixelBufferSize[HEIGHT], true);
         }
 
         //Draw the borders as ever-decreasing rectangles.
@@ -162,14 +174,14 @@ public class Canvas {
     		//Check this line for non-clear pixels.
     		if (isX) {
     			//Check this line -vert
-    			for (int currY=0; currY<getHeight(); currY++) {
-    				if ((pixelBuffer[currY*getWidth()+start]&0xFF000000)!=0)
+    			for (int currY=0; currY<pixelBufferSize[HEIGHT]; currY++) {
+    				if ((pixelBuffer[currY*pixelBufferSize[WIDTH]+start]&0xFF000000)!=0)
     					return start;
     			}
     		} else {
     			//Check this line -horiz
-    			for (int currX=0; currX<getWidth(); currX++) {
-    				if ((pixelBuffer[start*getWidth()+currX]&0xFF000000)!=0)
+    			for (int currX=0; currX<pixelBufferSize[WIDTH]; currX++) {
+    				if ((pixelBuffer[start*pixelBufferSize[WIDTH]+currX]&0xFF000000)!=0)
     					return start;
     			}
     		}
@@ -185,36 +197,46 @@ public class Canvas {
     //	System.out.println("contract");
     	//Shrink our pixel buffer to avoid storing transparent pixels
     	if (pixelBuffer!=null && (fillType==FILL_SOLID || fillType==FILL_NONE)) {
+                boolean doUpdate = false;
+                int xMin=0; int xMax=0; int yMin=0; int yMax=0;
     		try {
     			//Re-compute boundaries
-    			int xMin = crop(0, 1, true); 
-    			int xMax = crop(getWidth()-1, -1, true);
-    			int yMin = crop(0, 1, false); 
-    			int yMax = crop(getHeight()-1, -1, false);
-    			
-    			//It's possible nothing's changed...
-    			if (xMin!=0 || xMax!=getWidth()-1 || yMin!=0 || yMax!=getHeight()-1) {
-    				//System.out.println("Cropped window to: " + xMin + "," + xMax + " : " + yMin + "," + yMax);
-    				//System.out.println("  Orig. size: " + getWidth() + "," + getHeight());
-    				
-    				//Else, copy over the entire array
-    				pixelBufferSize = new int[]{xMin, yMin, xMax-xMin+1, yMax-yMin+1};
-    				//System.out.println("New rectangle: " + pixelBufferSize[X] + "," + pixelBufferSize[Y] + "," + pixelBufferSize[WIDTH] + "," + pixelBufferSize[HEIGHT]);
-    				int[] newBuffer = new int[pixelBufferSize[HEIGHT]*pixelBufferSize[WIDTH]];
-    				for (int destY=0; destY<pixelBufferSize[HEIGHT]; destY++) {
-    					for (int destX=0; destX<pixelBufferSize[WIDTH]; destX++) {
-    						int srcX = destX+pixelBufferSize[X];
-    						int srcY = destY+pixelBufferSize[Y];
-    					//	System.out.println("From: " + srcX + "," + srcY + "  to  " + destX + "," + destY);
-    						newBuffer[destY*pixelBufferSize[WIDTH]+destX] = pixelBuffer[srcY*getWidth()+srcX];
-    					}
-    				}
-    				pixelBuffer = newBuffer;
-    			}
+    			xMin = crop(0, 1, true); 
+    			xMax = crop(pixelBufferSize[WIDTH]-1, -1, true);
+    			yMin = crop(0, 1, false); 
+    			yMax = crop(pixelBufferSize[HEIGHT]-1, -1, false);
+                        doUpdate = true;
     		} catch (ArrayIndexOutOfBoundsException ex) {
     			//Special case: Nothing left!
         		pixelBuffer = null;
     		}
+                
+                if (doUpdate) {
+    			//It's possible nothing's changed...
+    			if (xMin!=0 || xMax!=getWidth()-1 || yMin!=0 || yMax!=getHeight()-1) {
+                            try {
+    				//Else, copy over the entire array
+    				int newWidth = xMax-xMin+1; 
+                                int newHeight = yMax-yMin+1;
+    				int[] newBuffer = new int[newWidth*newHeight];
+    				for (int destY=0; destY<newHeight; destY++) {
+    					for (int destX=0; destX<newWidth; destX++) {
+    						int srcX = destX+xMin;
+    						int srcY = destY+yMin;
+    						newBuffer[destY*newWidth+destX] = pixelBuffer[srcY*pixelBufferSize[WIDTH]+srcX];
+    					}
+    				}
+    				pixelBuffer = newBuffer;
+                                pixelBufferSize[X] = xMin;
+                                pixelBufferSize[Y] = yMin;
+                                pixelBufferSize[WIDTH] = newWidth;
+                                pixelBufferSize[HEIGHT] = newHeight;
+                            } catch (ArrayIndexOutOfBoundsException ex) {
+                                throw new LiteException(this, ex, "Error copying old buffer on contract()");
+                            }
+    			}
+                }
+
     	}
     //	System.out.println("end contract");
     	
@@ -263,12 +285,13 @@ public class Canvas {
     	rectangle[HEIGHT] = h;
     	
     	//Copy buffer over...
-    	if (fillType==FILL_TRANSLUCENT) {   		
-    		pixelBuffer = new int[getWidth()*getHeight()];
+    	if (fillType==FILL_TRANSLUCENT) {
     		pixelBufferSize[X] = 0;
     		pixelBufferSize[Y] = 0;
-    		pixelBufferSize[WIDTH] = getWidth();
-    		pixelBufferSize[HEIGHT] = getHeight();
+    		pixelBufferSize[WIDTH] = getWidth()-borderColors.length*2;
+    		pixelBufferSize[HEIGHT] = getHeight()-borderColors.length*2;
+                
+    		pixelBuffer = new int[pixelBufferSize[WIDTH]*pixelBufferSize[HEIGHT]];
     		for (int i=0; i<pixelBuffer.length; i++)
     			pixelBuffer[i] = bgColor;
     	}
