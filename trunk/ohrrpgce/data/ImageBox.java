@@ -40,7 +40,7 @@ public class ImageBox extends Canvas {
             for (int x=startX; x<endX; x++) {
                 int currColor = rpg.getIndexedColor(palette, imgData[y*dest[2]+x]);
                 if ((currColor&0xFF000000)!=0)
-                	setPixel(getWidth()*(y+dest[1])+x+dest[0], currColor);
+                	setPixel(x+dest[0], y+dest[1], currColor);
             }
         }
     }
@@ -76,7 +76,7 @@ public class ImageBox extends Canvas {
                 for (int w=0; w<dimensions[0]*2; w++) {
                     int newY = borderColors.length + h;
                     int newX = borderColors.length + w;
-                    setPixel(newY*getWidth()+newX, oldData[h*dimensions[0]*2 + w]);
+                    setPixel(newX, newY, oldData[h*dimensions[0]*2 + w]);
                 }
             }
         } else {
@@ -89,7 +89,7 @@ public class ImageBox extends Canvas {
                         for (int xP=0; xP<scale; xP++) {
                             int newY = borderColors.length + h*scale + yP;
                             int newX = borderColors.length + w*scale + xP;
-                            setPixel(newY*getWidth()+newX, currColor);
+                            setPixel(newX,newY, currColor);
                         }
                     }
                 }
