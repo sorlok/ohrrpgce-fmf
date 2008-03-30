@@ -42,8 +42,7 @@ public class MenuEngine extends Engine {
     public static boolean DEBUG_CONTROL = false;
     
     //Constants
-    private static final int DEFAULT_SPACING = 3;
-    private static final int DEFAULT_INTERNAL_PADDING = 2;
+
     
     private static final int MULTIPRESS_DELAY = 12;
     
