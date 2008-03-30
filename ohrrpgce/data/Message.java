@@ -1,6 +1,7 @@
 package ohrrpgce.data;
 
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.menu.TextBox;
 
 /**
  * The message boxes shown in OHR-created games.

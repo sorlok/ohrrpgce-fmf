@@ -6,7 +6,6 @@
 package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.data.TextBox;
 
 /**
  * A hackish way to include a clip, but I don't want every menu component checking for a clipping rectangle (yet).

@@ -184,15 +184,7 @@ public abstract class MenuItem {
         if (alreadyPainted())
             return;
         
-    /*    System.out.println("Printing: " + getClass().getName().toString());
-        System.out.println("    origin: " + originOffset[0] + "," + originOffset[1]);
-        System.out.println("    (x,y) " + getPosX() + "," + getPosY());
-        System.out.println("    (w,h) " + "___" + "," + getHeight());*/
-        
-        //Paint self
-     //   System.out.println("Painting self: " + this.getClass().getName().toString());
         paint(originOffset);
-      //  System.out.println(" >done");
         lastPaintedOffset[0] = originOffset[0];
         lastPaintedOffset[1] = originOffset[1];
         paintedFlag = true;
@@ -209,12 +201,6 @@ public abstract class MenuItem {
                 originOffset[1]+getPosY()+getHeight()
             });
         if (connections[CONNECT_LEFT]!=null) {
-           /* System.out.println(getWidth());
-            System.out.println(getWidth());
-            System.out.println("  "+originOffset[0]);
-            System.out.println("  "+getPosX());
-            System.out.println("  "+connections[CONNECT_LEFT].getPosX());
-            System.out.println("  "+connections[CONNECT_LEFT].getWidth());*/
             connections[CONNECT_LEFT].repaint(new int[]{
                 originOffset[0]+getPosX()-2*connections[CONNECT_LEFT].getPosX()-connections[CONNECT_LEFT].getWidth(),
                 originOffset[1]+getPosY()
@@ -313,7 +299,7 @@ public abstract class MenuItem {
     public abstract void reset();
     
     
-    /*
+    /**
      * Composable sub-classes should over-ride this and return the
      * MenuItem which is actually the current focus. This allows highlights
      * to be drawn in a suitable fasion, etc.

@@ -10,13 +10,13 @@ import ohrrpgce.data.Door;
 import ohrrpgce.data.EncounterSet;
 import ohrrpgce.data.Map;
 import ohrrpgce.data.NPC;
-import ohrrpgce.data.TextBox;
 import ohrrpgce.data.TileAnimation;
 import ohrrpgce.data.loader.LinkedList;
 import ohrrpgce.data.loader.MapParser;
 import ohrrpgce.data.loader.TileAnimationParser;
 import ohrrpgce.game.LiteException;
 import ohrrpgce.menu.Canvas;
+import ohrrpgce.menu.TextBox;
 
 /**
  * Class for holding a map that's currently being displayed onscreen.

@@ -29,25 +29,25 @@ import ohrrpgce.menu.SpecialLabel;
 import ohrrpgce.menu.TextBox;
 import ohrrpgce.menu.Transition;
 import ohrrpgce.runtime.Meta;
-import ohrrpgce.runtime.MetaMenu;
 import ohrrpgce.runtime.OHRRPG;
 
 
 /**
  * The OHRRPGCEFMF's menu.
+ * NOTE: There is an alternative way to handle painting, one that is probably better and
+ *  def. faster. Build a tree of components to paint with "repaint", and use this to 
+ *  handle painting. This saves a whole bunch of dead-end recursions, _especially_
+ *  with Composites. Whenever connect() or disconnect() is called, this tree can
+ *  be re-computed. 
  * @author Seth N. Hetu 
  */
-public class MenuEngine extends Engine {  
+/*public class Old_MenuEngine extends Engine {  
     //Debug
     public static boolean DEBUG_CONTROL = false;
     
     //Constants
-    private static final int DEFAULT_SPACING = 3;
-    private static final int DEFAULT_INTERNAL_PADDING = 2;
-    
+    private static final int MARGIN = 4;
     private static final int MULTIPRESS_DELAY = 12;
-    
-    private static final int[] mainColors = new int[] {2, 3, 6, 5, 4, 7};
     private static final String[] mainImageFiles = new String[] {
         "main_icons/items.png",
         "main_icons/order.png",
@@ -56,11 +56,17 @@ public class MenuEngine extends Engine {
         "main_icons/volume.png",
         "main_icons/quit.png",
     };
-    
     private static final String imgEquip = "main_icons/equip.png";
     private static final String imgStats = "main_icons/stats.png";
     private static final String imgSpells = "main_icons/spells.png";
-
+    private static final int[] mainColors = new int[] {
+        2,
+        3,
+        6,
+        5,
+        4,
+        7
+    };
     private static final String[] mainTexts = new String[] {
         "Items",
         "Order",
@@ -99,27 +105,115 @@ public class MenuEngine extends Engine {
     private EngineSwitcher midletHook;
     private int width;
     private int height;
+    private int itemReturnPos;
+    
+    private boolean dirtyHighlight;
+    private boolean bufferedESC;
+
+    //Locus of control
+    private MenuItem topLeftMI;
+    private MenuItem currMI;
+    private Transition currTransition;
+    private MenuItem nextMI;
+    private boolean fadingIn;
+    
+    
+    //We'll actually implement highlight shapes using our own event handlers.
+    // That way, we test events, and at the same time do not limit others
+    // from making their own cursor (a hand, etc.)
+    private Canvas currCursor;
+    
+    //Backgrounds
+    private Canvas topBkgrd;
+    private Canvas btmBkgrd;
+    private Canvas boxOverlay;
+    
+    private Canvas blackOverlay;
+    private Canvas colorOverlay;
+   
+    private int colorOverlayRGB;
+    private static final int colorInIntervals = 8; //Ticks
+    private static final int darkenInterval = 4; //Ticks
+    private static final int defaultSpeed = 20; //pix/tick
+   
+    
+    //TONS of menu controls
+    private Composite mainMenu;
+    private Button[] mainMenuButtons = new Button[mainImageFiles.length];
+    private FlatList heroName;
+    private Button heroPicture;
+    private Button heroEquip;
+    private Button heroSpells;
+    private Button heroStats;
+    private FlatList helperTxt;
+    //Spells:
+    private Label lblSpells;
+    private MPBox currSpellMP;
+    private FlatList currSpellGroup;
+    private HeroSelector heroUsesSpellOn;
+    private List spellList;
+    private Label spellDesc;
+    //All "top-level" controls
+    private Button currItemBtn;
+    private SpecialLabel currItemTxt;
+    //"Volume"
+    private Label tempVol;
+    
+    //Multiple uses
+    private Action makeHighlightListener;
+    private Action nullMoveListener;
+    private Action mainMenuListener;
+    private Action cancelMainMenuListener;
+    private Action cancelSpellsMenuListen;
+    private Action exitMenu;
     
     //Menu control
     private boolean initDoneOnce;
     private int delayTimer;
-    private boolean bufferedESC;
+    private int mode;
+    private int lastMode;
+    private int lastHeroID;
             
+    
     private AdapterGenerator adaptGen;
     
     
-    public MenuEngine(AdapterGenerator adaptGen, EngineSwitcher midletHook) {
+    public Old_MenuEngine(AdapterGenerator adaptGen, EngineSwitcher midletHook) {
         this.width = adaptGen.getScreenWidth();
         this.height = adaptGen.getScreenHeight();
         this.midletHook = midletHook;
         this.adaptGen = adaptGen;
     }
     
+    private void makeHighlight(MenuItem itemToHighlight) {
+        makeHighlightAt(new int[]{
+            itemToHighlight.getLastPaintedOffsetX()+itemToHighlight.getPosX(), 
+            itemToHighlight.getLastPaintedOffsetY()+itemToHighlight.getPosY(),
+            itemToHighlight.getWidth(),
+            itemToHighlight.getHeight()
+        });
+        
+        //Update flatlist
+        helperTxt.selectElement(itemToHighlight.getHelperTextID());
+    }
     
-    /**
-     * Pass commands down to the current menu item.
-     */
+    //coOrds = [x, y, w, h]
+    private void makeHighlightAt(int[] coOrds) {
+        currCursor = new Canvas(coOrds[2], coOrds[3],
+                0x66FF0000,
+                new int[]{0xFFFF0000}, Canvas.FILL_TRANSLUCENT
+                );
+        currCursor.setPosition(coOrds[0], coOrds[1]);
+    }
+    
+    ///
+    /// Pass commands down to the current menu item.
+    ///
     public void handleKeys(int keyStates) {
+        //Dont' allow the user to mess up any animations.
+        if (currTransition!=null)
+            return;
+        
         //The key autofires if pressed for a certain length of time.
         if (!bufferedESC && (keyStates==0)) {
             delayTimer = 0;
@@ -129,19 +223,37 @@ public class MenuEngine extends Engine {
                 if (bufferedESC || (keyStates&InputAdapter.KEY_CANCEL)!=0) {
                     System.out.println("CANCEL");
                     bufferedESC = false;
+                    if (mode == MAIN)
+                        exitMenu.perform(null); //Top-level exit first.
+                    else if (mode == SPELLS)
+                        cancelSpellsMenuListen.perform(null);
+                    else if (mode==ITEMS || mode==ORDER || mode==MAP || mode==SAVE || mode==VOLUME || mode==QUIT)
+                        cancelMainMenuListener.perform(null);
+                    else
+                    currMI.cancel();
                 } else if ((keyStates&InputAdapter.KEY_ACCEPT)!=0) {
                     System.out.println("ACCEPT");
+                    currMI.accept();
                 } else if ((keyStates&InputAdapter.KEY_UP)!=0) {
                     System.out.println("UP");
+                    currMI = currMI.processInput(MenuItem.CONNECT_TOP);
                 } else if ((keyStates&InputAdapter.KEY_DOWN)!=0) {
                     System.out.println("DOWN");
+                    currMI = currMI.processInput(MenuItem.CONNECT_BOTTOM);
                 } else if ((keyStates&InputAdapter.KEY_LEFT)!=0) {
                     System.out.println("LEFT");
+                    currMI = currMI.processInput(MenuItem.CONNECT_LEFT);
                 } else if ((keyStates&InputAdapter.KEY_RIGHT)!=0) {
                     System.out.println("RIGHT");
+                    currMI = currMI.processInput(MenuItem.CONNECT_RIGHT);
                 } else 
                     throw new RuntimeException("Somehow, no input was pressed (but expected) for input: " + keyStates);
                 
+                //Allow the user to easily override default movement.
+                if (nextMI != null) {
+                    currMI = nextMI;
+                    nextMI = null;
+                }
                 
                 if (delayTimer==0)
                     delayTimer = MULTIPRESS_DELAY;
@@ -154,12 +266,93 @@ public class MenuEngine extends Engine {
     }
     
 
-    public void paintScene() {   
+    public void paintScene() {
+        //Super-easy fade-in
+        if (fadingIn) {
+            MenuInTransition trans = (MenuInTransition)currTransition;
+            int[] clr0 = getRPG().getTextBoxColors(0);
+            int boxBounds = Math.max(width, height);
+            int xStart = (width-boxBounds)/2;
+            int yStart = (height-boxBounds)/2;
+            
+            //Draw the faded background
+            if (colorOverlay != null) {
+                colorOverlay.paint();
+            }
+            
+            //Draw the arc
+            GraphicsAdapter.setColor(clr0[0]);
+            GraphicsAdapter.fillArc(xStart, yStart, boxBounds, boxBounds, 0, -trans.getAngle());
+                    
+            return;
+        }
+        
+        
+        //Paint the background box(es)
+      //  System.out.println("Painting background");
+        topBkgrd.paint();
+        btmBkgrd.paint();
+        
+        //Paint all menu components
+        topLeftMI.repaint(new int[]{0, 0});
+        topLeftMI.clearPaintFlag();
+        
+        //Minor hack
+       // System.out.println("hacking...");
+        GraphicsAdapter.setColor(getRPG().getTextBoxColors(0)[1]);
+        GraphicsAdapter.drawLine(0, 0, 0, height);
+        GraphicsAdapter.drawLine(width, 0, width, height);
+        GraphicsAdapter.setColor(0);
+        GraphicsAdapter.drawLine(1, 0, 1, height);
+        GraphicsAdapter.drawLine(width-1, 0, width-1, height);
+        
+        //Are we accessing a top-level menu item?
+        if (currItemBtn!=null) {
+            //Paint the middle-ground
+            blackOverlay.paint();
+            if (boxOverlay!=null) {
+            	GraphicsAdapter.setClip(boxOverlay.getPosX(), mainMenu.getPosY()+mainMenu.getHeight(), boxOverlay.getWidth(), boxOverlay.getHeight());
+                boxOverlay.paint();
+                GraphicsAdapter.setClip(0, 0, width, height);
+            }
+            
+            //Paint all top-level components
+            currItemBtn.repaint(new int[]{0, 0});
+            currItemBtn.clearPaintFlag();
+        } 
+        
+        //Highlight it!
+        if (dirtyHighlight) {
+            if (currMI==spellList)
+                makeHighlightAt(spellList.getCurrItemRectangle());
+            else
+                makeHighlight(currMI.getActiveSubItem());
+            dirtyHighlight = false;
+        }
+        if (currCursor!=null)
+            currCursor.paint();
+        
+        //For clarity
+        if (DEBUG_CONTROL) {
+        	GraphicsAdapter.setColor(0x000000);
+        	GraphicsAdapter.fillRect(0, height-GraphicsAdapter.getFont().getFontHeight()-4, width, GraphicsAdapter.getFont().getFontHeight()+4);
+            String s = currMI.getClass().getName();
+            int w = GraphicsAdapter.getFont().stringWidth(s);
+            GraphicsAdapter.setColor(0x00FF00);
+            GraphicsAdapter.drawString(s, width/2-w/2, height-GraphicsAdapter.getFont().getFontHeight()-2, GraphicsAdapter.TOP|GraphicsAdapter.LEFT);
+        }
+        
 
     }
 
     public void updateScene(long elapsed) {
-
+        if (currTransition!=null) {
+            //UPDATE THE CURRENT TRANSITION.
+            if (currTransition.step()) {
+                currTransition = null; //We're done.
+                fadingIn = false;
+            }
+        }
     }
 
     public void communicate(Object stackFrame) {
@@ -176,6 +369,35 @@ public class MenuEngine extends Engine {
         		throw new LiteException(this, ex, "Menu failed on INIT");
         	}
         }
+        
+        //In case the party's changed
+        spellList.reset();
+        int hrs = Math.min(4, getRPG().getNumHeroes());
+        Hero[] temp = new Hero[hrs];
+        for (int i=0; i<temp.length; i++)
+            temp[i] = getRPG().getHero(i);
+        heroUsesSpellOn.setHeroParty(temp, 0);
+        for (int i=0; i<heroUsesSpellOn.getNumSubItems(); i++) {
+            heroUsesSpellOn.getSubItem(i).setFocusGainedListener(makeHighlightListener);
+        }
+        
+        
+        //Start at the top.
+        mainMenu.reset();
+        currMI = mainMenu;
+        currMI.moveTo();
+        mode = MAIN;
+        //Minor flaw: The actual last_painted location of currMI hasn't been 
+        // set yet (it's never been painted). So, we hack it in here.)
+        currCursor.setPosition(currCursor.getPosX()+mainMenu.getPosX(), mainMenu.getPosY()) ;
+        
+        //Just to be safe
+        lastHeroID = -1;
+        delayTimer = 1;
+        
+        //Finally...
+        currTransition = new MenuInTransition();
+        fadingIn = true;
     }
     
     public RPG getRPG() {
@@ -185,12 +407,193 @@ public class MenuEngine extends Engine {
     public OHRRPG getOHRRPG() {
         return ((GameEngine)midletHook.getCaller()).getRPG();
     }
+    
+    
+    private void reloadSpellData() {
+        //First, set the current MP box correctly.
+        if (lastHeroID != heroName.getCurrItemID()) {
+            lastHeroID = heroName.getCurrItemID();
+            currSpellGroup.reloadItemSet(getRPG().getHero(heroName.getCurrItemID()).getSpellGroupNames());
+        }
+        int currSpellType = getRPG().getHero(heroName.getCurrItemID()).spellGroupTypes[currSpellGroup.getCurrItemID()];
+        if (currSpellType == Hero.SPELL_MP_BASED)
+            currSpellMP.setMP(42, 123, false, currSpellGroup.getCurrItemID());
+        else if (currSpellType == Hero.SPELL_FF_STYLE)
+            currSpellMP.setMP(8, 10, true, currSpellGroup.getCurrItemID());
+        else if (currSpellType == Hero.SPELL_RANDOM)
+            currSpellMP.setToRandom();
+        else
+            throw new RuntimeException("Not implemented: \"ITEM\" spells");
+        
+        int[] spellIDs = getRPG().getHero(heroName.getCurrItemID()).spells[currSpellGroup.getCurrItemID()];
+        Spell[] spells = new Spell[spellIDs.length];
+        for (int i=0; i<spells.length; i++)
+            spells[i] = getRPG().getAttack(spellIDs[i]);
+        
+        spellDesc.setData(new TextBox[spells.length]);
+        
+        String[] names = new String[spells.length];
+        int[] mps = new int[spells.length];
+        boolean[] canUses = new boolean[spells.length];
+        
+        for (int i=0; i<spells.length; i++) {
+            names[i] = spells[i].attackName;
+            mps[i] = spells[i].mpCost;
+            canUses[i] = spells[i].useableOutsideBattle;
+        }
 
+        currSpellGroup.setPosition(
+                currSpellMP.getWidth()/2 - currSpellGroup.getWidth()/2,
+                MARGIN);
+        spellList.setPosition(
+                -(currSpellGroup.getPosX()+currSpellMP.getPosX()+heroSpells.getPosX()+heroPicture.getWidth()/2)+MARGIN,
+              //  currSpellGroup.getWidth()/2 - width/2,
+                MARGIN);
+        
+        heroUsesSpellOn.setIDOfUser(heroName.getCurrItemID());
+                
+        spellList.setData(spells);
+        spellList.setItems(names, mps, canUses, (getRPG().getHero(heroName.getCurrItemID()).spellGroupTypes[currSpellGroup.getCurrItemID()] == Hero.SPELL_FF_STYLE));
+    }
+    
     
     //HORRENDOUS setup routine:
     public void initMenu() {
-    	MenuItem topLeftMI = MetaMenu.buildMenu(width, height);
- 
+        //Init our actions
+        makeHighlightListener = new Action() {
+          public boolean perform(Object caller)   {
+              System.out.println("A MI has gained focus: " + caller.getClass().getName().toString());
+              MenuItem mi = null;
+              try {
+                  mi = (MenuItem)caller;
+              } catch (ClassCastException ex) {
+                  throw new RuntimeException("makeHighlight() called on a non-MenuItem! " + ex.toString());
+              }
+              makeHighlight(mi.getActiveSubItem());
+              
+              //Doesn't matter
+              return true;
+          }
+        };
+        nullMoveListener = new Action() {
+            public boolean perform(Object caller) {
+                return false;
+            }
+        };
+        mainMenuListener = new Action() {
+          public boolean perform(Object caller) {
+                //Create the relevant top-level controls
+                int currItemID = ((Integer)mainMenu.getActiveSubItem().getData()).intValue();
+                int[] clr = getRPG().getTextBoxColors(mainColors[currItemID]);
+                boxOverlay = new Canvas(
+                        width-MARGIN*2, height-(mainMenu.getPosY()+mainMenu.getHeight()+MARGIN),
+                        clr[0], new int[]{clr[1], 0}, Canvas.FILL_SOLID
+                );
+                boxOverlay.setPosition(MARGIN, -boxOverlay.getHeight()+mainMenu.getPosY()+mainMenu.getHeight()+2);
+                
+                //Re-create components from scratch.
+                currItemBtn = new Button((((Button)mainMenu.getActiveSubItem()).getImage()), null,  0xFF000000|clr[0], new int[]{0xFF000000|clr[1], 0xFF000000});
+                currItemTxt = new SpecialLabel(
+                        new TextBox(mainTexts[currItemID], getRPG().font, clr[1], clr[0], true, Canvas.FILL_SOLID),
+                        new int[]{0, 0, width, height}
+                        );
+                itemReturnPos = mainMenu.getActiveSubItem().getLastPaintedOffsetX()+mainMenu.getActiveSubItem().getPosX();
+                currItemBtn.setPosition(itemReturnPos, MARGIN);
+                currItemTxt.setPosition(-currItemTxt.getWidth()+2, (currItemBtn.getHeight()-currItemTxt.getHeight())/2);
+                currItemTxt.setClip(new int[]{MARGIN+currItemBtn.getWidth()-1, currItemBtn.getPosY()+currItemTxt.getPosY(), currItemTxt.getWidth(), currItemTxt.getHeight()});
+                //currItemBtn.connect(currItemTxt, MenuItem.CONNECT_RIGHT);
+                
+                //Choice-specific data...
+                lastMode = mode;
+                MenuItem connectLater = null;
+                switch(currItemID) {
+                    case 0:
+                        //Items
+                        connectLater = tempVol;
+                        
+                        mode = ITEMS;
+                        break;
+                    case 1:
+                        //Order
+                        connectLater = tempVol;
+                        
+                        mode = ORDER;
+                        break;
+                    case 2:
+                        //Save
+                        connectLater = tempVol;
+                        
+                        mode = SAVE;
+                        break;
+                    case 3:
+                        //Map
+                        connectLater = tempVol;
+                        
+                        mode = MAP;
+                        break;
+                    case 4:
+                        //Volume
+                        connectLater = tempVol;
+                        
+                        mode = VOLUME;
+                        break;
+                    case 5:
+                        //Quit
+                        connectLater = tempVol;
+                        
+                        //DEBUG:
+                        if (true)
+                        	throw new LiteException(this, null, "Testing free memory...");
+                        
+                        mode = QUIT;
+                        break;
+                }
+                
+                currCursor = null;
+                
+                currTransition = new ButtonMoveTransition(connectLater);
+                
+                return true;
+          }  
+        };
+        cancelMainMenuListener = new Action() {
+            public boolean perform(Object caller) {
+                //Kill top-level control
+                if (currItemBtn.getConnect(MenuItem.CONNECT_BOTTOM)!=null) {
+                    currItemBtn.getConnect(MenuItem.CONNECT_BOTTOM).clearPaintFlag();
+                    currItemBtn.disconnect(MenuItem.CONNECT_BOTTOM);
+                }
+                currCursor = null;
+        
+                currTransition = new ButtonRevertTransition();
+                
+                return true;
+            }
+        };
+        cancelSpellsMenuListen = new Action() {
+            public boolean perform(Object caller) {
+                heroSpells.clearPaintFlag();
+                heroSpells.disconnect(MenuItem.CONNECT_BOTTOM);
+                
+                heroPicture.connect(heroEquip, MenuItem.CONNECT_LEFT);
+                heroPicture.connect(heroStats, MenuItem.CONNECT_BOTTOM);
+                
+                heroPicture.setFocusGainedListener(null);
+
+                currCursor = null;
+                currTransition =  new SpellShiftBackTransition();
+
+                mode = MAIN;
+                
+                return true;
+            }
+        };
+        exitMenu = new Action() {
+            public boolean perform(Object caller) {
+                midletHook.egress(new Integer(42));
+                return true;
+            }
+        };
 
         
         /////////////////////////////////////////////////
@@ -258,15 +661,7 @@ public class MenuEngine extends Engine {
         //Button for each hero's pictures
      //   Hero hr = getRPG().getHero(0);
         int[] colors2 = getRPG().getTextBoxColors(0);
-/*        int scaleMode = ImageBox.SCALE_NN;
-        ImageBox pic = new ImageBox(hr.getBattleSprite().spData[0], hr.battleSpritePaletteID, getRPG(), new int[]{PictureParser.PT_HERO_SIZES[0], PictureParser.PT_HERO_SIZES[1]}, 2, 0xFF000000|colors2[0], new int[]{0xFF000000|colors2[1], 0xFF000000}, scaleMode);
-        heroPicture = new Button(
-                    null, //Grr...
-                    pic,
-                    0, //Doesn't matter.
-                    new int[2] //Size matters
-                );
- */
+
         ImageAdapter pic = null;
         try {
             pic = adaptGen.createImageAdapter(Meta.pathToGameFolder + adaptGen.getGameName() + "/HERO_0.PNG");
@@ -469,34 +864,21 @@ public class MenuEngine extends Engine {
         //Pre-compute our "darkening" effect.
         // Edit: Nope! This is a big space-waster!
         colorOverlayRGB = clr0[0];
-        /*blackOverlays = new Canvas[darkenInterval];
-        for (int i=0; i<darkenInterval; i++) {
-            int alpha = (i*0xBB)/(darkenInterval-1);
-            blackOverlays[i] = new Canvas(width, height, alpha*0x1000000, new int[]{}, Canvas.FILL_GUESS);
-        }
-         
-        colorOverlays = new Canvas[colorInIntervals];
-        for (int i=0; i<colorInIntervals; i++) {
-            int alpha = (i*0xBB)/(colorInIntervals-1);
-            colorOverlays[i] = new Canvas(width, height, alpha*0x1000000+clr0[0], new int[]{}, Canvas.FILL_GUESS);            
-        }*/
+
         
         //SET
         topLeftMI = mainMenu;
         
         
         
-        //DEBUG
-   /*     
-        currSpellMP.setPosition(10, 150);
-        topLeftMI = currSpellMP;*/
+
     }
     
     
-    /**
-     * Note that this class disregards Transition's object-orientedness, since
-     *  it's a bit clumsy & wasteful.
-     */
+    ///
+    /// Note that this class disregards Transition's object-orientedness, since
+    ///  it's a bit clumsy & wasteful.
+    ///
     class ButtonMoveTransition extends Transition {
         private MenuItem finalConnect;
         private Canvas savedBoxOverlay;
@@ -623,9 +1005,9 @@ public class MenuEngine extends Engine {
         public void setupActions() {}
     }
     
-    /**
-     * Also disregards Transition's built-in functionality.
-     */
+   ///
+     /// Also disregards Transition's built-in functionality.
+    ///
     class ButtonRevertTransition extends Transition {
      //   private MenuItem finalConnect;
         private Canvas savedBoxOverlay;
@@ -642,7 +1024,7 @@ public class MenuEngine extends Engine {
         private int destBkgrdY;
         private int speed;
         
-        public ButtonRevertTransition(/*MenuItem finalConnect*/) {
+        public ButtonRevertTransition() {
         //    this.finalConnect = finalConnect;
             //init();
             //setupActions();
@@ -746,9 +1128,9 @@ public class MenuEngine extends Engine {
     }
     
     
-    /**
-     * Also disregards Transition's built-in functionality.
-     */
+    ///
+    /// Also disregards Transition's built-in functionality.
+    ///
     class SpellShiftTransition extends Transition {
         private int destHeroPicX;
         private int destSpellsBtnY;
@@ -842,9 +1224,9 @@ public class MenuEngine extends Engine {
     }
 
     
-    /**
-     * Also disregards Transition's built-in functionality.
-     */
+    ///
+    /// Also disregards Transition's built-in functionality.
+    ///
     class SpellShiftBackTransition extends Transition {
         private int destHeroPicX;
         private int destSpellsBtnY;
@@ -945,9 +1327,9 @@ public class MenuEngine extends Engine {
     }
     
     
-    /**
-     * Also disregards Transition's built-in functionality.
-     */
+    ///
+    /// Also disregards Transition's built-in functionality.
+     ///
     class MenuInTransition extends Transition {
         private static final int PHASE_ONE = 1;
         private static final int PHASE_TWO = 2;
@@ -976,9 +1358,9 @@ public class MenuEngine extends Engine {
         public int getAngle() {
             return currAngle;
         }
-     /*   public int getColorOverlayIndex() {
-            return currFadeIndex;
-        }*/
+   ///  public int getColorOverlayIndex() {
+        ///    return currFadeIndex;
+      ///
         
          public boolean step() {
              switch (phase) {
@@ -1029,4 +1411,4 @@ public class MenuEngine extends Engine {
     }
 
 
-}
+}*/
