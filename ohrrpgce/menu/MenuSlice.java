@@ -1,9 +1,9 @@
 package ohrrpgce.menu;
 
 import java.util.Vector;
-
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.game.LiteException;
+import ohrrpgce.henceforth.Int;
 
 /**
  * The smallest unit of menu design. A Slice can have a border, a background, and 
@@ -47,7 +47,7 @@ public class MenuSlice {
     //What it's connected to, for painting purposes and for actual control
     private MenuSlice[] paintConnect = new MenuSlice[4];
     private MenuSlice[] commandConnect = new MenuSlice[4];
-   // private boolean[] paintBlock = new boolean[]{false, false, false, false};
+    private MenuSlice topLeftChildMI;
     
     //Event Listeners help our menu interract with the outside world
     private Action focusGainedListener;
@@ -57,6 +57,23 @@ public class MenuSlice {
     
     //User-specific, a la SWT
     private Object data;
+    
+    
+    //Switch directions
+    private static final int inverseDir(int dir) {
+    	switch (dir) {
+    		case CONNECT_TOP:
+    			return CONNECT_BOTTOM;
+    		case CONNECT_BOTTOM:
+    			return CONNECT_TOP;
+    		case CONNECT_LEFT:
+    			return CONNECT_RIGHT;
+    		case CONNECT_RIGHT:
+    			return CONNECT_LEFT;
+    		default:
+    			throw new LiteException(MenuSlice.class, new IllegalArgumentException(), "Bad direction: " + dir);
+    	}
+    }
     
     
     /**
@@ -78,8 +95,6 @@ public class MenuSlice {
     			this.mFormat.fillType = FILL_TRANSLUCENT;
     	}
     	
-    	/*if (width!=-1 && height!=-1)
-    		this.setSize(width, height);*/
     	this.hasExpanded = false;
     }
     
@@ -98,21 +113,15 @@ public class MenuSlice {
     }
     
     
-    /**
-     * Paint the Slice
-     */
-    public void paint() {
-    	paint(getPosX(), getPosY());
-    }
     
     /**
-     * Paint the Slice. "Draw flags" contains the Graphics flags. 
+     * Paint this as a menu component; cascade the paint.
+     * @param paintFromDir Set to -1 initially.
      */
-    public void paint(int x, int y) {
-    	//Transform based on the draw flags
-    	/*int[] TL = getTopLeftCorner(x, y, drawFlags);
-    	x = TL[X];
-    	y = TL[Y];*/
+    public void paintMenuSlice(int paintFromDir) {
+    	//Keep this for now...
+    	int x = getPosX();
+    	int y = getPosY();
     	
         //Save memory
         if (hasExpanded)
@@ -123,44 +132,28 @@ public class MenuSlice {
         	GraphicsAdapter.setColor(this.mFormat.bgColor);
             GraphicsAdapter.fillRect(x, y, getWidth(), getHeight());
         }
-
         
         //Draw the pixel buffer
         if (pixelBuffer!=null) {
         	GraphicsAdapter.drawRGB(pixelBuffer, 0, pixelBufferSize[WIDTH], x+pixelBufferSize[X]+this.mFormat.borderColors.length, y+pixelBufferSize[Y]+this.mFormat.borderColors.length, pixelBufferSize[WIDTH], pixelBufferSize[HEIGHT], true);
         }
+        
+        //Draw all inner components
+        if (topLeftChildMI!=null)
+        	topLeftChildMI.paintMenuSlice(-1);
 
         //Draw the borders as ever-decreasing rectangles.
         for (int i=0; i<this.mFormat.borderColors.length; i++) {
             GraphicsAdapter.setColor(this.mFormat.borderColors[i]);
             GraphicsAdapter.drawRect(x+i, y+i, getWidth()-2*i, getHeight()-2*i);
         }
+        
+        //Draw all connected components
+        for (int i=0; i<paintConnect.length; i++) {
+        	if (paintConnect[i]!=null && i!=paintFromDir)
+        		paintConnect[i].paintMenuSlice(MenuSlice.inverseDir(i));
+        }
     }
-    
-    
-    
-    ///NOTES:
-    /*
-     * 
-     *  MenuFormatArgs should re-name x/y/width/height to "xHint, yHint, widthHint, heightHint"
-     *  rectangle[4] should be added and maintained.
-     *  Add to MenuFormatArgs "connectedTo"
-     *  Make xHint/widthHint relative, and rectangle[] absolute.
-     *  Try: setSize(), connect() triggers re-calculation of component positions, etc. 
-     * 
-     * 
-     * 
-     * 
-     * 
-     */
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     
@@ -275,7 +268,7 @@ public class MenuSlice {
     
 
     
-    public void doLayout(Vector alreadyLaidOut, MenuSlice parentContainer) {
+    public void doHorizontalLayout(Vector alreadyLaidOut, MenuSlice parentContainer, Int rightMostPoint) {
     	//Essentially, we need to figure out X, Y, WIDTH, and HEIGHT, given
     	//  our x/y/w/h "hints". Depending on the hints, various additional data
     	//  are needed.
@@ -292,15 +285,21 @@ public class MenuSlice {
     	}
     	
     	//Set our X co-ordinate
+    	int calcdWidth = -1;
     	if (alreadyLaidOut.isEmpty()) //Special case: first element
-    		this.rectangle[X] = this.mFormat.xHint;
+    		this.rectangle[X] = parentContainer.getPosX() + this.mFormat.xHint;
     	else {
     		//Relate to our last-painted component
-    		int lastPaintXAnchor = lastPaintedMI.getPosX();
-    		if ((this.mFormat.fromAnchor&GraphicsAdapter.HCENTER)!=0)
-    			lastPaintXAnchor +=  lastPaintedMI.getWidth()/2;
-    		else if ((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0)
-    			lastPaintXAnchor +=  lastPaintedMI.getWidth();
+    		int lastPaintXAnchor = 0;
+    		if (lastPaintedMI == null) {
+    			lastPaintXAnchor = parentContainer.getPosX(); 
+    		} else {
+    			lastPaintXAnchor = lastPaintedMI.getPosX();
+    			if ((this.mFormat.fromAnchor&GraphicsAdapter.HCENTER)!=0)
+    				lastPaintXAnchor +=  lastPaintedMI.getWidth()/2;
+    			else if ((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0)
+    				lastPaintXAnchor +=  lastPaintedMI.getWidth();
+    		}
     		
     		//Now, set our X
     		if ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0)
@@ -308,26 +307,76 @@ public class MenuSlice {
     		else {
     			//We need to know the width of our component to set in this fashion....
     			// We need to be careful what situations we let ourselves get into here.
-    			##calcWidth();##
+    			calcdWidth = calcWidth(alreadyLaidOut, lastPaintedMI, dirToLastPaintedMI, parentContainer);
     			
     			//Continue setting
     			if ((this.mFormat.toAnchor&GraphicsAdapter.HCENTER)!=0)
-    				this.rectangle[X] = lastPaintXAnchor - this.getWidth(#CALC#)/2 + this.mFormat.xHint;
+    				this.rectangle[X] = lastPaintXAnchor - calcdWidth/2 + this.mFormat.xHint;
     			else if ((this.mFormat.toAnchor&GraphicsAdapter.RIGHT)!=0)
-    				this.rectangle[X] = lastPaintXAnchor - this.getWidth(#CALC#) + this.mFormat.xHint;
+    				this.rectangle[X] = lastPaintXAnchor - calcdWidth + this.mFormat.xHint;
     		}
     	}
     	
     	//Set our width, if it hasn't already been set.
-    	##calcWidth()##
+    	if (calcdWidth==-1)
+    		calcdWidth = calcWidth(alreadyLaidOut, lastPaintedMI, dirToLastPaintedMI, parentContainer);
     	
-    	
-    	
+    	//Set width
+    	this.setWidth(calcdWidth);
     	
     	//Layout's done for this objects
     	alreadyLaidOut.add(this);
+    	if (this.getPosX()+this.getWidth() > rightMostPoint.getValue())
+    		rightMostPoint.setValue(this.getPosX()+this.getWidth());
+    	
+    	//Continue layout for remaining objects
+    	for (int i=0; i<paintConnect.length; i++) {
+    		//Don't paint in loops!
+    		if (i==dirToLastPaintedMI)
+    			continue;
+    		
+    		//Continue calculating
+    		doHorizontalLayout(alreadyLaidOut, parentContainer, rightMostPoint);
+    	}
     }
     
+    
+    private int calcWidth(Vector alreadyLaidOut, MenuSlice lastPaintedMI, int dirToLastPaintedMI, MenuSlice parentContainer) {
+    	//Easy: already set for us
+    	if (this.mFormat.widthHint > 0 ) {
+    		return this.mFormat.widthHint; 
+    	} else if (this.mFormat.widthHint == MenuFormatArgs.WIDTH_MINIMUM) {
+    		//Minimum width - mostly only makes sense for group controls
+    		if (topLeftChildMI==null) {
+    			throw new LiteException(this, new IllegalArgumentException(), "Width hint MINIMUM doesn't make sense if there are no children.");
+    		}
+    		
+    		//We need to calculate all internal widths first.
+    		Int newWidth = new Int(0);
+    		this.topLeftChildMI.doHorizontalLayout(alreadyLaidOut, this, newWidth);
+    		
+    		//Now, get the right-most point and return it.
+    		return newWidth.getValue();
+    	} else if (this.mFormat.widthHint == MenuFormatArgs.WIDTH_MAXIMUM) {
+    		//First...
+    		if (!alreadyLaidOut.contains(parentContainer))
+    			throw new LiteException(this, new IllegalArgumentException(), "Child layout of MAXIMUM width attempted with parent demanding MINIMUM width.");
+    		
+    		//Maximum width makes sense in only three cases:
+    		//  1) You're the only MI
+    		//  2) You're left-connected to the right edge
+    		//  3) You're right-connected to the left edge
+    		if (lastPaintedMI == null)
+    			return parentContainer.getWidth();
+    		else if (((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0))
+    			return parentContainer.getWidth() - (lastPaintedMI.getPosX()-parentContainer.getPosX() + lastPaintedMI.getWidth());
+    		else if (((this.mFormat.fromAnchor&GraphicsAdapter.LEFT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.RIGHT)!=0))
+    			return lastPaintedMI.getPosX() - parentContainer.getPosX();
+    		else
+    			throw new LiteException(this, new IllegalArgumentException(), "Invalid connect fromAnchor("+this.mFormat.fromAnchor+") and toAnchor("+this.mFormat.toAnchor+") for MAX_WIDTH");
+    	} else
+    		throw new LiteException(this, new IllegalArgumentException(), "Invalid width hint: " + this.mFormat.widthHint);
+    }
     
 
     
@@ -347,6 +396,38 @@ public class MenuSlice {
     	return rectangle[HEIGHT];
     }
     
+    
+    //Special properties
+    private void setWidth(int newWidth) {
+    	rectangle[WIDTH] = newWidth;
+    	
+    	if (this.mFormat.fillType == FILL_TRANSLUCENT) 
+    		resizeAlphaBkgrd();
+    }
+    
+    private void setHeight(int newHeight) {
+    	rectangle[HEIGHT] = newHeight;
+    	
+    	if (this.mFormat.fillType == FILL_TRANSLUCENT) 
+    		resizeAlphaBkgrd();
+    }
+    
+    
+    //Helper
+    private void resizeAlphaBkgrd() {
+    	//Don't size invisible areas
+    	if (getWidth()==0 || getHeight()==0)
+    		return;
+    	
+    	//Ok, re-size and fill with the alpha background color.
+		pixelBufferSize[X] = 0;
+		pixelBufferSize[Y] = 0;
+		pixelBufferSize[WIDTH] = getWidth()-this.mFormat.borderColors.length*2;
+		pixelBufferSize[HEIGHT] = getHeight()-this.mFormat.borderColors.length*2;
+		pixelBuffer = new int[pixelBufferSize[WIDTH]*pixelBufferSize[HEIGHT]];
+		for (int i=0; i<pixelBuffer.length; i++)
+			pixelBuffer[i] = this.mFormat.bgColor;
+    }
     
 
 }
