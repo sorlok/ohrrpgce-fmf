@@ -1,5 +1,7 @@
 package ohrrpgce.menu;
 
+import java.util.Vector;
+
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.game.LiteException;
 
@@ -32,6 +34,7 @@ public class MenuSlice {
     
     //We store a lot of the Slice's information in a MenuFormatArgs
     private MenuFormatArgs mFormat;
+    private int[] rectangle = new int[]{0,0,0,0};
     
     //Directly drawn-to area.
     private int[] pixelBuffer;
@@ -44,7 +47,7 @@ public class MenuSlice {
     //What it's connected to, for painting purposes and for actual control
     private MenuSlice[] paintConnect = new MenuSlice[4];
     private MenuSlice[] commandConnect = new MenuSlice[4];
-    private boolean[] paintBlock = new boolean[]{false, false, false, false};
+   // private boolean[] paintBlock = new boolean[]{false, false, false, false};
     
     //Event Listeners help our menu interract with the outside world
     private Action focusGainedListener;
@@ -99,17 +102,17 @@ public class MenuSlice {
      * Paint the Slice
      */
     public void paint() {
-    	paint(getPosX(), getPosY(), this.mFormat.layoutRule);
+    	paint(getPosX(), getPosY());
     }
     
     /**
      * Paint the Slice. "Draw flags" contains the Graphics flags. 
      */
-    public void paint(int x, int y, int drawFlags) {
+    public void paint(int x, int y) {
     	//Transform based on the draw flags
-    	int[] TL = getTopLeftCorner(x, y, drawFlags);
+    	/*int[] TL = getTopLeftCorner(x, y, drawFlags);
     	x = TL[X];
-    	y = TL[Y];
+    	y = TL[Y];*/
     	
         //Save memory
         if (hasExpanded)
@@ -270,28 +273,81 @@ public class MenuSlice {
     	}
     }
     
-    ///
-    /// Helper method used by paint()
-    ///
-    private int[] getTopLeftCorner() {
-        return getTopLeftCorner(getPosX(), getPosY(), this.mFormat.layoutRule);
+
+    
+    public void doLayout(Vector alreadyLaidOut, MenuSlice parentContainer) {
+    	//Essentially, we need to figure out X, Y, WIDTH, and HEIGHT, given
+    	//  our x/y/w/h "hints". Depending on the hints, various additional data
+    	//  are needed.
+    	
+    	//Get the component we're connecting FROM
+    	MenuSlice lastPaintedMI = null;
+    	int dirToLastPaintedMI = -1;
+    	for (int dir=0; dir<paintConnect.length; dir++) {
+    		if (alreadyLaidOut.contains(paintConnect[dir])) {
+    			lastPaintedMI = paintConnect[dir];
+    			dirToLastPaintedMI = dir;
+    			break;
+    		}
+    	}
+    	
+    	//Set our X co-ordinate
+    	if (alreadyLaidOut.isEmpty()) //Special case: first element
+    		this.rectangle[X] = this.mFormat.xHint;
+    	else {
+    		//Relate to our last-painted component
+    		int lastPaintXAnchor = lastPaintedMI.getPosX();
+    		if ((this.mFormat.fromAnchor&GraphicsAdapter.HCENTER)!=0)
+    			lastPaintXAnchor +=  lastPaintedMI.getWidth()/2;
+    		else if ((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0)
+    			lastPaintXAnchor +=  lastPaintedMI.getWidth();
+    		
+    		//Now, set our X
+    		if ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0)
+    			this.rectangle[X] = lastPaintXAnchor + this.mFormat.xHint;
+    		else {
+    			//We need to know the width of our component to set in this fashion....
+    			// We need to be careful what situations we let ourselves get into here.
+    			##calcWidth();##
+    			
+    			//Continue setting
+    			if ((this.mFormat.toAnchor&GraphicsAdapter.HCENTER)!=0)
+    				this.rectangle[X] = lastPaintXAnchor - this.getWidth(#CALC#)/2 + this.mFormat.xHint;
+    			else if ((this.mFormat.toAnchor&GraphicsAdapter.RIGHT)!=0)
+    				this.rectangle[X] = lastPaintXAnchor - this.getWidth(#CALC#) + this.mFormat.xHint;
+    		}
+    	}
+    	
+    	//Set our width, if it hasn't already been set.
+    	##calcWidth()##
+    	
+    	
+    	
+    	
+    	//Layout's done for this objects
+    	alreadyLaidOut.add(this);
     }
     
-    ///
-    /// Helper method used by paint()
-    ///
-    private int[] getTopLeftCorner(int posX, int posY, int drawRule) {
-        if ((drawRule&GraphicsAdapter.RIGHT)!=0)
-            posX -= getWidth();
-        if ((drawRule&GraphicsAdapter.HCENTER)!=0)
-            posX -= getWidth()/2;
-        if ((drawRule&GraphicsAdapter.BOTTOM)!=0)
-            posY -= getHeight();
-        if ((drawRule&GraphicsAdapter.VCENTER)!=0)
-            posY -= getHeight()/2;
-        
-        return new int[]{posX, posY};
+    
+
+    
+    
+    //Properties: these require judicious calls to "doLayout()"
+    
+    public int getPosX() {
+    	return rectangle[X];
     }
+    public int getPosY() {
+    	return rectangle[Y];
+    }
+    public int getWidth() {
+    	return rectangle[WIDTH];
+    }
+    public int getHeight() {
+    	return rectangle[HEIGHT];
+    }
+    
+    
 
 }
 

@@ -5,14 +5,16 @@ import ohrrpgce.adapter.GraphicsAdapter;
 public class MenuFormatArgs {
 	public static final int WIDTH_MINIMUM = -1;
 	public static final int WIDTH_MAXIMUM = -2;
-	public static final int LAYOUT_DEFAULT = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+	//public static final int LAYOUT_DEFAULT = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
 	
 	//Layout
-	public int x;
-	public int y;
-	public int width;
-	public int height;
-	public int layoutRule;
+	public int xHint;
+	public int yHint;
+	public int widthHint;
+	public int heightHint;
+	public int fromAnchor;
+	public int toAnchor;
+	//public int interElementSpacing; //Doesn't really make sense here...
 	
 	//Style
 	public int bgColor;
@@ -22,17 +24,19 @@ public class MenuFormatArgs {
     
     //Default Constructor
     public MenuFormatArgs() {
-    	this.layoutRule = LAYOUT_DEFAULT;
+    //	this.layoutRule = LAYOUT_DEFAULT;
     }
     
     //Copy Constructor
     public MenuFormatArgs(MenuFormatArgs copyFrom) {
-    	this.x = copyFrom.x;
-    	this.y = copyFrom.y;
-    	this.width = copyFrom.width;
-    	this.height = copyFrom.height;
-    	this.layoutRule = copyFrom.layoutRule;
+    	this.xHint = copyFrom.xHint;
+    	this.yHint = copyFrom.yHint;
+    	this.widthHint = copyFrom.widthHint;
+    	this.heightHint = copyFrom.heightHint;
+    	this.fromAnchor = copyFrom.fromAnchor;
+    	this.toAnchor = copyFrom.toAnchor;
     	this.bgColor = copyFrom.bgColor;
+    //	this.interElementSpacing = copyFrom.interElementSpacing;
     	this.borderColors = new int[copyFrom.borderColors.length];
     	System.arraycopy(copyFrom.borderColors, 0, this.borderColors, 0, copyFrom.borderColors.length);
     	this.fillType = copyFrom.fillType;
