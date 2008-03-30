@@ -8,7 +8,6 @@ package ohrrpgce.menu;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.Message;
 import ohrrpgce.data.RPG;
-import ohrrpgce.data.TextBox;
 
 /**
  * Simple box which dispplays one's current MP in a category, with a bar.

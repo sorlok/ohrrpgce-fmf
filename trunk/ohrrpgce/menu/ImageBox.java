@@ -3,9 +3,9 @@
  * Created on April 17, 2007, 12:19 AM
  */
 
-package ohrrpgce.data;
+package ohrrpgce.menu;
 
-import ohrrpgce.menu.Canvas;
+import ohrrpgce.data.RPG;
 import ohrrpgce.tool.HQ2X;
 
 /**

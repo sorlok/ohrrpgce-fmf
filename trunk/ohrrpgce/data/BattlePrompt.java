@@ -10,6 +10,8 @@ import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.loader.BattleFormationParser;
 import ohrrpgce.data.loader.PictureParser;
 import ohrrpgce.menu.Canvas;
+import ohrrpgce.menu.ImageBox;
+import ohrrpgce.menu.TextBox;
 
 /**
  * A simple class that informs the user of random encounters. 

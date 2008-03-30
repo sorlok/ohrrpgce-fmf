@@ -6,7 +6,6 @@
 package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.data.TextBox;
 
 /**
  * Some text. Really just a wrapper for TextBox

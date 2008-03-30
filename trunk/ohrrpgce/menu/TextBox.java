@@ -3,13 +3,13 @@
  * Created on April 9, 2007, 1:25 PM
  */
 
-package ohrrpgce.data;
+package ohrrpgce.menu;
 
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
+import ohrrpgce.data.Message;
 import ohrrpgce.game.LiteException;
-import ohrrpgce.menu.Canvas;
 
 /**
  * An extension to Box which allows for the placement of (possibly shadowed)
