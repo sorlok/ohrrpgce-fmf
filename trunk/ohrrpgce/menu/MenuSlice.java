@@ -149,7 +149,7 @@ public class MenuSlice {
         //Draw the borders as ever-decreasing rectangles.
         for (int i=0; i<this.mFormat.borderColors.length; i++) {
             GraphicsAdapter.setColor(this.mFormat.borderColors[i]);
-            GraphicsAdapter.drawRect(x+i, y+i, getWidth()-2*i, getHeight()-2*i);
+            GraphicsAdapter.drawRect(x+i, y+i, getWidth()-2*i-1, getHeight()-2*i-1);
         }
         
         //Draw all connected components
