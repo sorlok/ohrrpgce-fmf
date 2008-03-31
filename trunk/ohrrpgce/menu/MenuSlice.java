@@ -23,6 +23,10 @@ public class MenuSlice {
 	public static final int FILL_TRANSLUCENT = 2;
 	public static final int FILL_GUESS = 3;
 	
+	//External Static variables: ConnectionFlags
+	public static final int CFLAG_PAINT = 1;
+	public static final int CFLAG_CONTROL = 2;
+	
 	//External Static variables: CONNECTions
     public static final int CONNECT_TOP = 0;
     public static final int CONNECT_BOTTOM = 1;
@@ -272,6 +276,7 @@ public class MenuSlice {
     	//Essentially, we need to figure out X, Y, WIDTH, and HEIGHT, given
     	//  our x/y/w/h "hints". Depending on the hints, various additional data
     	//  are needed.
+    	System.out.println("Do Horizontal");
     	
     	//Get the component we're connecting FROM
     	MenuSlice lastPaintedMI = null;
@@ -284,15 +289,20 @@ public class MenuSlice {
     		}
     	}
     	
+    	System.out.println("  figure X");
+    	
     	//Set our X co-ordinate
     	int calcdWidth = -1;
+    	int parentX = 0;
+    	if (parentContainer != null)
+    		parentX = parentContainer.getPosX();
     	if (alreadyLaidOut.isEmpty()) //Special case: first element
-    		this.rectangle[X] = parentContainer.getPosX() + this.mFormat.xHint;
+    		this.rectangle[X] = parentX + this.mFormat.xHint;
     	else {
     		//Relate to our last-painted component
     		int lastPaintXAnchor = 0;
     		if (lastPaintedMI == null) {
-    			lastPaintXAnchor = parentContainer.getPosX(); 
+    			lastPaintXAnchor = parentX; 
     		} else {
     			lastPaintXAnchor = lastPaintedMI.getPosX();
     			if ((this.mFormat.fromAnchor&GraphicsAdapter.HCENTER)!=0)
@@ -317,6 +327,8 @@ public class MenuSlice {
     		}
     	}
     	
+    	System.out.println("  Calculate width");
+    	
     	//Set our width, if it hasn't already been set.
     	if (calcdWidth==-1)
     		calcdWidth = calcWidth(alreadyLaidOut, lastPaintedMI, dirToLastPaintedMI, parentContainer);
@@ -324,7 +336,9 @@ public class MenuSlice {
     	//Set width
     	this.setWidth(calcdWidth);
     	
-    	//Layout's done for this objects
+    	System.out.println("  Laying out rem. objects.");
+    	
+    	//Layout's done for this object
     	alreadyLaidOut.add(this);
     	if (this.getPosX()+this.getWidth() > rightMostPoint.getValue())
     		rightMostPoint.setValue(this.getPosX()+this.getWidth());
@@ -332,11 +346,11 @@ public class MenuSlice {
     	//Continue layout for remaining objects
     	for (int i=0; i<paintConnect.length; i++) {
     		//Don't paint in loops!
-    		if (i==dirToLastPaintedMI)
+    		if (i==dirToLastPaintedMI || paintConnect[i]==null)
     			continue;
     		
     		//Continue calculating
-    		doHorizontalLayout(alreadyLaidOut, parentContainer, rightMostPoint);
+    		paintConnect[i].doHorizontalLayout(alreadyLaidOut, parentContainer, rightMostPoint);
     	}
     }
     
@@ -356,7 +370,7 @@ public class MenuSlice {
     		this.topLeftChildMI.doHorizontalLayout(alreadyLaidOut, this, newWidth);
     		
     		//Now, get the right-most point and return it.
-    		return newWidth.getValue();
+    		return newWidth.getValue() - this.getPosX();
     	} else if (this.mFormat.widthHint == MenuFormatArgs.WIDTH_MAXIMUM) {
     		//First...
     		if (!alreadyLaidOut.contains(parentContainer))
@@ -378,7 +392,181 @@ public class MenuSlice {
     		throw new LiteException(this, new IllegalArgumentException(), "Invalid width hint: " + this.mFormat.widthHint);
     }
     
+    
+    
+    public void doVerticalLayout(Vector alreadyLaidOut, MenuSlice parentContainer, Int lowerMostPoint) {
+    	//Essentially, we need to figure out X, Y, WIDTH, and HEIGHT, given
+    	//  our x/y/w/h "hints". Depending on the hints, various additional data
+    	//  are needed.
+    	
+    	//Get the component we're connecting FROM
+    	MenuSlice lastPaintedMI = null;
+    	int dirToLastPaintedMI = -1;
+    	for (int dir=0; dir<paintConnect.length; dir++) {
+    		if (alreadyLaidOut.contains(paintConnect[dir])) {
+    			lastPaintedMI = paintConnect[dir];
+    			dirToLastPaintedMI = dir;
+    			break;
+    		}
+    	}
+    	
+    	//Set our Y co-ordinate
+    	int calcdHeight = -1;
+    	int parentY = 0;
+    	if (parentContainer != null)
+    		parentY = parentContainer.getPosY();
+    	if (alreadyLaidOut.isEmpty()) //Special case: first element
+    		this.rectangle[Y] = parentY + this.mFormat.yHint;
+    	else {
+    		//Relate to our last-painted component
+    		int lastPaintYAnchor = 0;
+    		if (lastPaintedMI == null) {
+    			lastPaintYAnchor = parentY; 
+    		} else {
+    			lastPaintYAnchor = lastPaintedMI.getPosY();
+    			if ((this.mFormat.fromAnchor&GraphicsAdapter.VCENTER)!=0)
+    				lastPaintYAnchor +=  lastPaintedMI.getHeight()/2;
+    			else if ((this.mFormat.fromAnchor&GraphicsAdapter.BOTTOM)!=0)
+    				lastPaintYAnchor +=  lastPaintedMI.getHeight();
+    		}
+    		
+    		//Now, set our Y
+    		if ((this.mFormat.toAnchor&GraphicsAdapter.TOP)!=0)
+    			this.rectangle[Y] = lastPaintYAnchor + this.mFormat.yHint;
+    		else {
+    			//We need to know the height of our component to set in this fashion....
+    			// We need to be careful what situations we let ourselves get into here.
+    			calcdHeight = calcHeight(alreadyLaidOut, lastPaintedMI, dirToLastPaintedMI, parentContainer);
+    			
+    			//Continue setting
+    			if ((this.mFormat.toAnchor&GraphicsAdapter.VCENTER)!=0)
+    				this.rectangle[Y] = lastPaintYAnchor - calcdHeight/2 + this.mFormat.yHint;
+    			else if ((this.mFormat.toAnchor&GraphicsAdapter.BOTTOM)!=0)
+    				this.rectangle[Y] = lastPaintYAnchor - calcdHeight + this.mFormat.yHint;
+    		}
+    	}
+    	
+    	//Set our height, if it hasn't already been set.
+    	if (calcdHeight==-1)
+    		calcdHeight = calcHeight(alreadyLaidOut, lastPaintedMI, dirToLastPaintedMI, parentContainer);
+    	
+    	//Set height
+    	this.setHeight(calcdHeight);
+    	
+    	//Layout's done for this object
+    	alreadyLaidOut.add(this);
+    	if (this.getPosY()+this.getHeight() > lowerMostPoint.getValue())
+    		lowerMostPoint.setValue(this.getPosY()+this.getHeight());
+    	
+    	//Continue layout for remaining objects
+    	for (int i=0; i<paintConnect.length; i++) {
+    		//Don't paint in loops!
+    		if (i==dirToLastPaintedMI || paintConnect[i]==null)
+    			continue;
+    		
+    		//Continue calculating
+    		paintConnect[i].doVerticalLayout(alreadyLaidOut, parentContainer, lowerMostPoint);
+    	}
+    }
+    
+    
+    private int calcHeight(Vector alreadyLaidOut, MenuSlice lastPaintedMI, int dirToLastPaintedMI, MenuSlice parentContainer) {
+    	//Easy: already set for us
+    	if (this.mFormat.heightHint > 0 ) {
+    		return this.mFormat.heightHint; 
+    	} else if (this.mFormat.heightHint == MenuFormatArgs.HEIGHT_MINIMUM) {
+    		//Minimum height - mostly only makes sense for group controls
+    		if (topLeftChildMI==null) {
+    			throw new LiteException(this, new IllegalArgumentException(), "Height hint MINIMUM doesn't make sense if there are no children.");
+    		}
+    		
+    		//We need to calculate all internal heights first.
+    		Int newHeight = new Int(0);
+    		this.topLeftChildMI.doVerticalLayout(alreadyLaidOut, this, newHeight);
+    		
+    		//Now, get the right-most point and return it.
+    		return newHeight.getValue() - this.getHeight();
+    	} else if (this.mFormat.heightHint == MenuFormatArgs.HEIGHT_MAXIMUM) {
+    		//First...
+    		if (!alreadyLaidOut.contains(parentContainer))
+    			throw new LiteException(this, new IllegalArgumentException(), "Child layout of MAXIMUM height attempted with parent demanding MINIMUM height.");
+    		
+    		//Maximum height makes sense in only three cases:
+    		//  1) You're the only MI
+    		//  2) You're top-connected to the bottom edge
+    		//  3) You're bottom-connected to the top edge
+    		if (lastPaintedMI == null)
+    			return parentContainer.getHeight();
+    		else if (((this.mFormat.fromAnchor&GraphicsAdapter.BOTTOM)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.TOP)!=0))
+    			return parentContainer.getHeight() - (lastPaintedMI.getPosY()-parentContainer.getPosY() + lastPaintedMI.getHeight());
+    		else if (((this.mFormat.fromAnchor&GraphicsAdapter.TOP)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.BOTTOM)!=0))
+    			return lastPaintedMI.getPosY() - parentContainer.getPosY();
+    		else
+    			throw new LiteException(this, new IllegalArgumentException(), "Invalid connect fromAnchor("+this.mFormat.fromAnchor+") and toAnchor("+this.mFormat.toAnchor+") for MAX_HEIGHT");
+    	} else
+    		throw new LiteException(this, new IllegalArgumentException(), "Invalid height hint: " + this.mFormat.heightHint);
+    }
+    
+    
 
+    
+    /**
+     * Connect a second item to this menu item.
+     * @param secondary The item to connect to this.
+     * @param connectOn Either of CONNECT_TOP/BOTTOM/LEFT/RIGHT.
+     * @param flags Any combination of CFLAG_PAINT, CFLAG_CONTROL 
+     */
+    public void connect(MenuSlice secondary, int connectOn, int flags) {
+        int converse = MenuSlice.inverseDir(connectOn);
+        
+        //Command connect:
+        if ((flags&MenuSlice.CFLAG_CONTROL)!=0) {
+        	//Are these slots actually free?
+        	if (commandConnect[connectOn]!=null || secondary.commandConnect[converse]!=null)
+        		throw new LiteException(this, new IllegalArgumentException(), "MenuItem cannot be COMMAND connected: An item is already connected on: " + connectOn  + " (or: " + converse + ")");
+
+        	//Connection applies to both objects.
+            this.commandConnect[connectOn] = secondary;
+            secondary.commandConnect[converse] = this;
+        }
+        		
+        //Paint connect:		
+        if ((flags&MenuSlice.CFLAG_PAINT)!=0) {
+        	//Are these slots actually free?
+        	if (paintConnect[connectOn]!=null || secondary.paintConnect[converse]!=null)
+        		throw new LiteException(this, new IllegalArgumentException(), "MenuItem cannot be PAINT connected: An item is already connected on: " + connectOn  + " (or: " + converse + ")");
+        	
+        	//Connection applies to both objects.
+            this.paintConnect[connectOn] = secondary;
+            secondary.paintConnect[converse] = this;
+        }
+    }
+    
+    /**
+     * Disconnect menu items.
+     * @param disconOn
+     * @param flags Any combination of CFLAG_PAINT, CFLAG_CONTROL
+     */
+    public void disconnect(int disconOn, int flags) {
+        int converse = MenuSlice.inverseDir(disconOn);
+        
+        //Command connect:
+        if ((flags&MenuSlice.CFLAG_CONTROL)!=0) {
+            if (commandConnect[disconOn]==null || commandConnect[disconOn].commandConnect[converse]==null)
+            	throw new LiteException(this, new IllegalArgumentException(), "MenuItem cannot be COMMAND disconnected: no item connected to: " + disconOn + " (or: " + converse + ")");
+            commandConnect[disconOn].commandConnect[converse] = null;
+            commandConnect[disconOn] = null;
+        }
+        
+        //Paint connect:
+        if ((flags&MenuSlice.CFLAG_PAINT)!=0) {
+            if (paintConnect[disconOn]==null || paintConnect[disconOn].paintConnect[converse]==null)
+            	throw new LiteException(this, new IllegalArgumentException(), "MenuItem cannot be PAINT disconnected: no item connected to: " + disconOn + " (or: " + converse + ")");
+            paintConnect[disconOn].paintConnect[converse] = null;
+            paintConnect[disconOn] = null;
+        }
+    }
+    
     
     
     //Properties: these require judicious calls to "doLayout()"
