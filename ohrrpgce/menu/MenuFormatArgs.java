@@ -5,6 +5,8 @@ import ohrrpgce.adapter.GraphicsAdapter;
 public class MenuFormatArgs {
 	public static final int WIDTH_MINIMUM = -1;
 	public static final int WIDTH_MAXIMUM = -2;
+	public static final int HEIGHT_MINIMUM = -1;
+	public static final int HEIGHT_MAXIMUM = -2;
 	//public static final int LAYOUT_DEFAULT = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
 	
 	//Layout
