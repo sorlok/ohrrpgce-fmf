@@ -276,7 +276,6 @@ public class MenuSlice {
     	//Essentially, we need to figure out X, Y, WIDTH, and HEIGHT, given
     	//  our x/y/w/h "hints". Depending on the hints, various additional data
     	//  are needed.
-    	System.out.println("Do Horizontal");
     	
     	//Get the component we're connecting FROM
     	MenuSlice lastPaintedMI = null;
@@ -288,8 +287,6 @@ public class MenuSlice {
     			break;
     		}
     	}
-    	
-    	System.out.println("  figure X");
     	
     	//Set our X co-ordinate
     	int calcdWidth = -1;
@@ -327,7 +324,6 @@ public class MenuSlice {
     		}
     	}
     	
-    	System.out.println("  Calculate width");
     	
     	//Set our width, if it hasn't already been set.
     	if (calcdWidth==-1)
@@ -335,8 +331,6 @@ public class MenuSlice {
     	
     	//Set width
     	this.setWidth(calcdWidth);
-    	
-    	System.out.println("  Laying out rem. objects.");
     	
     	//Layout's done for this object
     	alreadyLaidOut.add(this);
