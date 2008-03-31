@@ -157,6 +157,11 @@ public class MenuEngine extends Engine {
     
 
     public void paintScene() {
+    	//Temp
+    	GraphicsAdapter.setColor(0x333333);
+    	GraphicsAdapter.fillRect(0, 0, width, height);
+    	
+    	
     	topLeftMI.paintMenuSlice(-1);
     }
 
