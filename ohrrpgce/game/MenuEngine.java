@@ -158,8 +158,8 @@ public class MenuEngine extends Engine {
 
     public void paintScene() {
     	//Temp
-    	GraphicsAdapter.setColor(0x333333);
-    	GraphicsAdapter.fillRect(0, 0, width, height);
+    //	GraphicsAdapter.setColor(0x333333);
+    //	GraphicsAdapter.fillRect(0, 0, width, height);
     	
     	
     	topLeftMI.paintMenuSlice(-1);
@@ -194,12 +194,9 @@ public class MenuEngine extends Engine {
     }
 
     
-    //HORRENDOUS setup routine:
     public void initMenu() {
     	topLeftMI = MetaMenu.buildMenu(width, height);
-    	System.out.println("tester: 1");
     	topLeftMI.doHorizontalLayout(new Vector(), null, new Int(0));
-    	System.out.println("tester: 2");
     	topLeftMI.doVerticalLayout(new Vector(), null, new Int(0));
     }
     

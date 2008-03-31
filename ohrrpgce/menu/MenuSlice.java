@@ -337,6 +337,10 @@ public class MenuSlice {
     	if (this.getPosX()+this.getWidth() > rightMostPoint.getValue())
     		rightMostPoint.setValue(this.getPosX()+this.getWidth());
     	
+    	//Continue layout for child objects
+    	if (this.topLeftChildMI!=null && !alreadyLaidOut.contains(this.topLeftChildMI))
+    		this.topLeftChildMI.doHorizontalLayout(alreadyLaidOut, this, rightMostPoint);
+    	
     	//Continue layout for remaining objects
     	for (int i=0; i<paintConnect.length; i++) {
     		//Don't paint in loops!
@@ -452,6 +456,10 @@ public class MenuSlice {
     	if (this.getPosY()+this.getHeight() > lowerMostPoint.getValue())
     		lowerMostPoint.setValue(this.getPosY()+this.getHeight());
     	
+    	//Continue layout for child objects
+    	if (this.topLeftChildMI!=null && !alreadyLaidOut.contains(this.topLeftChildMI))
+    		this.topLeftChildMI.doVerticalLayout(alreadyLaidOut, this, lowerMostPoint);
+    	
     	//Continue layout for remaining objects
     	for (int i=0; i<paintConnect.length; i++) {
     		//Don't paint in loops!
@@ -559,6 +567,11 @@ public class MenuSlice {
             paintConnect[disconOn].paintConnect[converse] = null;
             paintConnect[disconOn] = null;
         }
+    }
+
+    
+    public void setTopLeftChild(MenuSlice child) {
+    	this.topLeftChildMI = child;
     }
     
     
