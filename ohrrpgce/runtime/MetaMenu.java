@@ -1,6 +1,7 @@
 package ohrrpgce.runtime;
 
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.data.RPG;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
 
@@ -60,7 +61,7 @@ public class MetaMenu {
 	}
 	
 	
-	public static MenuSlice buildMenu(int width, int height) {
+	public static MenuSlice buildHierarchicalMenu(int width, int height) {
 		//Now, test interior boxes
 		MenuFormatArgs mFormat = new MenuFormatArgs();
 		mFormat.bgColor = 0x770077;
@@ -108,5 +109,51 @@ public class MetaMenu {
 		
 		return topBox;
 	}
+	
+	
+	
+	public static MenuSlice buildMenu(int width, int height, RPG rpg) {
+		//Get colors. We "lighten" a color to provide our basic menu...
+        int[] colorZero = rpg.getTextBoxColors(0);
+        int[] colorZeroLight = new int[]{
+            Math.min((((colorZero[0]&0xFF0000)/0x10000)*14)/10, 0xFF)*0x10000+
+                    Math.min((((colorZero[0]&0xFF00)/0x100)*14)/10, 0xFF)*0x100+
+                    Math.min(((colorZero[0]&0xFF)*14)/10, 0xFF)+0xFF000000,
+            0xFF888888
+        };
+		
+		
+		//Requires a "clear" top-level box with no border, etc. I don't like it so much, but
+        //   it is the "proper" way to do it.
+		MenuFormatArgs mFormat = new MenuFormatArgs();
+		mFormat.borderColors = new int[]{};
+		mFormat.fillType = MenuSlice.FILL_NONE;
+		mFormat.xHint = 0;
+		mFormat.yHint = 0;
+		mFormat.widthHint = width;
+		mFormat.heightHint = height;
+		MenuSlice clearBox = new MenuSlice(mFormat);
+		
+		//Top-half
+		mFormat.bgColor = colorZeroLight[0];
+		mFormat.borderColors = new int[]{colorZeroLight[1], 0};
+		mFormat.fillType = MenuSlice.FILL_SOLID;
+		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+		MenuSlice topHalfBox = new MenuSlice(mFormat);
+		clearBox.setTopLeftChild(topHalfBox);
+		
+		//Bottom-half
+		mFormat.xHint = -1;
+		mFormat.heightHint = MenuFormatArgs.HEIGHT_MAXIMUM;
+		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+		MenuSlice bottomHalfBox = new MenuSlice(mFormat);
+		topHalfBox.connect(bottomHalfBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+		
+		//Add list of buttons...
+		
+		return clearBox; 
+	}
+	
 
 }
