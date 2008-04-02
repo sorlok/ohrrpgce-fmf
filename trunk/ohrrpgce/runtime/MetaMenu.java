@@ -11,9 +11,16 @@ import ohrrpgce.henceforth.Int;
 import ohrrpgce.menu.ImageSlice;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
+import ohrrpgce.menu.transitions.MenuInTransition;
+import ohrrpgce.menu.transitions.Transition;
 
 public class MetaMenu {
 	
+	//Retrieve these AFTER calling buildMenu()
+	public static MenuSlice topLeftMI;
+	public static Transition menuInTrans;
+	
+	//Used for laying out components
     private static final int DEFAULT_INTER_ELEMENT_SPACING = 3;
     private static final int DEFAULT_BORDER_PADDING = 2;
     
@@ -147,7 +154,7 @@ public class MetaMenu {
 	
 	
 	
-	public static MenuSlice buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
+	public static void buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
 		//Get colors. We "lighten" a color to provide our basic menu...
         int[] colorZero = rpg.getTextBoxColors(0);
         int[] colorZeroLight = new int[]{
@@ -247,7 +254,9 @@ public class MetaMenu {
 		buttonList.connect(temp, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
 		
 		
-		return clearBox; 
+		//Set for later...
+		topLeftMI = clearBox;
+		menuInTrans = new MenuInTransition(rpg, width, height);
 	}
 }
 
