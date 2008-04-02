@@ -20,8 +20,6 @@ public class ImageAdapter implements ohrrpgce.adapter.ImageAdapter {
 	}
 	
 	public ImageAdapter(String path) throws IOException {
-		//System.out.println("Pic: " + prefix+path);
-		//System.out.println("Reading: " + path);
 		try {
 			img = ImageIO.read(ImageAdapter.class.getResourceAsStream(path));
 		} catch (IllegalArgumentException ex) {

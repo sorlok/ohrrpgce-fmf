@@ -16,7 +16,7 @@ public class MenuFormatArgs {
 	public int heightHint;
 	public int fromAnchor;
 	public int toAnchor;
-	//public int interElementSpacing; //Doesn't really make sense here...
+	public int borderPadding; //Only matters for MINIMUM sized components
 	
 	//Style
 	public int bgColor;
@@ -38,7 +38,7 @@ public class MenuFormatArgs {
     	this.fromAnchor = copyFrom.fromAnchor;
     	this.toAnchor = copyFrom.toAnchor;
     	this.bgColor = copyFrom.bgColor;
-    //	this.interElementSpacing = copyFrom.interElementSpacing;
+    	this.borderPadding = copyFrom.borderPadding;
     	this.borderColors = new int[copyFrom.borderColors.length];
     	System.arraycopy(copyFrom.borderColors, 0, this.borderColors, 0, copyFrom.borderColors.length);
     	this.fillType = copyFrom.fillType;

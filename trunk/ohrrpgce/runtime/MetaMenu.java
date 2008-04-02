@@ -1,7 +1,14 @@
 package ohrrpgce.runtime;
 
+import java.io.IOException;
+
+import ohrrpgce.adapter.AdapterGenerator;
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.adapter.applet.ImageAdapter;
 import ohrrpgce.data.RPG;
+import ohrrpgce.game.LiteException;
+import ohrrpgce.henceforth.Int;
+import ohrrpgce.menu.ImageSlice;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
 
@@ -9,6 +16,34 @@ public class MetaMenu {
 	
     private static final int DEFAULT_INTER_ELEMENT_SPACING = 3;
     private static final int DEFAULT_BORDER_PADDING = 2;
+    
+    //States, texts
+    private static final int MAIN = 0;
+    private static final int SPELLS = 1;
+    private static final int EQUIP = 2;
+    private static final int STATS = 3;
+    private static final int ITEMS = 4;
+    private static final int ORDER = 5;
+    private static final int MAP = 6;
+    private static final int SAVE = 7;
+    private static final int VOLUME = 8;
+    private static final int QUIT = 9;
+    private static final int HERO = 10; //Label only
+    
+    //Main menu stuff
+    private static final int[] mainTextsIDs = new int[] {ITEMS, ORDER, MAP, SAVE, VOLUME, QUIT};
+    private static final int[] mainColors = new int[] {2, 3, 6, 5, 4, 7};
+    private static final String[] mainImageFiles = new String[] {
+        "main_icons/items.png",
+        "main_icons/order.png",
+        "main_icons/map.png",
+        "main_icons/save.png",
+        "main_icons/volume.png",
+        "main_icons/quit.png",
+    };
+    
+
+    
 	
 	public static MenuSlice buildSimpleMenu(int width, int height) {
 		//First test: some simple boxes
@@ -112,7 +147,7 @@ public class MetaMenu {
 	
 	
 	
-	public static MenuSlice buildMenu(int width, int height, RPG rpg) {
+	public static MenuSlice buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
 		//Get colors. We "lighten" a color to provide our basic menu...
         int[] colorZero = rpg.getTextBoxColors(0);
         int[] colorZeroLight = new int[]{
@@ -139,21 +174,55 @@ public class MetaMenu {
 		mFormat.borderColors = new int[]{colorZeroLight[1], 0};
 		mFormat.fillType = MenuSlice.FILL_SOLID;
 		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+		mFormat.borderPadding = DEFAULT_BORDER_PADDING;
 		MenuSlice topHalfBox = new MenuSlice(mFormat);
 		clearBox.setTopLeftChild(topHalfBox);
 		
 		//Bottom-half
-		mFormat.xHint = -1;
+		mFormat.yHint = -1;
 		mFormat.heightHint = MenuFormatArgs.HEIGHT_MAXIMUM;
 		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+		mFormat.borderPadding = DEFAULT_BORDER_PADDING;
 		MenuSlice bottomHalfBox = new MenuSlice(mFormat);
 		topHalfBox.connect(bottomHalfBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
 		
 		//Add list of buttons...
+		mFormat.borderPadding = 0;
+		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+		mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+		mFormat.xHint = 0;
+		mFormat.yHint = 0;
+		mFormat.fillType = MenuSlice.FILL_SOLID;
+		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+		MenuSlice prevBox = null;
+		for (int i=0; i<mainImageFiles.length; i++) {
+            int[] colors = rpg.getTextBoxColors(mainColors[i]);
+            try {
+        		mFormat.bgColor = colors[0];
+        		mFormat.borderColors[0] = colors[1];
+            	
+            	ImageSlice currBox = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder+mainImageFiles[i]));
+                currBox.setData(new Int(i));
+                //firstBox.setHelperTextID(mainTextsIDs[i]);
+                
+                //Connect!
+                if (prevBox!=null)
+                	prevBox.connect(currBox, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+                else
+                	topHalfBox.setTopLeftChild(currBox);
+                prevBox = currBox;
+            } catch (Exception ex) {
+                throw new LiteException(MetaMenu.class, null, "Menu button couldn't be loaded: " + ex.toString());
+            }
+            
+            //Next
+            mFormat.xHint = DEFAULT_INTER_ELEMENT_SPACING;
+		}
 		
 		return clearBox; 
 	}
-	
-
 }
+
+
