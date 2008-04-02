@@ -31,7 +31,8 @@ import ohrrpgce.menu.MenuItem;
 import ohrrpgce.menu.MenuSlice;
 import ohrrpgce.menu.SpecialLabel;
 import ohrrpgce.menu.TextBox;
-import ohrrpgce.menu.Transition;
+import ohrrpgce.menu.transitions.MenuInTransition;
+import ohrrpgce.menu.transitions.Transition;
 import ohrrpgce.runtime.Meta;
 import ohrrpgce.runtime.MetaMenu;
 import ohrrpgce.runtime.OHRRPG;
@@ -79,17 +80,20 @@ public class MenuEngine extends Engine {
     
     
     //Meta-type info
+    private AdapterGenerator adaptGen;
     private EngineSwitcher midletHook;
     private int width;
     private int height;
     
     //Menu control
     private MenuSlice topLeftMI;
+    private Transition currTransition;
     private boolean initDoneOnce;
     private int delayTimer;
     private boolean bufferedESC;
+    
             
-    private AdapterGenerator adaptGen;
+    
     
     
     public MenuEngine(AdapterGenerator adaptGen, EngineSwitcher midletHook) {
@@ -104,6 +108,10 @@ public class MenuEngine extends Engine {
      * Pass commands down to the current menu item.
      */
     public void handleKeys(int keyStates) {
+        //Dont' allow the user to mess up any animations.
+        if (currTransition!=null)
+            return;
+    	
         //The key autofires if pressed for a certain length of time.
         if (!bufferedESC && (keyStates==0)) {
             delayTimer = 0;
@@ -139,16 +147,22 @@ public class MenuEngine extends Engine {
     
 
     public void paintScene() {
-    	//Temp
-    //	GraphicsAdapter.setColor(0x333333);
-    //	GraphicsAdapter.fillRect(0, 0, width, height);
-    	
+    	//Self-painting transitions?
+    	if (currTransition!=null) {
+    		if (currTransition.doPaintOver())
+    			return;
+    	}
     	
     	topLeftMI.paintMenuSlice(-1);
     }
 
     public void updateScene(long elapsed) {
-
+    	//Update the current transition
+        if (currTransition != null) {
+            if (currTransition.step()) {
+                currTransition = null;
+            }
+        }
     }
 
     public void communicate(Object stackFrame) {
@@ -159,12 +173,20 @@ public class MenuEngine extends Engine {
         System.out.println("MENU was called, and asked to RESET.");
         if (!initDoneOnce) {
         	try {
-        		initMenu();
+        		MetaMenu.buildMenu(width, height, getRPG(), adaptGen);
         		initDoneOnce = true;
         	} catch (Exception ex) {
         		throw new LiteException(this, ex, "Menu failed on INIT");
         	}
         }
+        
+        //Set components
+        topLeftMI = MetaMenu.topLeftMI;
+    	topLeftMI.doHorizontalLayout(new Vector(), null, new Int(0));
+    	topLeftMI.doVerticalLayout(new Vector(), null, new Int(0));
+        
+        //Set transitions
+        currTransition = MetaMenu.menuInTrans;
     }
     
     public RPG getRPG() {
@@ -173,13 +195,6 @@ public class MenuEngine extends Engine {
     
     public OHRRPG getOHRRPG() {
         return ((GameEngine)midletHook.getCaller()).getRPG();
-    }
-
-    
-    public void initMenu() {
-    	topLeftMI = MetaMenu.buildMenu(width, height, getRPG(), adaptGen);
-    	topLeftMI.doHorizontalLayout(new Vector(), null, new Int(0));
-    	topLeftMI.doVerticalLayout(new Vector(), null, new Int(0));
     }
     
     
