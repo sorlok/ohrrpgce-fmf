@@ -10,23 +10,29 @@ import ohrrpgce.data.RPG;
  */
 public class MenuInTransition extends Transition {
 	//Useful constants
-	private static final int boxesPerRow = 6;
+	private static final int boxesPerRow = 5;
     private static final int maxAngle = 360;
-    private static final int numTicks = 10; //Determines the speed of everything
-    private static final int angleHalfIncr = maxAngle/2/numTicks*2;
+    private static final int halfTicks = 3; //Determines the speed of everything
+    private static final int angleIncr = maxAngle/(halfTicks*2);
+    private static final int angleHalfIncr = (maxAngle/2)/halfTicks;
 	
     //Track our progress
     private int currTick;
     
     //Used internally
+    private RPG currRPG;
     private int menuColor;
     private int width;
     private int height;
     private int boxSize;
     private int numBoxRows;
+    private int lastTick;
+    private int tideIncrement;
+    
     
     public MenuInTransition(RPG currRPG, int canvasWidth, int canvasHeight) {
     	//Save for later
+    	this.currRPG = currRPG;
     	this.width = canvasWidth;
     	this.height = canvasHeight;
     	
@@ -34,6 +40,8 @@ public class MenuInTransition extends Transition {
     	boxSize = canvasWidth/boxesPerRow; //Later, scroll left-to-right for horiz. displaysMath.min(canvasHeight, canvasWidth)/5;
     	numBoxRows = canvasHeight/boxSize;
     	menuColor = currRPG.getTextBoxColors(0)[0];
+    	tideIncrement = boxSize/halfTicks;
+    	lastTick = (height+boxSize/2)/tideIncrement;
     	
     	reset();
     }
@@ -46,31 +54,40 @@ public class MenuInTransition extends Transition {
 	public boolean doPaintOver() {
 		//We have two things going on here, all painting with the menu's background
 		//  color. First, we are filling up circles from bottom-to-top; second, we 
-		//  are slowly covering the screen with a large-moving rectangle. These
+		//  are slowly covering the screen with a downward-moving rectangle. These
 		//  things are synchronized.
+		//I'm just going to treat all this like an array access problem, to make
+		//  the math simpler in my head. :)
         GraphicsAdapter.setColor(menuColor);
         
         //Draw the circles in THIS row -up to 180 degrees
-        if (currTick < numTicks) {
-        	int currAngle = angleHalfIncr*(currTick+1);
-        	for (int j=0; j<=numBoxRows; j++) {
-        		int yStart = j*boxSize;
-        		for (int i=0; i<boxesPerRow; i++) {
-        			int xStart = i*boxSize;
-        			GraphicsAdapter.fillArc(xStart, yStart, boxSize, boxSize, -90, -currAngle);
-        		}
+        int currRow = currTick/halfTicks;
+        int currAngle = angleHalfIncr*((currTick %halfTicks)+1);
+        int currWidth = (currAngle*boxSize)/(maxAngle/2);
+        int yStart = currRow*boxSize + boxSize/2;
+        if (yStart < height) { 
+        	for (int i=0; i<boxesPerRow; i++) {
+        		int xStart = i*boxSize + boxSize/2;
+        		GraphicsAdapter.fillRect(xStart-currWidth/2, yStart-currWidth/2, currWidth, currWidth);
+        		//GraphicsAdapter.fillArc(xStart, yStart, boxSize, boxSize, -90, -currAngle);
         	}
         }
         
+        //Now, draw the circles in the PREVIOUS row, from 180 to 360 degrees
+       /* if (--currRow>=0) {
+        	yStart-=boxSize;
+            for (int i=0; i<boxesPerRow; i++) {
+            	int xStart = i*boxSize;
+            	GraphicsAdapter.fillArc(xStart, yStart, boxSize, boxSize, -90, -currAngle-180);
+            }
+        }*/
+        
         
         //Now, draw the rectangle...
-        if (currTick >= numTicks) {
-        	int currWidth = Math.min(width, (((currTick-numTicks)+1)*width)/((numTicks*3)/4));
-        	int currHeight = Math.min(height, (((currTick-numTicks)+1)*height)/((numTicks*3)/4));
-        	GraphicsAdapter.fillRect(width/2-currWidth/2, height/2-currHeight/2, currWidth, currHeight);
-        	
-        }
-
+        int currTideline = -boxSize/2 + currTick*tideIncrement;
+        if (currTideline>0)
+        	GraphicsAdapter.fillRect(0, 0, width, currTideline);
+        
         return true;
 	}
 
@@ -78,7 +95,7 @@ public class MenuInTransition extends Transition {
 
 	public boolean step() {
 		//Are we done?
-		if (currTick == numTicks*2) {
+		if (currTick == lastTick) {
 			return true;
 		}
     
