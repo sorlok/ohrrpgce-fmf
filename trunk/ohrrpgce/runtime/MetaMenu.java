@@ -187,8 +187,18 @@ public class MetaMenu {
 		MenuSlice bottomHalfBox = new MenuSlice(mFormat);
 		topHalfBox.connect(bottomHalfBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
 		
-		//Add list of buttons...
+		//Buttons are in a list, so we can easily center other things on it.
+		mFormat.fillType = MenuSlice.FILL_NONE;
+		mFormat.xHint = 0;
+		mFormat.yHint = 0;
+		mFormat.widthHint = MenuFormatArgs.WIDTH_MAXIMUM;
+		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
 		mFormat.borderPadding = 0;
+		mFormat.borderColors = new int[]{};
+		MenuSlice buttonList = new MenuSlice(mFormat);
+		topHalfBox.setTopLeftChild(buttonList);
+		
+		//Add list of buttons...
 		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
 		mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
 		mFormat.xHint = 0;
@@ -196,6 +206,7 @@ public class MetaMenu {
 		mFormat.fillType = MenuSlice.FILL_SOLID;
 		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+		mFormat.borderColors = new int[]{0, 0};
 		MenuSlice prevBox = null;
 		for (int i=0; i<mainImageFiles.length; i++) {
             int[] colors = rpg.getTextBoxColors(mainColors[i]);
@@ -211,7 +222,7 @@ public class MetaMenu {
                 if (prevBox!=null)
                 	prevBox.connect(currBox, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
                 else
-                	topHalfBox.setTopLeftChild(currBox);
+                	buttonList.setTopLeftChild(currBox);
                 prevBox = currBox;
             } catch (Exception ex) {
                 throw new LiteException(MetaMenu.class, null, "Menu button couldn't be loaded: " + ex.toString());
@@ -220,6 +231,21 @@ public class MetaMenu {
             //Next
             mFormat.xHint = DEFAULT_INTER_ELEMENT_SPACING;
 		}
+		
+		
+		//Test
+		mFormat.fillType = MenuSlice.FILL_SOLID;
+		mFormat.xHint = 0;
+		mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
+		mFormat.widthHint = 150;
+		mFormat.heightHint = 20;
+		mFormat.borderPadding = 0;
+		mFormat.bgColor = 0x00FF00;
+		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+		MenuSlice temp = new MenuSlice(mFormat);
+		buttonList.connect(temp, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+		
 		
 		return clearBox; 
 	}
