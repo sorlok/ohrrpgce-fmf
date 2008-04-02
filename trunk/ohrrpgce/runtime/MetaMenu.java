@@ -166,7 +166,7 @@ public class MetaMenu {
 		mFormat.xHint = 0;
 		mFormat.yHint = 0;
 		mFormat.widthHint = width;
-		mFormat.heightHint = height;
+		mFormat.heightHint = height+1; //Because we scroll one box up later...
 		MenuSlice clearBox = new MenuSlice(mFormat);
 		
 		//Top-half
