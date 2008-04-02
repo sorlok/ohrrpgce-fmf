@@ -10,11 +10,8 @@ import ohrrpgce.data.RPG;
  */
 public class MenuInTransition extends Transition {
 	//Useful constants
-	private static final int boxesPerRow = 5;
-    private static final int maxAngle = 360;
-    private static final int halfTicks = 3; //Determines the speed of everything
-    private static final int angleIncr = maxAngle/(halfTicks*2);
-    private static final int angleHalfIncr = (maxAngle/2)/halfTicks;
+	private static final int boxesPerRow = 8;
+    private static final int halfTicks = 4; //Determines the speed of everything
 	
     //Track our progress
     private int currTick;
@@ -25,9 +22,10 @@ public class MenuInTransition extends Transition {
     private int width;
     private int height;
     private int boxSize;
-    private int numBoxRows;
+    private int numTopRows;
     private int lastTick;
-    private int tideIncrement;
+    private int originY; 
+   // private int tideIncrement;
     
     
     public MenuInTransition(RPG currRPG, int canvasWidth, int canvasHeight) {
@@ -38,10 +36,10 @@ public class MenuInTransition extends Transition {
     	
     	//Calculate
     	boxSize = canvasWidth/boxesPerRow; //Later, scroll left-to-right for horiz. displaysMath.min(canvasHeight, canvasWidth)/5;
-    	numBoxRows = canvasHeight/boxSize;
+    	numTopRows = (int)Math.ceil(((float)canvasHeight-boxSize)/2/boxSize); //Always center the one row
     	menuColor = currRPG.getTextBoxColors(0)[0];
-    	tideIncrement = boxSize/halfTicks;
-    	lastTick = (height+boxSize/2)/tideIncrement;
+    	originY = height/2 - boxSize/2;
+    	lastTick = halfTicks*2 + numTopRows*halfTicks;//(height+boxSize/2)/tideIncrement;
     	
     	reset();
     }
@@ -60,34 +58,59 @@ public class MenuInTransition extends Transition {
 		//  the math simpler in my head. :)
         GraphicsAdapter.setColor(menuColor);
         
-        //Draw the circles in THIS row -up to 180 degrees
+        //Draw the boxes in THIS/THESE row(s) up to 50%
         int currRow = currTick/halfTicks;
-        int currAngle = angleHalfIncr*((currTick %halfTicks)+1);
-        int currWidth = (currAngle*boxSize)/(maxAngle/2);
-        int yStart = currRow*boxSize + boxSize/2;
-        if (yStart < height) { 
+        int currPercent = (currTick %halfTicks)+1;
+        int currBoxSize = (currPercent*boxSize/2)/halfTicks;
+        for (int flip=0; flip<2; flip++) {
+        	//Don't do this twice...
+        	if (flip==1 && currRow==0)
+        		break;
+        	
+        	//Calculate
+        	int yStart = originY+boxSize/2;
+        	if (yStart + currRow*boxSize > height)
+        		break;
+        	if (flip==0)
+        		yStart += currRow*boxSize;
+        	else
+        		yStart -= currRow*boxSize;
+        	
+        	//Now... print!
         	for (int i=0; i<boxesPerRow; i++) {
-        		int xStart = i*boxSize + boxSize/2;
-        		GraphicsAdapter.fillRect(xStart-currWidth/2, yStart-currWidth/2, currWidth, currWidth);
+        		int xStart = i*boxSize+boxSize/2;
+        		GraphicsAdapter.fillRect(xStart-currBoxSize/2, yStart-currBoxSize/2, currBoxSize, currBoxSize);
         		//GraphicsAdapter.fillArc(xStart, yStart, boxSize, boxSize, -90, -currAngle);
         	}
         }
         
-        //Now, draw the circles in the PREVIOUS row, from 180 to 360 degrees
-       /* if (--currRow>=0) {
-        	yStart-=boxSize;
-            for (int i=0; i<boxesPerRow; i++) {
-            	int xStart = i*boxSize;
-            	GraphicsAdapter.fillArc(xStart, yStart, boxSize, boxSize, -90, -currAngle-180);
-            }
-        }*/
         
-        
-        //Now, draw the rectangle...
-        int currTideline = -boxSize/2 + currTick*tideIncrement;
-        if (currTideline>0)
-        	GraphicsAdapter.fillRect(0, 0, width, currTideline);
-        
+        //Now, draw the circles in the PREVIOUS row, from 50 to 100%
+       if (--currRow>=0) {
+    	   currBoxSize += boxSize/2;
+    	   
+           for (int flip=0; flip<2; flip++) {
+           	//Don't do this twice...
+           	if (flip==1 && currRow==0)
+           		break;
+           	
+           	//Calculate
+           	int yStart = originY+boxSize/2;
+           	if (yStart + currRow*boxSize > height)
+           		break;
+           	if (flip==0)
+           		yStart += currRow*boxSize;
+           	else
+           		yStart -= currRow*boxSize;
+           	
+           	//Now... print!
+           	for (int i=0; i<boxesPerRow; i++) {
+           		int xStart = i*boxSize+boxSize/2;
+           		GraphicsAdapter.fillRect(xStart-currBoxSize/2, yStart-currBoxSize/2, currBoxSize, currBoxSize);
+           	}
+           }
+        }
+       
         return true;
 	}
 
