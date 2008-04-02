@@ -12,10 +12,10 @@ import ohrrpgce.henceforth.Int;
  */
 public class MenuSlice {
 	//Internal Static Variables
-	private static final int X = 0;
-	private static final int Y = 1;
-	private static final int WIDTH = 2;
-	private static final int HEIGHT = 3;
+	protected static final int X = 0;
+	protected static final int Y = 1;
+	protected static final int WIDTH = 2;
+	protected static final int HEIGHT = 3;
 	
 	//External Static variables: FILL
 	public static final int FILL_NONE = 0;
@@ -37,7 +37,7 @@ public class MenuSlice {
     
     
     //We store a lot of the Slice's information in a MenuFormatArgs
-    private MenuFormatArgs mFormat;
+    protected MenuFormatArgs mFormat;
     private int[] rectangle = new int[]{0,0,0,0};
     
     //Directly drawn-to area.
@@ -118,6 +118,14 @@ public class MenuSlice {
     
     
     
+    //Parts of painting....
+    protected void drawPixelBuffer(int atX, int atY) {
+    	if (pixelBuffer!=null)
+    		GraphicsAdapter.drawRGB(pixelBuffer, 0, pixelBufferSize[WIDTH], atX, atY, pixelBufferSize[WIDTH], pixelBufferSize[HEIGHT], true);
+    }
+    
+    
+    
     /**
      * Paint this as a menu component; cascade the paint.
      * @param paintFromDir Set to -1 initially.
@@ -138,9 +146,7 @@ public class MenuSlice {
         }
         
         //Draw the pixel buffer
-        if (pixelBuffer!=null) {
-        	GraphicsAdapter.drawRGB(pixelBuffer, 0, pixelBufferSize[WIDTH], x+pixelBufferSize[X]+this.mFormat.borderColors.length, y+pixelBufferSize[Y]+this.mFormat.borderColors.length, pixelBufferSize[WIDTH], pixelBufferSize[HEIGHT], true);
-        }
+        drawPixelBuffer(x+pixelBufferSize[X]+this.mFormat.borderColors.length, y+pixelBufferSize[Y]+this.mFormat.borderColors.length);
         
         //Draw all inner components
         if (topLeftChildMI!=null)
@@ -291,10 +297,13 @@ public class MenuSlice {
     	//Set our X co-ordinate
     	int calcdWidth = -1;
     	int parentX = 0;
-    	if (parentContainer != null)
+    	int parentBorderPadding = 0;
+    	if (parentContainer != null) {
     		parentX = parentContainer.getPosX();
+    		parentBorderPadding = parentContainer.mFormat.borderPadding;
+    	}
     	if (alreadyLaidOut.isEmpty()) //Special case: first element
-    		this.rectangle[X] = parentX + this.mFormat.xHint;
+    		this.rectangle[X] = parentX + this.mFormat.xHint  + parentBorderPadding;
     	else {
     		//Relate to our last-painted component
     		int lastPaintXAnchor = 0;
@@ -360,7 +369,11 @@ public class MenuSlice {
     	} else if (this.mFormat.widthHint == MenuFormatArgs.WIDTH_MINIMUM) {
     		//Minimum width - mostly only makes sense for group controls
     		if (topLeftChildMI==null) {
-    			throw new LiteException(this, new IllegalArgumentException(), "Width hint MINIMUM doesn't make sense if there are no children.");
+    			//Last save chance: a component may define minimum width itself.
+    			int minWidth = calcMinWidth();
+    			if (minWidth<0)
+    				throw new LiteException(this, new IllegalArgumentException(), "Width hint MINIMUM doesn't make sense if there are no children.");
+    			return minWidth + this.mFormat.borderColors.length*2 + this.mFormat.borderPadding*2;
     		}
     		
     		//We need to calculate all internal widths first.
@@ -368,7 +381,7 @@ public class MenuSlice {
     		this.topLeftChildMI.doHorizontalLayout(alreadyLaidOut, this, newWidth);
     		
     		//Now, get the right-most point and return it.
-    		return newWidth.getValue() - this.getPosX();
+    		return newWidth.getValue() - this.getPosX() + parentContainer.mFormat.borderPadding;
     	} else if (this.mFormat.widthHint == MenuFormatArgs.WIDTH_MAXIMUM) {
     		//First...
     		if (!alreadyLaidOut.contains(parentContainer))
@@ -379,11 +392,11 @@ public class MenuSlice {
     		//  2) You're left-connected to the right edge
     		//  3) You're right-connected to the left edge
     		if (lastPaintedMI == null)
-    			return parentContainer.getWidth();
+    			return parentContainer.getWidth() - 2*parentContainer.mFormat.borderPadding;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0))
-    			return parentContainer.getWidth() - (lastPaintedMI.getPosX()-parentContainer.getPosX() + lastPaintedMI.getWidth());
+    			return parentContainer.getWidth() - (lastPaintedMI.getPosX()-parentContainer.getPosX() + lastPaintedMI.getWidth()) - parentContainer.mFormat.borderPadding;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.LEFT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.RIGHT)!=0))
-    			return lastPaintedMI.getPosX() - parentContainer.getPosX();
+    			return lastPaintedMI.getPosX() - parentContainer.getPosX() - parentContainer.mFormat.borderPadding;
     		else
     			throw new LiteException(this, new IllegalArgumentException(), "Invalid connect fromAnchor("+this.mFormat.fromAnchor+") and toAnchor("+this.mFormat.toAnchor+") for MAX_WIDTH");
     	} else
@@ -411,10 +424,13 @@ public class MenuSlice {
     	//Set our Y co-ordinate
     	int calcdHeight = -1;
     	int parentY = 0;
-    	if (parentContainer != null)
+    	int parentBorderPadding = 0;
+    	if (parentContainer != null) {
     		parentY = parentContainer.getPosY();
+    		parentBorderPadding = parentContainer.mFormat.borderPadding;
+    	}
     	if (alreadyLaidOut.isEmpty()) //Special case: first element
-    		this.rectangle[Y] = parentY + this.mFormat.yHint;
+    		this.rectangle[Y] = parentY + this.mFormat.yHint + parentBorderPadding;
     	else {
     		//Relate to our last-painted component
     		int lastPaintYAnchor = 0;
@@ -479,7 +495,11 @@ public class MenuSlice {
     	} else if (this.mFormat.heightHint == MenuFormatArgs.HEIGHT_MINIMUM) {
     		//Minimum height - mostly only makes sense for group controls
     		if (topLeftChildMI==null) {
-    			throw new LiteException(this, new IllegalArgumentException(), "Height hint MINIMUM doesn't make sense if there are no children.");
+    			//Last save chance: a component may define minimum height itself.
+    			int minHeight = calcMinHeight();
+    			if (minHeight<0)
+    				throw new LiteException(this, new IllegalArgumentException(), "Height hint MINIMUM doesn't make sense if there are no children.");
+    			return minHeight + this.mFormat.borderColors.length*2 + this.mFormat.borderPadding*2;
     		}
     		
     		//We need to calculate all internal heights first.
@@ -487,7 +507,7 @@ public class MenuSlice {
     		this.topLeftChildMI.doVerticalLayout(alreadyLaidOut, this, newHeight);
     		
     		//Now, get the right-most point and return it.
-    		return newHeight.getValue() - this.getHeight();
+    		return newHeight.getValue() - this.getHeight() + parentContainer.mFormat.borderPadding;
     	} else if (this.mFormat.heightHint == MenuFormatArgs.HEIGHT_MAXIMUM) {
     		//First...
     		if (!alreadyLaidOut.contains(parentContainer))
@@ -498,11 +518,11 @@ public class MenuSlice {
     		//  2) You're top-connected to the bottom edge
     		//  3) You're bottom-connected to the top edge
     		if (lastPaintedMI == null)
-    			return parentContainer.getHeight();
+    			return parentContainer.getHeight() - 2*parentContainer.mFormat.borderPadding;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.BOTTOM)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.TOP)!=0))
-    			return parentContainer.getHeight() - (lastPaintedMI.getPosY()-parentContainer.getPosY() + lastPaintedMI.getHeight());
+    			return parentContainer.getHeight() - (lastPaintedMI.getPosY()-parentContainer.getPosY() + lastPaintedMI.getHeight())- parentContainer.mFormat.borderPadding;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.TOP)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.BOTTOM)!=0))
-    			return lastPaintedMI.getPosY() - parentContainer.getPosY();
+    			return lastPaintedMI.getPosY() - parentContainer.getPosY()- parentContainer.mFormat.borderPadding;
     		else
     			throw new LiteException(this, new IllegalArgumentException(), "Invalid connect fromAnchor("+this.mFormat.fromAnchor+") and toAnchor("+this.mFormat.toAnchor+") for MAX_HEIGHT");
     	} else
@@ -576,6 +596,26 @@ public class MenuSlice {
     
     
     
+    /**
+     * Called when width is minimum and there're no internal components.
+     *   NOTE: Do _not_ figure in borders or padding, this will be added later.
+     * @return -1 to throw an exception, or the minimum width if it's known
+     */
+    protected int calcMinWidth() {
+    	return -1;
+    }
+    
+    /**
+     * Called when height is minimum and there're no internal components.
+     *   NOTE: Do _not_ figure in borders or padding, this will be added later.
+     * @return -1 to throw an exception, or the minimum height if it's known
+     */
+    protected int calcMinHeight() {
+    	return -1;
+    }    
+    
+    
+    
     //Properties: these require judicious calls to "doLayout()"
     
     public int getPosX() {
@@ -590,17 +630,23 @@ public class MenuSlice {
     public int getHeight() {
     	return rectangle[HEIGHT];
     }
+    public void setData(Object data) {
+    	this.data = data;
+    }
+    public Object getData() {
+    	return this.data;
+    }
     
     
     //Special properties
-    private void setWidth(int newWidth) {
+    protected void setWidth(int newWidth) {
     	rectangle[WIDTH] = newWidth;
     	
     	if (this.mFormat.fillType == FILL_TRANSLUCENT) 
     		resizeAlphaBkgrd();
     }
     
-    private void setHeight(int newHeight) {
+    protected void setHeight(int newHeight) {
     	rectangle[HEIGHT] = newHeight;
     	
     	if (this.mFormat.fillType == FILL_TRANSLUCENT) 

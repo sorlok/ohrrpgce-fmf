@@ -48,15 +48,7 @@ public class MenuEngine extends Engine {
     //Constants
     private static final int MULTIPRESS_DELAY = 12;
     
-    private static final int[] mainColors = new int[] {2, 3, 6, 5, 4, 7};
-    private static final String[] mainImageFiles = new String[] {
-        "main_icons/items.png",
-        "main_icons/order.png",
-        "main_icons/map.png",
-        "main_icons/save.png",
-        "main_icons/volume.png",
-        "main_icons/quit.png",
-    };
+
     
     private static final String imgEquip = "main_icons/equip.png";
     private static final String imgStats = "main_icons/stats.png";
@@ -83,17 +75,7 @@ public class MenuEngine extends Engine {
         "Quit",
         "Hero"
     };
-    private static final int MAIN = 0;
-    private static final int SPELLS = 1;
-    private static final int EQUIP = 2;
-    private static final int STATS = 3;
-    private static final int ITEMS = 4;
-    private static final int ORDER = 5;
-    private static final int MAP = 6;
-    private static final int SAVE = 7;
-    private static final int VOLUME = 8;
-    private static final int QUIT = 9;
-    private static final int HERO = 10; //Label only
+
     
     
     //Meta-type info
@@ -195,7 +177,7 @@ public class MenuEngine extends Engine {
 
     
     public void initMenu() {
-    	topLeftMI = MetaMenu.buildMenu(width, height);
+    	topLeftMI = MetaMenu.buildMenu(width, height, getRPG(), adaptGen);
     	topLeftMI.doHorizontalLayout(new Vector(), null, new Int(0));
     	topLeftMI.doVerticalLayout(new Vector(), null, new Int(0));
     }
