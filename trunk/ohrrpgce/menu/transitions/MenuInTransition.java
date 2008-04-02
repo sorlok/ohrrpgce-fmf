@@ -41,7 +41,7 @@ public class MenuInTransition extends Transition {
     	numBoxRows = canvasHeight/boxSize;
     	menuColor = currRPG.getTextBoxColors(0)[0];
     	tideIncrement = boxSize/halfTicks;
-    	lastTick = (height+boxSize)/tideIncrement;
+    	lastTick = (height+boxSize/2)/tideIncrement;
     	
     	reset();
     }
@@ -80,8 +80,9 @@ public class MenuInTransition extends Transition {
             }
         }
         
+        
         //Now, draw the rectangle...
-        int currTideline = -boxSize + currTick*tideIncrement;
+        int currTideline = -boxSize/2 + currTick*tideIncrement;
         if (currTideline>0)
         	GraphicsAdapter.fillRect(0, 0, width, currTideline);
         
