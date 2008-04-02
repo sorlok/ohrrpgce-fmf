@@ -303,12 +303,12 @@ public class MenuSlice {
     		parentBorderPadding = parentContainer.mFormat.borderPadding;
     	}
     	if (alreadyLaidOut.isEmpty()) //Special case: first element
-    		this.rectangle[X] = parentX + this.mFormat.xHint  + parentBorderPadding;
+    		this.rectangle[X] = parentX + this.mFormat.xHint  + parentBorderPadding + this.mFormat.borderColors.length;
     	else {
     		//Relate to our last-painted component
     		int lastPaintXAnchor = 0;
     		if (lastPaintedMI == null) {
-    			lastPaintXAnchor = parentX; 
+    			lastPaintXAnchor = parentX + parentBorderPadding + this.mFormat.borderColors.length;
     		} else {
     			lastPaintXAnchor = lastPaintedMI.getPosX();
     			if ((this.mFormat.fromAnchor&GraphicsAdapter.HCENTER)!=0)
@@ -381,7 +381,7 @@ public class MenuSlice {
     		this.topLeftChildMI.doHorizontalLayout(alreadyLaidOut, this, newWidth);
     		
     		//Now, get the right-most point and return it.
-    		return newWidth.getValue() - this.getPosX() + parentContainer.mFormat.borderPadding;
+    		return newWidth.getValue() - this.getPosX() + this.mFormat.borderPadding + this.mFormat.borderColors.length;
     	} else if (this.mFormat.widthHint == MenuFormatArgs.WIDTH_MAXIMUM) {
     		//First...
     		if (!alreadyLaidOut.contains(parentContainer))
@@ -430,12 +430,12 @@ public class MenuSlice {
     		parentBorderPadding = parentContainer.mFormat.borderPadding;
     	}
     	if (alreadyLaidOut.isEmpty()) //Special case: first element
-    		this.rectangle[Y] = parentY + this.mFormat.yHint + parentBorderPadding;
+    		this.rectangle[Y] = parentY + this.mFormat.yHint + parentBorderPadding + this.mFormat.borderColors.length;
     	else {
     		//Relate to our last-painted component
     		int lastPaintYAnchor = 0;
     		if (lastPaintedMI == null) {
-    			lastPaintYAnchor = parentY; 
+    			lastPaintYAnchor = parentY + parentBorderPadding + this.mFormat.borderColors.length; 
     		} else {
     			lastPaintYAnchor = lastPaintedMI.getPosY();
     			if ((this.mFormat.fromAnchor&GraphicsAdapter.VCENTER)!=0)
@@ -499,15 +499,16 @@ public class MenuSlice {
     			int minHeight = calcMinHeight();
     			if (minHeight<0)
     				throw new LiteException(this, new IllegalArgumentException(), "Height hint MINIMUM doesn't make sense if there are no children.");
+    			
     			return minHeight + this.mFormat.borderColors.length*2 + this.mFormat.borderPadding*2;
     		}
     		
     		//We need to calculate all internal heights first.
     		Int newHeight = new Int(0);
     		this.topLeftChildMI.doVerticalLayout(alreadyLaidOut, this, newHeight);
-    		
+    			
     		//Now, get the right-most point and return it.
-    		return newHeight.getValue() - this.getHeight() + parentContainer.mFormat.borderPadding;
+    		return newHeight.getValue() - this.getPosY() + this.mFormat.borderPadding + this.mFormat.borderColors.length;
     	} else if (this.mFormat.heightHint == MenuFormatArgs.HEIGHT_MAXIMUM) {
     		//First...
     		if (!alreadyLaidOut.contains(parentContainer))
