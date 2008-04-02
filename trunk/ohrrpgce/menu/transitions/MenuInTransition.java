@@ -12,26 +12,21 @@ public class MenuInTransition extends Transition {
 	//Useful constants
 	private static final int boxesPerRow = 6;
     private static final int maxAngle = 360;
-    private static final int halfTicks = 6; //Determines the speed of everything
-    private static final int angleIncr = maxAngle/(halfTicks*2);
-    private static final int angleHalfIncr = (maxAngle/2)/halfTicks;
+    private static final int numTicks = 10; //Determines the speed of everything
+    private static final int angleHalfIncr = maxAngle/2/numTicks*2;
 	
     //Track our progress
     private int currTick;
     
     //Used internally
-    private RPG currRPG;
     private int menuColor;
     private int width;
     private int height;
     private int boxSize;
     private int numBoxRows;
-    private int lastTick;
-    private int tideIncrement;
     
     public MenuInTransition(RPG currRPG, int canvasWidth, int canvasHeight) {
     	//Save for later
-    	this.currRPG = currRPG;
     	this.width = canvasWidth;
     	this.height = canvasHeight;
     	
@@ -39,8 +34,6 @@ public class MenuInTransition extends Transition {
     	boxSize = canvasWidth/boxesPerRow; //Later, scroll left-to-right for horiz. displaysMath.min(canvasHeight, canvasWidth)/5;
     	numBoxRows = canvasHeight/boxSize;
     	menuColor = currRPG.getTextBoxColors(0)[0];
-    	tideIncrement = boxSize/halfTicks;
-    	lastTick = (height+boxSize/2)/tideIncrement;
     	
     	reset();
     }
@@ -58,7 +51,7 @@ public class MenuInTransition extends Transition {
         GraphicsAdapter.setColor(menuColor);
         
         //Draw the circles in THIS row -up to 180 degrees
-        if (currTick < halfTicks*2) {
+        if (currTick < numTicks) {
         	int currAngle = angleHalfIncr*(currTick+1);
         	for (int j=0; j<=numBoxRows; j++) {
         		int yStart = j*boxSize;
@@ -71,9 +64,9 @@ public class MenuInTransition extends Transition {
         
         
         //Now, draw the rectangle...
-        if (currTick >= halfTicks*2) {
-        	int currWidth = Math.min(width, (((currTick-halfTicks*2)+1)*width)/((halfTicks*3)/2));
-        	int currHeight = Math.min(height, (((currTick-halfTicks*2)+1)*height)/((halfTicks*3)/2));
+        if (currTick >= numTicks) {
+        	int currWidth = Math.min(width, (((currTick-numTicks)+1)*width)/((numTicks*3)/4));
+        	int currHeight = Math.min(height, (((currTick-numTicks)+1)*height)/((numTicks*3)/4));
         	GraphicsAdapter.fillRect(width/2-currWidth/2, height/2-currHeight/2, currWidth, currHeight);
         	
         }
@@ -85,7 +78,7 @@ public class MenuInTransition extends Transition {
 
 	public boolean step() {
 		//Are we done?
-		if (currTick == halfTicks*4) {
+		if (currTick == numTicks*2) {
 			return true;
 		}
     
