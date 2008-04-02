@@ -10,9 +10,9 @@ import ohrrpgce.data.RPG;
  */
 public class MenuInTransition extends Transition {
 	//Useful constants
-	private static final int boxesPerRow = 5;
+	private static final int boxesPerRow = 6;
     private static final int maxAngle = 360;
-    private static final int halfTicks = 3; //Determines the speed of everything
+    private static final int halfTicks = 6; //Determines the speed of everything
     private static final int angleIncr = maxAngle/(halfTicks*2);
     private static final int angleHalfIncr = (maxAngle/2)/halfTicks;
 	
@@ -28,7 +28,6 @@ public class MenuInTransition extends Transition {
     private int numBoxRows;
     private int lastTick;
     private int tideIncrement;
-    
     
     public MenuInTransition(RPG currRPG, int canvasWidth, int canvasHeight) {
     	//Save for later
@@ -54,38 +53,31 @@ public class MenuInTransition extends Transition {
 	public boolean doPaintOver() {
 		//We have two things going on here, all painting with the menu's background
 		//  color. First, we are filling up circles from bottom-to-top; second, we 
-		//  are slowly covering the screen with a downward-moving rectangle. These
+		//  are slowly covering the screen with a large-moving rectangle. These
 		//  things are synchronized.
-		//I'm just going to treat all this like an array access problem, to make
-		//  the math simpler in my head. :)
         GraphicsAdapter.setColor(menuColor);
         
         //Draw the circles in THIS row -up to 180 degrees
-        int currRow = currTick/halfTicks;
-        int currAngle = angleHalfIncr*((currTick %halfTicks)+1);
-        int yStart = currRow*boxSize;
-        if (yStart < height) { 
-        	for (int i=0; i<boxesPerRow; i++) {
-        		int xStart = i*boxSize;
-        		GraphicsAdapter.fillArc(xStart, yStart, boxSize, boxSize, -90, -currAngle);
+        if (currTick < halfTicks*2) {
+        	int currAngle = angleHalfIncr*(currTick+1);
+        	for (int j=0; j<=numBoxRows; j++) {
+        		int yStart = j*boxSize;
+        		for (int i=0; i<boxesPerRow; i++) {
+        			int xStart = i*boxSize;
+        			GraphicsAdapter.fillArc(xStart, yStart, boxSize, boxSize, -90, -currAngle);
+        		}
         	}
-        }
-        
-        //Now, draw the circles in the PREVIOUS row, from 180 to 360 degrees
-        if (--currRow>=0) {
-        	yStart-=boxSize;
-            for (int i=0; i<boxesPerRow; i++) {
-            	int xStart = i*boxSize;
-            	GraphicsAdapter.fillArc(xStart, yStart, boxSize, boxSize, -90, -currAngle-180);
-            }
         }
         
         
         //Now, draw the rectangle...
-        int currTideline = -boxSize/2 + currTick*tideIncrement;
-        if (currTideline>0)
-        	GraphicsAdapter.fillRect(0, 0, width, currTideline);
-        
+        if (currTick >= halfTicks*2) {
+        	int currWidth = Math.min(width, (((currTick-halfTicks*2)+1)*width)/((halfTicks*3)/2));
+        	int currHeight = Math.min(height, (((currTick-halfTicks*2)+1)*height)/((halfTicks*3)/2));
+        	GraphicsAdapter.fillRect(width/2-currWidth/2, height/2-currHeight/2, currWidth, currHeight);
+        	
+        }
+
         return true;
 	}
 
@@ -93,7 +85,7 @@ public class MenuInTransition extends Transition {
 
 	public boolean step() {
 		//Are we done?
-		if (currTick == lastTick) {
+		if (currTick == halfTicks*4) {
 			return true;
 		}
     
