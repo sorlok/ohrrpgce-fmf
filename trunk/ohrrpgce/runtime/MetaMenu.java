@@ -161,7 +161,7 @@ public class MetaMenu {
             Math.min((((colorZero[0]&0xFF0000)/0x10000)*14)/10, 0xFF)*0x10000+
                     Math.min((((colorZero[0]&0xFF00)/0x100)*14)/10, 0xFF)*0x100+
                     Math.min(((colorZero[0]&0xFF)*14)/10, 0xFF)+0xFF000000,
-            0xFF888888
+            colorZero[1]
         };
 		
 		
