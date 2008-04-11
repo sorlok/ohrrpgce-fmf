@@ -27,7 +27,7 @@ public class Meta {
     
     //Segmented loading
     private InputStream is;
-    private InputStreamReader inFile;
+    private BufferedInputStreamReader inFile;
     private MetaGame currGame;
     private int currProp;
     private StringBuffer sb;
@@ -128,7 +128,7 @@ public class Meta {
             gameListError = true;
             return;
         }
-        inFile = new InputStreamReader(is);
+        inFile = new BufferedInputStreamReader(is);
         
         //Prepare the results vector
         gamesSoFar = new Vector(5);
@@ -156,17 +156,15 @@ public class Meta {
         
         //Have we reached the end of the file?
         boolean fileDone = false;
-        int readLen = 0;
+        char c = '\0';
         try {
-            readLen = inFile.read(cBuf, 0, 1);
+            c = inFile.readChar();
         } catch (IOException ex) {
             throw new RuntimeException("Game_List_Read: " + ex.getClass().getName() + ":" + ex.getMessage());
         }
         
-        if (readLen==-1) {
-            fileDone = true;
-        } else {
-            char c = cBuf[0];
+        fileDone = inFile.isDone();
+        if (!fileDone) {
        //     System.out.println("Read: " + c + "  [" + (int)c + "]");
             if (c=='\n' || c=='\t') {
                 //End of a property
