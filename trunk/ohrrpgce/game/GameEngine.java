@@ -312,8 +312,11 @@ public class GameEngine extends Engine {
                     gameSelectTimer = (int)Math.max(0, gameSelectTimer-elapsed);
 
                 //Interleave loading and input...
-                if (!metaInfo.allLoaded())
-                    metaInfo.continueLoading();
+                if (!metaInfo.allLoaded()) {
+                	//Load a few characters at a time
+                	for (int count=0; count<5 && !metaInfo.allLoaded(); count++)
+                		metaInfo.continueLoading();
+                }
             }
         } else if (rpg.getBaseRPG()==null) {
                 //Update our crude timer
