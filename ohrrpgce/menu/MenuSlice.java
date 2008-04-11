@@ -117,7 +117,6 @@ public class MenuSlice {
     }
     
     
-    
     //Parts of painting....
     protected void drawPixelBuffer(int atX, int atY) {
     	if (pixelBuffer!=null)
@@ -274,6 +273,18 @@ public class MenuSlice {
     		//Increment/Decrement
     		start += incr;
     	}
+    }
+    
+    
+    
+    /**
+     * Helper method: calls doHorizontalLayou() and then doVerticalLayout().
+     *   If we allow vertical displays in the future, this may call doVerticalLayout()
+     *   first.
+     */
+    public void doLayout() {
+    	this.doHorizontalLayout(new Vector(), null, new Int(0));
+    	this.doVerticalLayout(new Vector(), null, new Int(0));
     }
     
 
@@ -613,7 +624,19 @@ public class MenuSlice {
      */
     protected int calcMinHeight() {
     	return -1;
-    }    
+    }
+    
+    
+    /**
+     * Removes all drawn pixels from the buffer
+     */
+    public void clearPixelBuffer() {
+    	hasExpanded = false;
+    	pixelBuffer = null;
+    	
+    	if (this.mFormat.fillType == FILL_TRANSLUCENT) 
+    		resizeAlphaBkgrd();
+    }
     
     
     

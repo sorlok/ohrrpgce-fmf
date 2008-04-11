@@ -182,8 +182,7 @@ public class MenuEngine extends Engine {
         
         //Set components
         topLeftMI = MetaMenu.topLeftMI;
-    	topLeftMI.doHorizontalLayout(new Vector(), null, new Int(0));
-    	topLeftMI.doVerticalLayout(new Vector(), null, new Int(0));
+        topLeftMI.doLayout();
         
         //Set transitions
         currTransition = MetaMenu.menuInTrans;
