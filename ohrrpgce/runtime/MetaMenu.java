@@ -51,6 +51,10 @@ public class MetaMenu {
         "main_icons/volume.png",
         "main_icons/quit.png",
     };
+    
+    
+    //Temp
+    private static TextSlice textBoxTest;
 
 
 
@@ -252,14 +256,15 @@ public class MetaMenu {
 		mFormat.borderColors = new int[]{colorZero[1], 0};
 		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
-		TextSlice temp = new TextSlice(mFormat, "Bob the Hamster", rpg.font, false, true);
-		buttonList.connect(temp, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+		textBoxTest = new TextSlice(mFormat, "Bob the Hamster", rpg.font, false, true, false);
+		buttonList.connect(textBoxTest, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
 
 
 		//Set for later...
 		topLeftMI = clearBox;
 		menuInTrans = new MenuInTransition(rpg, width, height);
 	}
+	
 }
 
 

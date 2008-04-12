@@ -10,6 +10,7 @@ import ohrrpgce.adapter.FontAdapter;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.InputAdapter;
 import ohrrpgce.data.BattlePrompt;
+import ohrrpgce.data.Message;
 import ohrrpgce.data.NPC;
 import ohrrpgce.data.RPG;
 import ohrrpgce.data.loader.RPGLoadSizeListener;
@@ -59,7 +60,7 @@ public class GameEngine extends Engine {
         this.midletHook = midletHook;
        // this.hvm = hvm;
         metaInfo = new Meta(generator);
-        TextBox.initTextBox(width, height);
+        Message.initTextBox(width, height);
         BattlePrompt.initPrompts(width, height);
     }
 
