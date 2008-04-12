@@ -258,6 +258,7 @@ public class OHRRPG {
              if (doPause && caller!=null)
                 caller.schedulePause();
             currTextBox = txtBox;
+            currTextBox.loadBox();
             talkingNPC = caller;
          }
      }

@@ -135,7 +135,7 @@ public class TextBox  {
     public void fitLines() {
   //  	System.out.println("fit lines");
         if (MAX_WIDTH==-1 || MAX_HEIGHT==-1)
-            throw new LiteException(this, null, "Message Boxe constants not initialized.");
+            throw new LiteException(this, null, "Message Box constants not initialized.");
         
         int blockSize = Message.FONT_MARGIN+Message.FONT_SIZE;
         if (shade)

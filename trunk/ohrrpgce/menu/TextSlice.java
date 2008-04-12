@@ -17,13 +17,17 @@ public class TextSlice extends MenuSlice {
 	private boolean shade;
 	private boolean skipNLSymbol;
 	
+	//Hackish
+	private boolean autoDiet;
 	
-	public TextSlice(MenuFormatArgs mFormat, String text, ImageAdapter font, boolean skipNLSymbol, boolean shade) {
+	
+	public TextSlice(MenuFormatArgs mFormat, String text, ImageAdapter font, boolean skipNLSymbol, boolean shade, boolean autoDiet) {
 		super(mFormat);
 		
 		this.text = text;
 		this.font = font;
 		this.skipNLSymbol = skipNLSymbol;
+		this.autoDiet = autoDiet;
 		this.shade = shade;
 		this.blockSize = Message.FONT_MARGIN+Message.FONT_SIZE;
 		if (shade)
@@ -31,14 +35,16 @@ public class TextSlice extends MenuSlice {
 	}
 	
 	
-    private void layoutText() {
+    private boolean layoutText() {
     	//Can we?
     	if (getWidth()==0 || getHeight()==0)
-    		return;
+    		return false;
     	
     	if (lines==null)
     		fitLines();
         bufferText();
+        
+        return true;
     }
 
     
@@ -184,15 +190,35 @@ public class TextSlice extends MenuSlice {
 	
 	
 	//Over-ride....
-	protected void setWidth(int newWidth) {
+	protected void setWidth(int newWidth) {		
 		super.setWidth(newWidth);
-		
-		layoutText();
+		if (layoutText() && autoDiet) {
+			System.out.println("0");
+			String line = "";
+			for (int i=0; i<lines.length; i++) {
+				if (lines[i].length() > line.length())
+					line = lines[i];
+			}
+			
+			System.out.println("1");
+			int amtPadded = mFormat.borderPadding*2 + mFormat.borderColors.length*2;
+			System.out.println("2");
+			newWidth = line.length()*blockSize + amtPadded;
+			System.out.println("3");
+			super.setWidth(newWidth);
+			System.out.println("4");
+			layoutText();
+			System.out.println("5");
+		}
 	}
-	protected void setHeight(int newHeight) {
+	protected void setHeight(int newHeight) {		
 		super.setHeight(newHeight);
-		
-		layoutText();
+		if (layoutText() && autoDiet) {
+			int amtPadded = mFormat.borderPadding*2 + mFormat.borderColors.length*2;
+			newHeight = lines.length*blockSize + amtPadded + 1;
+			super.setHeight(newHeight);
+			layoutText();
+		}
 	}
 	public void setText(String text) {
 		this.text = text;

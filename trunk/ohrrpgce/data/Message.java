@@ -1,7 +1,11 @@
 package ohrrpgce.data;
 
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.game.LiteException;
+import ohrrpgce.menu.MenuFormatArgs;
+import ohrrpgce.menu.MenuSlice;
 import ohrrpgce.menu.TextBox;
+import ohrrpgce.menu.TextSlice;
 
 /**
  * The message boxes shown in OHR-created games.
@@ -15,12 +19,22 @@ public class Message {
         private static final int SIZE_HALVED = (FONT_SIZE+1)/2;
         private static final int SIZE_2X = 2*(FONT_SIZE+1);
         private static final int SCROLL_AMT = 9;
+        
+        //Hackish, for now...
+        public static int MAX_WIDTH=-1;
+        public static int MAX_HEIGHT=-1;
+        public static void initTextBox(int width, int height) {
+            MAX_WIDTH = width;
+            MAX_HEIGHT = height;
+        }
     
+        private static TextSlice displayBox;
+        private String thisMsg;
+        
         private RPG parent;
         public int boxColor;
         public int boxBorderColor;
     
-        private TextBox displayBox;
         private int scrollAmt;
         private int maxScrollAmt;
         private int crX;
@@ -46,10 +60,37 @@ public class Message {
         /**
          * Trigger a re-compute next time this box is drawn.
          */
-	public void reset(String newText) {
-            displayBox = new TextBox(newText, ((RPG)parent).font, boxBorderColor, boxColor, true);
-            scrollAmt = 0;
-	}
+        public void reset(String newText) {
+        	if (MAX_WIDTH==-1 || MAX_HEIGHT==-1)
+        		throw new LiteException(this, null, "Message Box constants not initialized.");
+        	if (displayBox==null)
+        		makeInitialDisplay();
+		
+        	this.thisMsg = newText;
+        }
+        
+        
+        public void loadBox() {
+        	displayBox.setText(thisMsg);
+        	displayBox.doLayout();
+        	scrollAmt = 0;
+        }
+	
+	
+        private void makeInitialDisplay() {
+        	MenuFormatArgs mFormat = new MenuFormatArgs();
+        	mFormat.bgColor = 0xFF000000|boxColor;
+        	mFormat.borderColors = new int[]{boxBorderColor, 0x000000};
+        	mFormat.borderPadding = Message.FONT_MARGIN;
+        	mFormat.fillType = MenuSlice.FILL_TRANSLUCENT;
+        	mFormat.xHint = 0;
+        	mFormat.yHint = 0;
+        	mFormat.widthHint = MAX_WIDTH;
+        	mFormat.heightHint = MAX_HEIGHT;
+		
+        	displayBox = new TextSlice(mFormat, "x", parent.font, false, true, true);
+        }
+	
         
         /**
          * NOTE: This method will not scroll before the first call to paint()
@@ -71,7 +112,8 @@ public class Message {
         }
         
         public void paint(int screenWidth, int screenHeight) {
-            displayBox.paint(-scrollAmt, screenWidth);
+        	
+            displayBox.paintAt(screenWidth/2-displayBox.getWidth()/2, -scrollAmt/2);
             
             maxScrollAmt = Math.max(displayBox.getHeight()-screenHeight+1, 0);
             
@@ -92,8 +134,6 @@ public class Message {
                     //Show the "down" arrow.
                 	GraphicsAdapter.drawRGB(cursorDown, 0, SIZE_2X, crX, lowY, SIZE_2X, SIZE_2X, true);
                 }
-                
-                
             }
         }
         

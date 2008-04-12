@@ -125,15 +125,17 @@ public class MenuSlice {
     
     
     
+    
     /**
-     * Paint this as a menu component; cascade the paint.
-     * @param paintFromDir Set to -1 initially.
+     * Helper method for drawing a menu slice at specific co-ordinates. Does NOT cascade the paint.
+     * @param x,y location
      */
-    public void paintMenuSlice(int paintFromDir) {
-    	//Keep this for now...
-    	int x = getPosX();
-    	int y = getPosY();
-    	
+    public void paintAt(int x, int y) {
+    	this.paintAt(x, y, false);
+    }
+    
+    
+    private void paintAt(int x, int y, boolean paintInner) {
         //Save memory
         if (hasExpanded)
         	contract();
@@ -148,7 +150,7 @@ public class MenuSlice {
         drawPixelBuffer(x+pixelBufferSize[X]+this.mFormat.borderColors.length, y+pixelBufferSize[Y]+this.mFormat.borderColors.length);
         
         //Draw all inner components
-        if (topLeftChildMI!=null)
+        if (paintInner && topLeftChildMI!=null)
         	topLeftChildMI.paintMenuSlice(-1);
 
         //Draw the borders as ever-decreasing rectangles.
@@ -156,6 +158,20 @@ public class MenuSlice {
             GraphicsAdapter.setColor(this.mFormat.borderColors[i]);
             GraphicsAdapter.drawRect(x+i, y+i, getWidth()-2*i-1, getHeight()-2*i-1);
         }
+    }
+    
+    
+    
+    /**
+     * Paint this as a menu component; cascade the paint.
+     * @param paintFromDir Set to -1 initially.
+     */
+    public void paintMenuSlice(int paintFromDir) {
+    	//Keep this for now...
+    	int x = getPosX();
+    	int y = getPosY();
+    	
+    	paintAt(x, y, true);
         
         //Draw all connected components
         for (int i=0; i<paintConnect.length; i++) {
