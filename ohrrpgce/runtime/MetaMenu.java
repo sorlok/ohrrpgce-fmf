@@ -9,6 +9,7 @@ import ohrrpgce.data.Message;
 import ohrrpgce.data.RPG;
 import ohrrpgce.game.LiteException;
 import ohrrpgce.henceforth.Int;
+import ohrrpgce.menu.Action;
 import ohrrpgce.menu.ImageSlice;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
@@ -22,6 +23,7 @@ public class MetaMenu {
 	//Retrieve these AFTER calling buildMenu()
 	public static MenuSlice topLeftMI;
 	public static Transition menuInTrans;
+	public static MenuSlice currCursor;
 
 	//Used for laying out components
     private static final int DEFAULT_INTER_ELEMENT_SPACING = 3;
@@ -168,6 +170,26 @@ public class MetaMenu {
             Math.min((((colorZero[0]&0xFF0000)/0x10000)*14)/10, 0xFF)*0x10000+
                     Math.min((((colorZero[0]&0xFF00)/0x100)*14)/10, 0xFF)*0x100+
                     Math.min(((colorZero[0]&0xFF)*14)/10, 0xFF)+0xFF000000;
+        
+        
+        //Temp
+        Action highlightMaker = new Action() {
+        	public boolean perform(Object caller) {
+        		MenuSlice calledBy = (MenuSlice)caller;
+        		
+        		MenuFormatArgs mf = new MenuFormatArgs();
+        		mf.bgColor = 0x66FF0000;
+        		mf.borderColors = new int[]{0xFF0000};
+        		mf.fillType = MenuSlice.FILL_TRANSLUCENT;
+        		mf.xHint = calledBy.getPosX();
+        		mf.yHint = calledBy.getPosY();
+        		mf.widthHint = calledBy.getWidth();
+        		mf.heightHint = calledBy.getHeight();
+        		currCursor = new MenuSlice(mf);
+        		currCursor.doLayout();
+        		return true;
+        	}
+        };
 
 
 		//Requires a "clear" top-level box with no border, etc. I don't like it so much, but
@@ -228,12 +250,12 @@ public class MetaMenu {
 
             	ImageSlice currBox = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder+mainImageFiles[i]));
                 currBox.setData(new Int(i));
-                //firstBox.setHelperTextID(mainTextsIDs[i]);
+                currBox.addFocusGainedListener(highlightMaker);
 
                 //Connect!
-                if (prevBox!=null)
-                	prevBox.connect(currBox, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-                else
+                if (prevBox!=null) {
+                	prevBox.connect(currBox, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
+                } else
                 	buttonList.setTopLeftChild(currBox);
                 prevBox = currBox;
             } catch (Exception ex) {
@@ -257,7 +279,8 @@ public class MetaMenu {
 		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
 		textBoxTest = new TextSlice(mFormat, "Bob the Hamster", rpg.font, false, true, false);
-		buttonList.connect(textBoxTest, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+		textBoxTest.addFocusGainedListener(highlightMaker);
+		buttonList.connect(textBoxTest, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
 
 
 		//Set for later...

@@ -16,6 +16,7 @@ public class MenuSlice {
 	protected static final int Y = 1;
 	protected static final int WIDTH = 2;
 	protected static final int HEIGHT = 3;
+	private static final int MAX_LISTENERS = 5;
 	
 	//External Static variables: FILL
 	public static final int FILL_NONE = 0;
@@ -52,9 +53,12 @@ public class MenuSlice {
     private MenuSlice[] paintConnect = new MenuSlice[4];
     private MenuSlice[] commandConnect = new MenuSlice[4];
     private MenuSlice topLeftChildMI;
+    private MenuSlice currActiveChildMI;
+    private MenuSlice parent;
     
     //Event Listeners help our menu interract with the outside world
-    private Action focusGainedListener;
+    private Action[] focusGainedListeners = new Action[MAX_LISTENERS];
+    private int numberOfFocusGainedListeners = 0;
     private Action focusLostListener;    //If this returns "false", then don't move!
     private Action cancelListener;
     private Action acceptListener;
@@ -578,6 +582,9 @@ public class MenuSlice {
         	//Connection applies to both objects.
             this.commandConnect[connectOn] = secondary;
             secondary.commandConnect[converse] = this;
+            
+            //Also
+            secondary.parent = this.parent;
         }
         		
         //Paint connect:		
@@ -620,6 +627,7 @@ public class MenuSlice {
     
     public void setTopLeftChild(MenuSlice child) {
     	this.topLeftChildMI = child;
+    	this.topLeftChildMI.parent = this;
     }
     
     
@@ -709,6 +717,96 @@ public class MenuSlice {
 		for (int i=0; i<pixelBuffer.length; i++)
 			pixelBuffer[i] = this.mFormat.bgColor;
     }
+    
+    
+    
+    
+    //////////////////////////
+    // Control Properties
+    //////////////////////////
+    
+    public void accept() {
+    	if (this.acceptListener!=null)
+    		acceptListener.perform(this);
+    }
+    
+    public void cancel() {
+    	if (this.cancelListener!=null)
+    		cancelListener.perform(this);
+    }
+    
+    
+    /**
+     * A MenuItem responds when keys are pressed.
+     * Calls the "processInput" functions for the focussed element first.
+     * @param direction The key that was pressed. This must already be pre-processed.
+     * @return true if input was processed, false otherwise.
+     */
+    public boolean processInput(int direction) {
+    	//Always delegate to inner child elements
+    	if (currActiveChildMI==null)
+    		currActiveChildMI = topLeftChildMI;
+    	if (currActiveChildMI!=null && currActiveChildMI.processInput(direction))
+    		return true;
+    	
+    	//First, check if we should continue..
+    	if (consumeInput(direction))
+    		return true;
+    	
+    	//Is there anything to process?
+        if (commandConnect[direction]==null)
+            return false;
+        
+        //Ok, we need to fire off a focus-lost listener, and also a focus-gained one...
+        if (this.focusLostListener != null) {
+        	//But, don't move unless the focus lost listener returns true.
+        	if (!focusLostListener.perform(this))
+        		return true;
+        }
+        
+        //Move, and fire the focus-gained listener
+        commandConnect[direction].moveTo();
+        return true;
+    }
+    
+    public void moveTo() {
+    	//Set active...
+    	currActiveChildMI = topLeftChildMI;
+    	if (this.parent != null)
+    		this.parent.currActiveChildMI = this;
+    	
+    	for (int i=0; i<numberOfFocusGainedListeners; i++)
+    		this.focusGainedListeners[i].perform(this);
+    }
+    
+    
+    /**
+     * Intended to be over-ridden by complex sub-components
+     * @return "true" if standard menu control should NOT be processed.
+     */
+    public boolean consumeInput(int direction) {
+    	return false;
+    }
+    
+    
+    //Listeners
+    public void setFocusLostListener(Action listener) {
+    	this.focusLostListener = listener;
+    }
+    public void addFocusGainedListener(Action listener) {
+    	if (numberOfFocusGainedListeners==MAX_LISTENERS)
+    		throw new LiteException(this, null, "Maximum number of listeners("+MAX_LISTENERS+") exceeded.");
+    	focusGainedListeners[numberOfFocusGainedListeners++] = listener;
+    }
+    public void setCancelListener(Action listener) {
+    	this.cancelListener = listener;
+    }
+    public void setAcceptListener(Action listener) {
+    	this.acceptListener = listener;
+    }
+    
+    
+    
     
 
 }
