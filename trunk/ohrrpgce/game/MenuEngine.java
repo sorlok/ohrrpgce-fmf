@@ -120,17 +120,23 @@ public class MenuEngine extends Engine {
                 //OHR key-detect order: MENU, ENTER, UP, DOWN, LEFT, RIGHT
                 if (bufferedESC || (keyStates&InputAdapter.KEY_CANCEL)!=0) {
                     System.out.println("CANCEL");
+                    topLeftMI.cancel();
                     bufferedESC = false;
                 } else if ((keyStates&InputAdapter.KEY_ACCEPT)!=0) {
                     System.out.println("ACCEPT");
+                    topLeftMI.accept();
                 } else if ((keyStates&InputAdapter.KEY_UP)!=0) {
                     System.out.println("UP");
+                    topLeftMI.processInput(MenuSlice.CONNECT_TOP);
                 } else if ((keyStates&InputAdapter.KEY_DOWN)!=0) {
                     System.out.println("DOWN");
+                    topLeftMI.processInput(MenuSlice.CONNECT_BOTTOM);
                 } else if ((keyStates&InputAdapter.KEY_LEFT)!=0) {
                     System.out.println("LEFT");
+                    topLeftMI.processInput(MenuSlice.CONNECT_LEFT);
                 } else if ((keyStates&InputAdapter.KEY_RIGHT)!=0) {
                     System.out.println("RIGHT");
+                    topLeftMI.processInput(MenuSlice.CONNECT_RIGHT);
                 } else 
                     throw new RuntimeException("Somehow, no input was pressed (but expected) for input: " + keyStates);
                 
@@ -152,8 +158,13 @@ public class MenuEngine extends Engine {
     		if (currTransition.doPaintOver())
     			return;
     	}
-    	
+    
+    	//Paint the menu
     	topLeftMI.paintMenuSlice(-1);
+    	
+    	//Paint the cursor
+    	if (MetaMenu.currCursor!=null)
+    		MetaMenu.currCursor.paintMenuSlice(-1);
     }
 
     public void updateScene(long elapsed) {
@@ -183,6 +194,7 @@ public class MenuEngine extends Engine {
         //Set components
         topLeftMI = MetaMenu.topLeftMI;
         topLeftMI.doLayout();
+        topLeftMI.moveTo();
         
         //Set transitions
         currTransition = MetaMenu.menuInTrans;
