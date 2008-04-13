@@ -194,13 +194,13 @@ public class GameEngine extends Engine {
                         LiteException.setErrorIcon(metaInfo.getGames()[currGameID].errorIcon);
 
                     System.out.println("Game loaded");
-                    //rpg.setCurrMap(rpg.getBaseRPG().getStartingMap());
+                    rpg.setCurrMap(rpg.getBaseRPG().getStartingMap());
                     //DEBUG:
-                    rpg.setCurrMap(1);
+                    //rpg.setCurrMap(1);
                     System.out.println("Map Set");
-                    //rpg.setCurrHero(currHeroID, rpg.getBaseRPG().getStartX(), rpg.getBaseRPG().getStartY());
+                    rpg.setCurrHero(currHeroID, rpg.getBaseRPG().getStartX(), rpg.getBaseRPG().getStartY());
                     //DEBUG:
-                    rpg.setCurrHero(currHeroID, 24,61);
+                    //rpg.setCurrHero(currHeroID, 24,61);
                     System.out.println("Hero Set");
 
 
