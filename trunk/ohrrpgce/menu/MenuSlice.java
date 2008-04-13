@@ -329,17 +329,19 @@ public class MenuSlice {
     	int calcdWidth = -1;
     	int parentX = 0;
     	int parentBorderPadding = 0;
+    	int parentNumBorders = 0;
     	if (parentContainer != null) {
     		parentX = parentContainer.getPosX();
     		parentBorderPadding = parentContainer.mFormat.borderPadding;
+    		parentNumBorders = parentContainer.mFormat.borderColors.length;
     	}
     	if (alreadyLaidOut.isEmpty()) //Special case: first element
-    		this.rectangle[X] = parentX + this.mFormat.xHint  + parentBorderPadding + this.mFormat.borderColors.length;
+    		this.rectangle[X] = parentX + this.mFormat.xHint  + parentBorderPadding + parentNumBorders;
     	else {
     		//Relate to our last-painted component
     		int lastPaintXAnchor = 0;
     		if (lastPaintedMI == null) {
-    			lastPaintXAnchor = parentX + parentBorderPadding + this.mFormat.borderColors.length;
+    			lastPaintXAnchor = parentX + parentBorderPadding + parentNumBorders;
     		} else {
     			lastPaintXAnchor = lastPaintedMI.getPosX();
     			if ((this.mFormat.fromAnchor&GraphicsAdapter.HCENTER)!=0)
@@ -456,17 +458,19 @@ public class MenuSlice {
     	int calcdHeight = -1;
     	int parentY = 0;
     	int parentBorderPadding = 0;
+    	int parentNumBorders = 0;
     	if (parentContainer != null) {
     		parentY = parentContainer.getPosY();
     		parentBorderPadding = parentContainer.mFormat.borderPadding;
+    		parentNumBorders = parentContainer.mFormat.borderColors.length;
     	}
     	if (alreadyLaidOut.isEmpty()) //Special case: first element
-    		this.rectangle[Y] = parentY + this.mFormat.yHint + parentBorderPadding + this.mFormat.borderColors.length;
+    		this.rectangle[Y] = parentY + this.mFormat.yHint + parentBorderPadding + parentNumBorders;
     	else {
     		//Relate to our last-painted component
     		int lastPaintYAnchor = 0;
     		if (lastPaintedMI == null) {
-    			lastPaintYAnchor = parentY + parentBorderPadding + this.mFormat.borderColors.length; 
+    			lastPaintYAnchor = parentY + parentBorderPadding + parentNumBorders; 
     		} else {
     			lastPaintYAnchor = lastPaintedMI.getPosY();
     			if ((this.mFormat.fromAnchor&GraphicsAdapter.VCENTER)!=0)
@@ -725,14 +729,30 @@ public class MenuSlice {
     // Control Properties
     //////////////////////////
     
-    public void accept() {
+    public boolean accept() {
+    	//Always delegate to inner child elements
+    	if (currActiveChildMI==null)
+    		currActiveChildMI = topLeftChildMI;
+    	if (currActiveChildMI!=null && currActiveChildMI.accept())
+    		return true;
+    	
     	if (this.acceptListener!=null)
-    		acceptListener.perform(this);
+    		return acceptListener.perform(this);
+    	
+    	return false;
     }
     
-    public void cancel() {
+    public boolean cancel() {
+    	//Always delegate to inner child elements
+    	if (currActiveChildMI==null)
+    		currActiveChildMI = topLeftChildMI;
+    	if (currActiveChildMI!=null && currActiveChildMI.cancel())
+    		return true;
+    	
     	if (this.cancelListener!=null)
-    		cancelListener.perform(this);
+    		return cancelListener.perform(this);
+    	
+    	return false;
     }
     
     
@@ -771,13 +791,24 @@ public class MenuSlice {
     
     public void moveTo() {
     	//Set active...
-    	currActiveChildMI = topLeftChildMI;
     	if (this.parent != null)
     		this.parent.currActiveChildMI = this;
     	
+    	//Move to child..
+    	currActiveChildMI = topLeftChildMI;
+    	if (currActiveChildMI!=null)
+    		currActiveChildMI.moveTo();
+    	
+    	//Listeners...
     	for (int i=0; i<numberOfFocusGainedListeners; i++)
     		this.focusGainedListeners[i].perform(this);
     }
+
+    
+    public MenuSlice getCurrActiveChild() {
+    	return currActiveChildMI;
+    }
+    
     
     
     /**

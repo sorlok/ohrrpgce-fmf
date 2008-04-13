@@ -171,27 +171,10 @@ public class MetaMenu {
                     Math.min((((colorZero[0]&0xFF00)/0x100)*14)/10, 0xFF)*0x100+
                     Math.min(((colorZero[0]&0xFF)*14)/10, 0xFF)+0xFF000000;
         
+        //Init our actions
+        MakeHighlightAction highlightAction = new MakeHighlightAction();
+        SaveAndRestoreMainMenu stateRestoreAction = new SaveAndRestoreMainMenu();
         
-        //Temp
-        Action highlightMaker = new Action() {
-        	public boolean perform(Object caller) {
-        		MenuSlice calledBy = (MenuSlice)caller;
-        		
-        		MenuFormatArgs mf = new MenuFormatArgs();
-        		mf.bgColor = 0x66FF0000;
-        		mf.borderColors = new int[]{0xFF0000};
-        		mf.fillType = MenuSlice.FILL_TRANSLUCENT;
-        		mf.xHint = calledBy.getPosX();
-        		mf.yHint = calledBy.getPosY();
-        		mf.widthHint = calledBy.getWidth();
-        		mf.heightHint = calledBy.getHeight();
-        		currCursor = new MenuSlice(mf);
-        		currCursor.doLayout();
-        		return true;
-        	}
-        };
-
-
 		//Requires a "clear" top-level box with no border, etc. I don't like it so much, but
         //   it is the "proper" way to do it.
 		MenuFormatArgs mFormat = new MenuFormatArgs();
@@ -231,6 +214,8 @@ public class MetaMenu {
 		mFormat.borderColors = new int[]{};
 		MenuSlice buttonList = new MenuSlice(mFormat);
 		topHalfBox.setTopLeftChild(buttonList);
+		buttonList.setFocusLostListener(stateRestoreAction);
+		buttonList.addFocusGainedListener(stateRestoreAction);
 
 		//Add list of buttons...
 		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
@@ -250,13 +235,24 @@ public class MetaMenu {
 
             	ImageSlice currBox = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder+mainImageFiles[i]));
                 currBox.setData(new Int(i));
-                currBox.addFocusGainedListener(highlightMaker);
+                currBox.addFocusGainedListener(highlightAction);
 
+                //Temp!
+                if (mainTextsIDs[i]==QUIT) {
+                	currBox.setAcceptListener(new Action() {
+                		public boolean perform(Object caller) {
+                			throw new RuntimeException("Testing 1 2 3");
+                		}
+                	});
+                }
+                
                 //Connect!
                 if (prevBox!=null) {
                 	prevBox.connect(currBox, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
-                } else
+                } else {
                 	buttonList.setTopLeftChild(currBox);
+                	buttonList.setData(currBox); //Needed for our focus listener...
+                }
                 prevBox = currBox;
             } catch (Exception ex) {
                 throw new LiteException(MetaMenu.class, null, "Menu button couldn't be loaded: " + ex.toString());
@@ -279,7 +275,7 @@ public class MetaMenu {
 		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
 		textBoxTest = new TextSlice(mFormat, "Bob the Hamster", rpg.font, false, true, false);
-		textBoxTest.addFocusGainedListener(highlightMaker);
+		textBoxTest.addFocusGainedListener(highlightAction);
 		buttonList.connect(textBoxTest, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
 
 
@@ -287,6 +283,43 @@ public class MetaMenu {
 		topLeftMI = clearBox;
 		menuInTrans = new MenuInTransition(rpg, width, height);
 	}
+	
+	
+	private static class MakeHighlightAction implements Action {
+    	public boolean perform(Object caller) {
+    		MenuSlice calledBy = (MenuSlice)caller;
+    		
+    		MenuFormatArgs mf = new MenuFormatArgs();
+    		mf.bgColor = 0x66FF0000;
+    		mf.borderColors = new int[]{0xFF0000};
+    		mf.fillType = MenuSlice.FILL_TRANSLUCENT;
+    		mf.xHint = calledBy.getPosX();
+    		mf.yHint = calledBy.getPosY();
+    		mf.widthHint = calledBy.getWidth();
+    		mf.heightHint = calledBy.getHeight();
+    		currCursor = new MenuSlice(mf);
+    		currCursor.doLayout();
+    		return true;
+    	}
+    };
+    
+    
+    private static class SaveAndRestoreMainMenu implements Action {
+    	public boolean perform(Object caller) {
+    		MenuSlice callerSlice = (MenuSlice)caller;
+    		
+    		if (callerSlice.getData() != null) {
+    			//Restore this... be careful, this can lead to infinite loops...
+    			MenuSlice prevChild = (MenuSlice)callerSlice.getData();
+    			callerSlice.setData(null);
+    			prevChild.moveTo();
+    		} else {
+    			//Save this to restore later.
+    			callerSlice.setData(callerSlice.getCurrActiveChild());
+    		}
+    		return true;
+    	}
+    }
 	
 }
 
