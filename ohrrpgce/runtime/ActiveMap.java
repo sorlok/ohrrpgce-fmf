@@ -98,7 +98,7 @@ public class ActiveMap {
                 sanityCheck++;
                 
                 //Wraparound - shouldn't ever be reached, but better to avoid the error.
-                if ( mapAnimCommands[animID] >= currAnim.actionCommands.length) {
+                if (mapAnimCommands[animID] >= currAnim.actionCommands.length) {
                     //Reset the animation
                      mapAnimCommands[animID] = 0;
                      resetAllTiles(animID);

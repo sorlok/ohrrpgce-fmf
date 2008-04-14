@@ -116,7 +116,7 @@ public class ActiveNPC extends ActiveWalker {
             
             //Step in the scheduled direction
 	        if (doStep) {
-	        	if (getParent().suspendedBlockability)
+	        	if (!getParent().suspendedBlockability)
 	        		step(getDirection());
 	        	else
 	        		forceStep(getDirection());
@@ -125,7 +125,7 @@ public class ActiveNPC extends ActiveWalker {
     }
     
     
-    public void tick() {    	
+    public void tick() {    
         super.tick();
         //walkingDir = -1;
         
@@ -134,10 +134,11 @@ public class ActiveNPC extends ActiveWalker {
 	        for (int i=0; i<stepBuffer.length; i++) {
 	            if (stepBuffer[i]!=0) {
 	                int facingDir = getDirection();
-	                if (getParent().suspendedBlockability)
+	                if (getParent().suspendedBlockability) {
 	                	forceStep(Step2Dir(i, stepBuffer[i]));
-	                else
+	                } else {
 	                	step(Step2Dir(i, stepBuffer[i]));
+	                }
 	                setDirection(facingDir); //Hack!
 	                
 	                //Increment or decrement as necessary
