@@ -129,7 +129,7 @@ public abstract class ActiveWalker {
      * @returns true if the step occurred.
      */
     private boolean step(int direction, boolean force) {
-        //Don't allow them to change direction mid-step.
+    	//Don't allow them to change direction mid-step.
         if (inMidStep())
             return false;
  
@@ -167,7 +167,7 @@ public abstract class ActiveWalker {
         
         ActiveNPC firstBlockingNPC = parent.getActiveMap().getFirstNPCAt(to[0], to[1]);;
         boolean tileFree = parent.getCurrMap().canMove(position[0], position[1], to[0], to[1]);
-                
+             
         if(force || (tileFree && performStep(firstBlockingNPC, parent.getActiveHero(), to))) {
             //Don't plan the move if we can't ever make it there.
             if (speed>0) {

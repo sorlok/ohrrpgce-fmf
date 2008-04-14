@@ -146,6 +146,11 @@ public class Map {
         
         
         public boolean canMove(int fromX, int fromY, int toX, int toY) {
+        	//Is this in bounds?
+        	if ( fromX<0 || fromX>=getWidth()  || toX<0 || toX>=getWidth()
+        	  || fromY<0 || fromY>=getHeight() || toY<0 || toY>=getHeight())
+        		return false;
+        	
            //We'll be lazy
             boolean can = true; //Don't change this! (see "default" case)
             if (toX-fromX==1) {
