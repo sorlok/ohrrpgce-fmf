@@ -2,8 +2,10 @@ package ohrrpgce.menu;
 
 import java.util.Vector;
 
+import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Message;
+import ohrrpgce.data.NPC;
 import ohrrpgce.game.LiteException;
 
 public class TextSlice extends MenuSlice {
@@ -20,6 +22,18 @@ public class TextSlice extends MenuSlice {
 	//Hackish
 	private boolean autoDiet;
 	
+	//Auto-scroll long boxes
+    private static final int SIZE_HALVED = (Message.FONT_SIZE+1)/2;
+    private static final int SIZE_2X = 2*(Message.FONT_SIZE+1);
+	private static final int SCROLL_INCREMENT = 9;
+    private int scrollAmt;
+    private int maxScrollAmt;
+    private int screenHeight;
+    
+    //Cursor Images
+    private static int[] cursorDown;
+    private static int[] cursorUp;
+	
 	
 	public TextSlice(MenuFormatArgs mFormat, String text, ImageAdapter font, boolean skipNLSymbol, boolean shade, boolean autoDiet) {
 		super(mFormat);
@@ -32,6 +46,11 @@ public class TextSlice extends MenuSlice {
 		this.blockSize = Message.FONT_MARGIN+Message.FONT_SIZE;
 		if (shade)
 			blockSize++;
+	}
+	
+	
+	public void setScrollLimit(int scrollAt) {
+		this.screenHeight = scrollAt;
 	}
 	
 	
@@ -49,6 +68,9 @@ public class TextSlice extends MenuSlice {
     		makeSkinny();
     	
         bufferText();
+        
+        scrollAmt = 0;
+        maxScrollAmt = Math.max(this.getHeight()-screenHeight, 0);
         
         return true;
     }
@@ -236,6 +258,84 @@ public class TextSlice extends MenuSlice {
 		super.setWidth(newWidth);
 		super.setHeight(newHeight);
 	}
+	
+    private void scrollBox(int yPlus) {
+        scrollAmt += yPlus;
+        
+        if (scrollAmt<0)
+            scrollAmt = 0;
+        if (scrollAmt>maxScrollAmt)
+            scrollAmt = maxScrollAmt;
+    }
+    
+    
+    public boolean consumeInput(int direction) {
+        if (direction==MenuSlice.CONNECT_TOP)
+            scrollBox(-SCROLL_INCREMENT);
+        else if (direction == MenuSlice.CONNECT_BOTTOM)
+            scrollBox(SCROLL_INCREMENT);
+        else
+        	return false;
+        return true;
+    }
+    
+    
+    public void paintAt(int x, int y) {
+    	//Modify y to accomodate our scroll
+    	super.paintAt(x, y-scrollAmt);
+    	
+        if (maxScrollAmt > 0) {
+            //Draw arrows to show that the box can be scrolled.
+            if (cursorDown==null)
+                loadScrollCursor();
+            
+            int crX = x+this.getWidth() - 2 - SIZE_HALVED - SIZE_2X;
+            int topY = 2+Message.FONT_SIZE/2;
+            int lowY = screenHeight - 2 - SIZE_HALVED - SIZE_2X;
+            
+            if (scrollAmt>0) {
+                //Show the "up" arrow.
+            	GraphicsAdapter.drawRGB(cursorUp, 0, SIZE_2X, crX, topY, SIZE_2X, SIZE_2X, true);
+            }
+            if (scrollAmt<maxScrollAmt) {
+                //Show the "down" arrow.
+            	GraphicsAdapter.drawRGB(cursorDown, 0, SIZE_2X, crX, lowY, SIZE_2X, SIZE_2X, true);
+            }
+        }
+    }
+    
+    private void loadScrollCursor() {
+        int fs = Message.FONT_SIZE;
+        int[] letter = new int[fs*fs];
+        font.getRGB(letter, 0, fs, fs*(25%Message.LETTERS_PER_LINE), fs*(25/Message.LETTERS_PER_LINE), fs, fs);
+        
+        //Shade - note: this copied code combines TextBox(shade) & ImageBox(double)
+        cursorDown = new int[SIZE_2X*SIZE_2X];
+        cursorUp = new int[cursorDown.length];
+        int color = 0xFF000000;
+        for (int offset=1; offset>=0; offset--) {
+            //Copy each row
+            for (int y=0; y<fs; y++) {
+                for (int x=0; x<fs; x++) {
+                    if ((letter[y*fs + x]&0x00FFFFFF)!=0) {
+                        for (int yPlus=0; yPlus<2; yPlus++) {
+                            for (int xPlus=0; xPlus<2; xPlus++) {
+                                cursorDown[(y+offset+yPlus)*SIZE_2X + x+offset+xPlus] = color;
+                            }
+                        }                            
+                    }
+                }
+            }
+            
+            color = 0xFFFFFFFF;
+        }
+        for (int y=0; y<SIZE_2X; y++) {
+            for (int x=0; x<SIZE_2X; x++) {
+                cursorUp[(SIZE_2X-1-y)*SIZE_2X +x] = cursorDown[y*SIZE_2X +x];
+            }
+        }
+    }
+    
 
 }
 
