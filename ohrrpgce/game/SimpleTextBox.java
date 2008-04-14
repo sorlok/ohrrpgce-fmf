@@ -3,20 +3,20 @@
  * Created on April 9, 2007, 1:25 PM
  */
 
-package ohrrpgce.menu;
+package ohrrpgce.game;
 
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Message;
-import ohrrpgce.game.LiteException;
+import ohrrpgce.menu.Canvas;
 
 /**
  * An extension to Box which allows for the placement of (possibly shadowed)
  *  text. Has support for word-wrap and hyphenation.
  * @author sethhetu
  */
-public class TextBox  {
+public class SimpleTextBox  {
     
     private int borderColor;
     private int bkgrdColor;
@@ -53,7 +53,7 @@ public class TextBox  {
      * @param skipNLSymbol will not display the newline symbol when a string is cut.
      * @param forcedSize overrides the MAX_WIDTH, MAX_HEIGHT default.
      */
-    public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency, boolean skipNLSymbol, int[] forcedSize) {
+    public SimpleTextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency, boolean skipNLSymbol, int[] forcedSize) {
     //    System.out.println("new Text Box: " + lines + " t: " + transparency);
     	if (transparency==Canvas.FILL_NONE)
     		background = new Canvas(0, new int[]{}, transparency);
@@ -83,11 +83,11 @@ public class TextBox  {
      * @param borderColor,bkgrdColor are RRGGBB values
      * @shade if true will draw a shadow for each character. This increases the box size.
      */
-    public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade) {
+    public SimpleTextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade) {
         this(lines, font, borderColor, bkgrdColor, shade, Canvas.FILL_TRANSLUCENT, false, new int[]{MAX_WIDTH, MAX_HEIGHT});
     }
     
-    public TextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency) {
+    public SimpleTextBox(String lines, ImageAdapter font, int borderColor, int bkgrdColor, boolean shade, int transparency) {
         this(lines, font, borderColor, bkgrdColor, shade, transparency, false, new int[]{MAX_WIDTH, MAX_HEIGHT});
     }
 

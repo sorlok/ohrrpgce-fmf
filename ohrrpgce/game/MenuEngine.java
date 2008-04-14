@@ -30,7 +30,6 @@ import ohrrpgce.menu.MPBox;
 import ohrrpgce.menu.MenuItem;
 import ohrrpgce.menu.MenuSlice;
 import ohrrpgce.menu.SpecialLabel;
-import ohrrpgce.menu.TextBox;
 import ohrrpgce.menu.transitions.MenuInTransition;
 import ohrrpgce.menu.transitions.Transition;
 import ohrrpgce.runtime.Meta;

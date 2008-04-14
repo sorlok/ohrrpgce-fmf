@@ -8,6 +8,7 @@ package ohrrpgce.menu;
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.game.MenuEngine;
+import ohrrpgce.game.SimpleTextBox;
 
 /**
  * A Flat List is a list a list of Strings that one can iterate through by 
@@ -25,8 +26,8 @@ public class FlatList extends MenuItem {
     private int margin;
     
     private boolean useArrows;
-    private static TextBox lArrow;
-    private static TextBox rArrow;
+    private static SimpleTextBox lArrow;
+    private static SimpleTextBox rArrow;
     
     private Action listItemChangedListener;
     private Action resizeListener;
@@ -57,8 +58,8 @@ public class FlatList extends MenuItem {
     private void makeBoxes(int size) {
         int[] clr0 = engine.getRPG().getTextBoxColors(0);
       //  lArrow = new ArrowBox(size, , ArrowBox.LEFT);
-        lArrow = new TextBox("<", engine.getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID);
-        rArrow = new TextBox(">", engine.getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID);
+        lArrow = new SimpleTextBox("<", engine.getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID);
+        rArrow = new SimpleTextBox(">", engine.getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID);
       //  rArrow = new ArrowBox(size, engine.getRPG().getTextBoxColors(0), ArrowBox.RIGHT);
     }
     
@@ -81,7 +82,7 @@ public class FlatList extends MenuItem {
        
         
         //Create the background box
-        TextBox dummy = new TextBox(currLongestText, engine.getRPG().font, 0, 0, true);
+        SimpleTextBox dummy = new SimpleTextBox(currLongestText, engine.getRPG().font, 0, 0, true);
         int[] colors = engine.getRPG().getTextBoxColors(textBoxColor);
         if (rArrow==null)
             makeBoxes(dummy.getHeight());
@@ -102,7 +103,7 @@ public class FlatList extends MenuItem {
     public void addItem(String item) {
         if (item.length()>currLongestText.length())
             throw new RuntimeException("FlatList cannot be dynamically resized to acoomodate \"" + item + "\"");
-        itemText.addElement(new TextBox(item, engine.getRPG().font, 0, 0, true, Canvas.FILL_NONE));
+        itemText.addElement(new SimpleTextBox(item, engine.getRPG().font, 0, 0, true, Canvas.FILL_NONE));
     }
 
     
@@ -165,7 +166,7 @@ public class FlatList extends MenuItem {
         //Paint our two boxes.
         bkgrdBox.paint(originOffset[0]+getPosX(), originOffset[1]+getPosY(), GraphicsAdapter.TOP|GraphicsAdapter.LEFT);
         if (itemText.size()>0) { //Sometimes we don't have any text; e.g., a hero with no spell groups at all!
-            ((TextBox)itemText.elementAt(currItem)).paint(originOffset[0]+getPosX()+getWidth()/2, originOffset[1]+getPosY()+1, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
+            ((SimpleTextBox)itemText.elementAt(currItem)).paint(originOffset[0]+getPosX()+getWidth()/2, originOffset[1]+getPosY()+1, GraphicsAdapter.TOP|GraphicsAdapter.HCENTER);
         }
         
         //Paint arrows?

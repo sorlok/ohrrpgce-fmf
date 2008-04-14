@@ -6,6 +6,7 @@
 package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.game.SimpleTextBox;
 
 /**
  * A hackish way to include a clip, but I don't want every menu component checking for a clipping rectangle (yet).
@@ -16,7 +17,7 @@ public class SpecialLabel extends Label{
     private int[] clip;
     private int[] full;
     
-    public SpecialLabel(TextBox txt, int[] full) {
+    public SpecialLabel(SimpleTextBox txt, int[] full) {
         super(txt);
         //this.clip = clip;
         this.full = full;
