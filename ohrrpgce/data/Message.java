@@ -86,7 +86,7 @@ public class Message {
         	mFormat.xHint = 0;
         	mFormat.yHint = 0;
         	mFormat.widthHint = MAX_WIDTH;
-        	mFormat.heightHint = MAX_HEIGHT;
+        	mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
 		
         	displayBox = new TextSlice(mFormat, "x", parent.font, false, true, true);
         }
