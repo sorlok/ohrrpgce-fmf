@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import ohrrpgce.adapter.AdapterGenerator;
 import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.adapter.applet.ImageAdapter;
+import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Message;
 import ohrrpgce.data.RPG;
 import ohrrpgce.game.LiteException;
@@ -55,8 +55,9 @@ public class MetaMenu {
     };
     
     
-    //Temp
-    private static TextSlice textBoxTest;
+    //Character selection
+    private static TextSlice heroSelector;
+    private static ImageSlice currHeroPicture;
 
 
 
@@ -71,13 +72,13 @@ public class MetaMenu {
 		mFormat.yHint = 10;
 		mFormat.widthHint = 50;
 		mFormat.heightHint = 50;
-		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
-
 		MenuSlice firstBox = new MenuSlice(mFormat);
 
 		mFormat.bgColor = 0x22CC00;
 		mFormat.yHint = 0;
+		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
 		MenuSlice secondBox = new MenuSlice(mFormat);
 
 		mFormat.bgColor = 0x2200CC;
@@ -223,7 +224,7 @@ public class MetaMenu {
 		mFormat.xHint = 0;
 		mFormat.yHint = 0;
 		mFormat.fillType = MenuSlice.FILL_SOLID;
-		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
 		mFormat.borderColors = new int[]{0, 0};
 		MenuSlice prevBox = null;
@@ -252,6 +253,7 @@ public class MetaMenu {
                 } else {
                 	buttonList.setTopLeftChild(currBox);
                 	buttonList.setData(currBox); //Needed for our focus listener...
+                	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
                 }
                 prevBox = currBox;
             } catch (Exception ex) {
@@ -263,7 +265,7 @@ public class MetaMenu {
 		}
 
 
-		//Test
+		//Hero selector
 		mFormat.fillType = MenuSlice.FILL_SOLID;
 		mFormat.xHint = 0;
 		mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
@@ -274,10 +276,42 @@ public class MetaMenu {
 		mFormat.borderColors = new int[]{colorZero[1], 0};
 		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
-		textBoxTest = new TextSlice(mFormat, "Bob the Hamster", rpg.font, false, true, false);
-		textBoxTest.addFocusGainedListener(highlightAction);
-		buttonList.connect(textBoxTest, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
-
+		heroSelector = new TextSlice(mFormat, "Bob the Hamster", rpg.font, false, true, false);
+		heroSelector.addFocusGainedListener(highlightAction);
+		buttonList.connect(heroSelector, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
+		
+		//First hero's picture
+        ImageAdapter pic = null;
+        try {
+            pic = adaptGen.createImageAdapter(Meta.pathToGameFolder + adaptGen.getGameName() + "/HERO_0.PNG");
+        } catch (IOException ex) {
+            throw new LiteException(MetaMenu.class, null, "IO Error making hero 0's pic: " + ex.getMessage());
+        }
+		
+		//Current hero box
+		mFormat.fillType = MenuSlice.FILL_SOLID;
+		mFormat.xHint = 0;
+		mFormat.yHint = 0;
+		mFormat.bgColor = colorZero[0];
+		mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+		currHeroPicture = new ImageSlice(mFormat, pic);
+		bottomHalfBox.setTopLeftChild(currHeroPicture);
+		heroSelector.connect(currHeroPicture, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_CONTROL);
+		
+		//Load remainder of heroes' pictures
+		currHeroPicture.setData(new Object[rpg.getNumHeroes()]);
+		currHeroPicture.addFocusGainedListener(highlightAction);
+        ((Object[])currHeroPicture.getData())[0] = pic;
+        for (int i=1; i<rpg.getNumHeroes(); i++) {
+            try {
+                ((Object[])currHeroPicture.getData())[i] = adaptGen.createImageAdapter(Meta.pathToGameFolder + adaptGen.getGameName() + "/HERO_" + i +  ".PNG");
+            } catch (IOException ex) {
+                throw new LiteException(MetaMenu.class, null, "IO Error making hero "+i+"'s pic: " + ex.getMessage());
+            }
+        }
 
 		//Set for later...
 		topLeftMI = clearBox;
