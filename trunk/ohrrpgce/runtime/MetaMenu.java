@@ -10,6 +10,7 @@ import ohrrpgce.data.RPG;
 import ohrrpgce.game.LiteException;
 import ohrrpgce.henceforth.Int;
 import ohrrpgce.menu.Action;
+import ohrrpgce.menu.FlatListSlice;
 import ohrrpgce.menu.ImageSlice;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
@@ -56,7 +57,7 @@ public class MetaMenu {
     
     
     //Character selection
-    private static TextSlice heroSelector;
+    private static FlatListSlice heroSelector;
     private static ImageSlice currHeroPicture;
 
 
@@ -276,9 +277,21 @@ public class MetaMenu {
 		mFormat.borderColors = new int[]{colorZero[1], 0};
 		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
-		heroSelector = new TextSlice(mFormat, "Bob the Hamster", rpg.font, false, true, false);
+        String[] str = new String[rpg.getNumHeroes()];
+        for (int i=0; i<str.length; i++)
+            str[i] = rpg.getHero(i).name;
+		heroSelector = new FlatListSlice(mFormat, str, rpg.font, true);
 		heroSelector.addFocusGainedListener(highlightAction);
 		buttonList.connect(heroSelector, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
+		heroSelector.setListItemChangedListener(new Action() {
+			public boolean perform(Object caller) {
+				Object currPic = ((Object[])currHeroPicture.getData())[heroSelector.getCurrSelectedID()];
+				currHeroPicture.setImage((ImageAdapter)currPic);
+				//topLeftMI.doLayout(); //Not strictly necessary, since all our pictures are the same width/height.
+				//bug on topLeftMI.doLayout()... something's amiss!
+				return true;
+			}
+		});
 		
 		//First hero's picture
         ImageAdapter pic = null;

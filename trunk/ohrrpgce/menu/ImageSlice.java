@@ -62,6 +62,10 @@ public class ImageSlice extends MenuSlice {
     }
 
     
+    public void setImage(ImageAdapter pngImage) {
+    	this.pngImage = pngImage;
+    }
+    
     
     //Last save
     protected int calcMinWidth() {

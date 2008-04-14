@@ -236,6 +236,10 @@ public class TextSlice extends MenuSlice {
 		this.text = text;
 		this.lines = null;
 		
+		//Special case
+		if (this.mFormat.widthHint==MenuFormatArgs.WIDTH_MINIMUM)
+			setWidth(calcMinWidth());
+		
 		//For standalone text boxes, we need to be careful of auto-skinny....
 		if (layoutText() && autoDiet) {
 			makeSkinny();

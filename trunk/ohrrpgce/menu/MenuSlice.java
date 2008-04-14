@@ -117,7 +117,12 @@ public class MenuSlice {
         y -= this.mFormat.borderColors.length;
         if (!hasExpanded)
             expand();
-        pixelBuffer[y*pixelBufferSize[WIDTH] + x] = 0xFF000000|colorRGB;
+        
+        try {
+        	pixelBuffer[y*pixelBufferSize[WIDTH] + x] = 0xFF000000|colorRGB;
+        } catch (ArrayIndexOutOfBoundsException ex) {
+        	throw new LiteException(this, ex, "MenuSlice.setPixel() is out of bounds.");
+        }
     }
     
     
