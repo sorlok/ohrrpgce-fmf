@@ -113,9 +113,9 @@ public class Message {
         
         public void paint(int screenWidth, int screenHeight) {
         	
-            displayBox.paintAt(screenWidth/2-displayBox.getWidth()/2, -scrollAmt/2);
+            displayBox.paintAt(screenWidth/2-displayBox.getWidth()/2, -scrollAmt);
             
-            maxScrollAmt = Math.max(displayBox.getHeight()-screenHeight+1, 0);
+            maxScrollAmt = Math.max(displayBox.getHeight()-screenHeight, 0);
             
             if (maxScrollAmt > 0) {
                 //Draw arrows to show that the box can be scrolled.

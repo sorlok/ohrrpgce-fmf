@@ -41,10 +41,13 @@ public class TextSlice extends MenuSlice {
     		return false;
     	
     	if (lines==null) {
-    		System.out.println("fit lines");
     		fitLines();
-    		System.out.println("fit lines done");
     	}
+    	
+    	//Note: auto-skinny needs some help here
+    	if (autoDiet)
+    		makeSkinny();
+    	
         bufferText();
         
         return true;
@@ -197,18 +200,25 @@ public class TextSlice extends MenuSlice {
 		super.setWidth(newWidth);
 		if (layoutText() && autoDiet) {
 			makeSkinny();
+			layoutText();
 		}
 	}
 	protected void setHeight(int newHeight) {		
 		super.setHeight(newHeight);
 		if (layoutText() && autoDiet) {
 			makeSkinny();
+			layoutText();
 		}
 	}
 	public void setText(String text) {
 		this.text = text;
 		this.lines = null;
-		layoutText();
+		
+		//For standalone text boxes, we need to be careful of auto-skinny....
+		if (layoutText() && autoDiet) {
+			makeSkinny();
+			layoutText();
+		}
 	}
 	private void makeSkinny() {
 		//Calculate width/height
@@ -225,7 +235,6 @@ public class TextSlice extends MenuSlice {
 		//Set, and recalc
 		super.setWidth(newWidth);
 		super.setHeight(newHeight);
-		layoutText();
 	}
 
 }
