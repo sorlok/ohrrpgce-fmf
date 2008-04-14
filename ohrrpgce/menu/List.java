@@ -8,6 +8,7 @@ package ohrrpgce.menu;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Message;
+import ohrrpgce.game.SimpleCanvas;
 
 /**
  * A vertical list of items
@@ -21,7 +22,7 @@ public class List extends MenuItem {
    // private int[] size;
     private int numBorders;
     
-    private Canvas background;
+    private SimpleCanvas background;
     private int[] foreground;
     private int[] foregroundSize = new int[2];
     
@@ -62,7 +63,7 @@ public class List extends MenuItem {
         this.font = font;
         setSize(prefWidth, prefHeight);
         this.numBorders = borderColors.length;
-        background = new Canvas(prefWidth, prefHeight, bkgrdColor, borderColors, Canvas.FILL_GUESS);
+        background = new SimpleCanvas(prefWidth, prefHeight, bkgrdColor, borderColors, MenuSlice.FILL_GUESS);
         onscreenItems = prefHeight/(Message.FONT_SIZE+1+margin);
         
     }

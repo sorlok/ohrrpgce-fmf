@@ -9,6 +9,7 @@ import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.Hero;
 import ohrrpgce.data.RPG;
 import ohrrpgce.data.loader.PictureParser;
+import ohrrpgce.game.SimpleCanvas;
 
 /**
  * Shows the list of heroes in the party, lets you pick one.
@@ -33,7 +34,7 @@ public class HeroSelector extends Composite {
     private RPG game;
     private int minElements;
     private int maxElements;
-    private Canvas background;
+    private SimpleCanvas background;
 //    private int partyIDofUser;
     
     //Speed up
@@ -43,7 +44,7 @@ public class HeroSelector extends Composite {
     private static MenuItem[] getPartyAsButtons(Hero[] heroParty, RPG game) {
         MenuItem[] ret = new MenuItem[heroParty.length];
         for (int i=0; i<ret.length; i++) {
-            ImageBox pic = new ImageBox(heroParty[i].getWalkabout().spData[4], heroParty[i].walkaboutPaletteID, game, new int[]{PictureParser.PT_WALKABOUT_SIZES[0], PictureParser.PT_WALKABOUT_SIZES[1]}, 1, 0, new int[]{}, ImageBox.SCALE_NN, Canvas.FILL_GUESS);
+            ImageBox pic = new ImageBox(heroParty[i].getWalkabout().spData[4], heroParty[i].walkaboutPaletteID, game, new int[]{PictureParser.PT_WALKABOUT_SIZES[0], PictureParser.PT_WALKABOUT_SIZES[1]}, 1, 0, new int[]{}, ImageBox.SCALE_NN, MenuSlice.FILL_GUESS);
             ret[i] = new  Button(
                     null, //Grr...
                     pic,
@@ -84,11 +85,11 @@ public class HeroSelector extends Composite {
         currItem = items[0];
         
         //Prepare background, set size, etc.
-        background = new Canvas(
+        background = new SimpleCanvas(
                 border.length*2 + MARGIN + (PictureParser.PT_WALKABOUT_SIZES[0]+MARGIN)*toShow,
                 border.length*2 + PictureParser.PT_WALKABOUT_SIZES[1] + MARGIN*2 + 2 + cursorSize,
                 game.getTextBoxColors(0)[0],
-                border, Canvas.FILL_SOLID
+                border, MenuSlice.FILL_SOLID
                 );
     }
 

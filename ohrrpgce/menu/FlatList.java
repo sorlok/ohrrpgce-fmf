@@ -7,6 +7,7 @@ package ohrrpgce.menu;
 
 import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.game.SimpleCanvas;
 import ohrrpgce.game.MenuEngine;
 import ohrrpgce.game.SimpleTextBox;
 
@@ -20,7 +21,7 @@ public class FlatList extends MenuItem {
     private MenuEngine engine;
     private Vector itemText; //Vector of boxes; we assume the text is implicit.
     private String currLongestText;
-    private Canvas bkgrdBox; //For obvious reasons
+    private SimpleCanvas bkgrdBox; //For obvious reasons
     private int textBoxColor;
     private int currItem;
     private int margin;
@@ -58,8 +59,8 @@ public class FlatList extends MenuItem {
     private void makeBoxes(int size) {
         int[] clr0 = engine.getRPG().getTextBoxColors(0);
       //  lArrow = new ArrowBox(size, , ArrowBox.LEFT);
-        lArrow = new SimpleTextBox("<", engine.getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID);
-        rArrow = new SimpleTextBox(">", engine.getRPG().font, clr0[1], clr0[0], true, Canvas.FILL_SOLID);
+        lArrow = new SimpleTextBox("<", engine.getRPG().font, clr0[1], clr0[0], true, MenuSlice.FILL_SOLID);
+        rArrow = new SimpleTextBox(">", engine.getRPG().font, clr0[1], clr0[0], true, MenuSlice.FILL_SOLID);
       //  rArrow = new ArrowBox(size, engine.getRPG().getTextBoxColors(0), ArrowBox.RIGHT);
     }
     
@@ -86,7 +87,7 @@ public class FlatList extends MenuItem {
         int[] colors = engine.getRPG().getTextBoxColors(textBoxColor);
         if (rArrow==null)
             makeBoxes(dummy.getHeight());
-        bkgrdBox = new Canvas(dummy.getWidth(), dummy.getHeight(), colors[0], new int[]{colors[1], 0}, Canvas.FILL_SOLID);
+        bkgrdBox = new SimpleCanvas(dummy.getWidth(), dummy.getHeight(), colors[0], new int[]{colors[1], 0}, MenuSlice.FILL_SOLID);
         setSize(bkgrdBox.getWidth(), bkgrdBox.getHeight());
         setPosition(margin, margin);
 
@@ -103,7 +104,7 @@ public class FlatList extends MenuItem {
     public void addItem(String item) {
         if (item.length()>currLongestText.length())
             throw new RuntimeException("FlatList cannot be dynamically resized to acoomodate \"" + item + "\"");
-        itemText.addElement(new SimpleTextBox(item, engine.getRPG().font, 0, 0, true, Canvas.FILL_NONE));
+        itemText.addElement(new SimpleTextBox(item, engine.getRPG().font, 0, 0, true, MenuSlice.FILL_NONE));
     }
 
     

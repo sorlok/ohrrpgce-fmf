@@ -6,6 +6,7 @@
 package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.game.SimpleCanvas;
 import ohrrpgce.game.SimpleTextBox;
 
 /**
@@ -14,7 +15,7 @@ import ohrrpgce.game.SimpleTextBox;
  */
 public class Label extends MenuItem {
     
-    private Canvas bkgrdBox;
+    private SimpleCanvas bkgrdBox;
     private SimpleTextBox baseBox;
     
     
@@ -27,7 +28,7 @@ public class Label extends MenuItem {
      * Constructs a label with a fixed size.
      */
     public Label(int setWidth, int setHeight, int bkgrd, int[] borders) {
-        bkgrdBox = new Canvas(setWidth, setHeight, bkgrd, borders, Canvas.FILL_GUESS);
+        bkgrdBox = new SimpleCanvas(setWidth, setHeight, bkgrd, borders, MenuSlice.FILL_GUESS);
         setSize(setWidth, setHeight);
     }
     

@@ -6,13 +6,14 @@
 package ohrrpgce.menu;
 
 import ohrrpgce.data.RPG;
+import ohrrpgce.game.SimpleCanvas;
 import ohrrpgce.tool.HQ2X;
 
 /**
  * A box which displays an image inside it.
  * @author Seth N. Hetu
  */
-public class ImageBox extends Canvas {
+public class ImageBox extends SimpleCanvas {
     
     public static final int SCALE_NN = 0;
     public static final int SCALE_HQ2X = 1;

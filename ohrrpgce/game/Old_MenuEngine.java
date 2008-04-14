@@ -17,7 +17,6 @@ import ohrrpgce.data.Spell;
 import ohrrpgce.data.RPG;
 import ohrrpgce.menu.Action;
 import ohrrpgce.menu.Button;
-import ohrrpgce.menu.Canvas;
 import ohrrpgce.menu.Composite;
 import ohrrpgce.menu.FlatList;
 import ohrrpgce.menu.HeroSelector;
