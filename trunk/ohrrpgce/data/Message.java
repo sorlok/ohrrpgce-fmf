@@ -4,7 +4,6 @@ import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.game.LiteException;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
-import ohrrpgce.menu.TextBox;
 import ohrrpgce.menu.TextSlice;
 
 /**

@@ -6,6 +6,7 @@
 package ohrrpgce.menu;
 
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.game.SimpleTextBox;
 
 /**
  * Some text. Really just a wrapper for TextBox
@@ -14,10 +15,10 @@ import ohrrpgce.adapter.GraphicsAdapter;
 public class Label extends MenuItem {
     
     private Canvas bkgrdBox;
-    private TextBox baseBox;
+    private SimpleTextBox baseBox;
     
     
-    public Label(TextBox txt) {
+    public Label(SimpleTextBox txt) {
         this.baseBox = txt;
         setSize(txt.getWidth(), txt.getHeight());
     }
@@ -34,7 +35,7 @@ public class Label extends MenuItem {
     /**
      * Set to "null" to display none.
      */
-    public void setTextBox(TextBox txt) {
+    public void setTextBox(SimpleTextBox txt) {
         baseBox = txt;
     }
             

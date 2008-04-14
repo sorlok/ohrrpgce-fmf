@@ -26,7 +26,6 @@ import ohrrpgce.menu.List;
 import ohrrpgce.menu.MPBox;
 import ohrrpgce.menu.MenuItem;
 import ohrrpgce.menu.SpecialLabel;
-import ohrrpgce.menu.TextBox;
 import ohrrpgce.menu.transitions.Transition;
 import ohrrpgce.runtime.Meta;
 import ohrrpgce.runtime.OHRRPG;

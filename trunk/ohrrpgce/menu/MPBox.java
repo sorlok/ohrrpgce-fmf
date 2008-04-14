@@ -8,6 +8,7 @@ package ohrrpgce.menu;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.Message;
 import ohrrpgce.data.RPG;
+import ohrrpgce.game.SimpleTextBox;
 
 /**
  * Simple box which dispplays one's current MP in a category, with a bar.
@@ -15,7 +16,7 @@ import ohrrpgce.data.RPG;
  */
 public class MPBox extends MenuItem {
     
-    private TextBox mpTxt;
+    private SimpleTextBox mpTxt;
     private Canvas bkgrdBox;
     
     private int[] bar;
@@ -43,7 +44,7 @@ public class MPBox extends MenuItem {
             txt += "99";
         int[] colors = game.getTextBoxColors(txtBoxColorID);
         
-        mpTxt = new TextBox(txt, game.font, 0, 0, true, Canvas.FILL_NONE);
+        mpTxt = new SimpleTextBox(txt, game.font, 0, 0, true, Canvas.FILL_NONE);
         int halfMargin = (mpTxt.getHeight()-Message.FONT_SIZE)/2;
         bkgrdBox = new Canvas(
                 mpTxt.getWidth(),
@@ -67,7 +68,7 @@ public class MPBox extends MenuItem {
     
     private void reloadData(String txt, int midPointX) {        
         //First, reset the text box
-        mpTxt =  new TextBox(txt, parentGame.font, 0, 0, true, Canvas.FILL_NONE);
+        mpTxt =  new SimpleTextBox(txt, parentGame.font, 0, 0, true, Canvas.FILL_NONE);
         mpTxt.setPosition((getWidth()-mpTxt.getWidth())/2, 0);
         
         

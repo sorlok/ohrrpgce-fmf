@@ -9,9 +9,9 @@ import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.loader.BattleFormationParser;
 import ohrrpgce.data.loader.PictureParser;
+import ohrrpgce.game.SimpleTextBox;
 import ohrrpgce.menu.Canvas;
 import ohrrpgce.menu.ImageBox;
-import ohrrpgce.menu.TextBox;
 
 /**
  * A simple class that informs the user of random encounters. 
@@ -28,8 +28,8 @@ public class BattlePrompt {
     //Display components
     private static Canvas background;
     private static Canvas highlight;
-    private static TextBox enemyNames;
-    private static TextBox outcomeChoice;
+    private static SimpleTextBox enemyNames;
+    private static SimpleTextBox outcomeChoice;
     private ImageBox enemiesBox;
     private int cursorPos;
     
@@ -77,7 +77,7 @@ public class BattlePrompt {
         //Prepare the "choice" box
         int[] clrs = parent.getTextBoxColors(0);
         if (outcomeChoice==null) {
-            outcomeChoice = new TextBox("Win\nLose\nRun", parent.font, 0xDD000000|clrs[0], 0xDD000000|clrs[0], true, Canvas.FILL_SOLID);
+            outcomeChoice = new SimpleTextBox("Win\nLose\nRun", parent.font, 0xDD000000|clrs[0], 0xDD000000|clrs[0], true, Canvas.FILL_SOLID);
             outcomeChoice.setLayoutRule(GraphicsAdapter.RIGHT|GraphicsAdapter.TOP);
             
             highlight = new Canvas(outcomeChoice.getWidth()-1, Message.FONT_MARGIN+Message.FONT_SIZE+2, 0x66FF0000, new int[]{0xFF0000}, Canvas.FILL_TRANSLUCENT);
@@ -92,7 +92,7 @@ public class BattlePrompt {
     }
     
     private void setEnemySpecificData(BattleFormation form) {
-        enemyNames = new TextBox("1\n2\n3\n4", parent.font, 0, 0, true, Canvas.FILL_NONE);
+        enemyNames = new SimpleTextBox("1\n2\n3\n4", parent.font, 0, 0, true, Canvas.FILL_NONE);
         numBoxChars = (dispWidth-4)/(Message.FONT_SIZE+Message.FONT_MARGIN+1);
         enBoxWidth = dispWidth-4 - 2*MARGIN;
         enBoxHeight = dispHeight/2-MARGIN-2;
@@ -167,7 +167,7 @@ public class BattlePrompt {
             }
         }
         
-        enemyNames = new TextBox(sb.toString(), parent.font, 0, 0, true, Canvas.FILL_NONE);
+        enemyNames = new SimpleTextBox(sb.toString(), parent.font, 0, 0, true, Canvas.FILL_NONE);
         enemyNames.setLayoutRule(GraphicsAdapter.TOP|GraphicsAdapter.LEFT);
         enemyNames.setPosition(2+MARGIN, dispHeight/2);
         outcomeChoice.setPosition(dispWidth-MARGIN-2, dispHeight/2+enemyNames.getHeight()+MARGIN);

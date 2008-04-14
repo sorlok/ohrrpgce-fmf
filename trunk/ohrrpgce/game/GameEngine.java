@@ -17,7 +17,6 @@ import ohrrpgce.data.loader.RPGLoadSizeListener;
 import ohrrpgce.data.loader.RPGLoader;
 import ohrrpgce.data.loader.SensifiedLoader;
 import ohrrpgce.henceforth.VirtualMachine;
-import ohrrpgce.menu.TextBox;
 import ohrrpgce.runtime.Meta;
 import ohrrpgce.runtime.MetaDisplay;
 import ohrrpgce.runtime.OHRRPG;
