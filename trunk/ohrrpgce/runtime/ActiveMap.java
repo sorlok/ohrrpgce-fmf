@@ -14,9 +14,10 @@ import ohrrpgce.data.TileAnimation;
 import ohrrpgce.data.loader.LinkedList;
 import ohrrpgce.data.loader.MapParser;
 import ohrrpgce.data.loader.TileAnimationParser;
+import ohrrpgce.game.SimpleCanvas;
 import ohrrpgce.game.LiteException;
 import ohrrpgce.game.SimpleTextBox;
-import ohrrpgce.menu.Canvas;
+import ohrrpgce.menu.MenuSlice;
 
 /**
  * Class for holding a map that's currently being displayed onscreen.
@@ -234,7 +235,7 @@ public class ActiveMap {
     private void setMap() {
         //Prepare map name box
         if (currMap.nameDisplayTimer>0)
-            mapNameBox = new SimpleTextBox(" " + currMap.mapName + " ", parent.getBaseRPG().font, parent.getBaseRPG().getTextBoxColors(0)[1], parent.getBaseRPG().getTextBoxColors(0)[0], true, Canvas.FILL_SOLID);
+            mapNameBox = new SimpleTextBox(" " + currMap.mapName + " ", parent.getBaseRPG().font, parent.getBaseRPG().getTextBoxColors(0)[1], parent.getBaseRPG().getTextBoxColors(0)[0], true, MenuSlice.FILL_SOLID);
         
         //Prepare animations
         currMapAnimTiles =  new int[currMap.getHeight()][currMap.getWidth()];
