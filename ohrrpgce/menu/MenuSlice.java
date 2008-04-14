@@ -341,7 +341,18 @@ public class MenuSlice {
     		//Relate to our last-painted component
     		int lastPaintXAnchor = 0;
     		if (lastPaintedMI == null) {
-    			lastPaintXAnchor = parentX + parentBorderPadding + parentNumBorders;
+    			lastPaintXAnchor = parentX + parentNumBorders;
+    			if ((this.mFormat.fromAnchor&GraphicsAdapter.LEFT)!=0)
+    				lastPaintXAnchor += parentBorderPadding;
+    			else { 
+    				if (parentContainer==null)
+    					throw new LiteException(this, null, "A parent with WIDTH_MINIMUM can ONLY have a topLeftChildMI at the LEFT.");
+    				
+    				if ((this.mFormat.fromAnchor&GraphicsAdapter.HCENTER)!=0)
+    					lastPaintXAnchor += parentContainer.getWidth()/2;
+    				else if ((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0)
+    					lastPaintXAnchor += parentContainer.getWidth();
+    			}
     		} else {
     			lastPaintXAnchor = lastPaintedMI.getPosX();
     			if ((this.mFormat.fromAnchor&GraphicsAdapter.HCENTER)!=0)
@@ -470,7 +481,18 @@ public class MenuSlice {
     		//Relate to our last-painted component
     		int lastPaintYAnchor = 0;
     		if (lastPaintedMI == null) {
-    			lastPaintYAnchor = parentY + parentBorderPadding + parentNumBorders; 
+    			lastPaintYAnchor = parentY + parentNumBorders;
+    			if ((this.mFormat.fromAnchor&GraphicsAdapter.TOP)!=0)
+    				lastPaintYAnchor += parentBorderPadding;
+    			else {
+    				if (parentContainer==null)
+    					throw new LiteException(this, null, "A parent with HEIGHT_MINIMUM can ONLY have a topLeftChildMI at the TOP.");
+    				
+    				if ((this.mFormat.fromAnchor&GraphicsAdapter.VCENTER)!=0)
+    					lastPaintYAnchor += parentContainer.getHeight()/2;
+    				else if ((this.mFormat.fromAnchor&GraphicsAdapter.BOTTOM)!=0)
+    					lastPaintYAnchor += parentContainer.getHeight();
+    			}
     		} else {
     			lastPaintYAnchor = lastPaintedMI.getPosY();
     			if ((this.mFormat.fromAnchor&GraphicsAdapter.VCENTER)!=0)

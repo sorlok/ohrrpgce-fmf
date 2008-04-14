@@ -44,14 +44,15 @@ public class HeroSelector extends Composite {
     private static MenuItem[] getPartyAsButtons(Hero[] heroParty, RPG game) {
         MenuItem[] ret = new MenuItem[heroParty.length];
         for (int i=0; i<ret.length; i++) {
-            ImageBox pic = new ImageBox(heroParty[i].getWalkabout().spData[4], heroParty[i].walkaboutPaletteID, game, new int[]{PictureParser.PT_WALKABOUT_SIZES[0], PictureParser.PT_WALKABOUT_SIZES[1]}, 1, 0, new int[]{}, ImageBox.SCALE_NN, MenuSlice.FILL_GUESS);
+        	//NOTE: Use ImageSlice
+            /*ImageBox pic = new ImageBox(heroParty[i].getWalkabout().spData[4], heroParty[i].walkaboutPaletteID, game, new int[]{PictureParser.PT_WALKABOUT_SIZES[0], PictureParser.PT_WALKABOUT_SIZES[1]}, 1, 0, new int[]{}, ImageBox.SCALE_NN, MenuSlice.FILL_GUESS);
             ret[i] = new  Button(
                     null, //Grr...
                     pic,
                     0, //Doesn't matter.
                     new int[0] //Size matters
                     );
-            ret[i].setPosition(MARGIN, 0);
+            ret[i].setPosition(MARGIN, 0);*/
         }
         return ret;
     }

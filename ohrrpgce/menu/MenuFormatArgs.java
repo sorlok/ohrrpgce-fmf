@@ -26,7 +26,8 @@ public class MenuFormatArgs {
     
     //Default Constructor
     public MenuFormatArgs() {
-    //	this.layoutRule = LAYOUT_DEFAULT;
+    	fromAnchor = GraphicsAdapter.TOP | GraphicsAdapter.LEFT;
+    	toAnchor = GraphicsAdapter.TOP | GraphicsAdapter.LEFT;
     }
     
     //Copy Constructor

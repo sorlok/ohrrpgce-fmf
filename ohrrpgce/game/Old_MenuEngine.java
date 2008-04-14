@@ -6,29 +6,6 @@
 package ohrrpgce.game;
 
 
-import java.io.IOException;
-import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.adapter.AdapterGenerator;
-import ohrrpgce.adapter.ImageAdapter;
-import ohrrpgce.adapter.InputAdapter;
-
-import ohrrpgce.data.Hero;
-import ohrrpgce.data.Spell;
-import ohrrpgce.data.RPG;
-import ohrrpgce.menu.Action;
-import ohrrpgce.menu.Button;
-import ohrrpgce.menu.Composite;
-import ohrrpgce.menu.FlatList;
-import ohrrpgce.menu.HeroSelector;
-import ohrrpgce.menu.Label;
-import ohrrpgce.menu.List;
-import ohrrpgce.menu.MPBox;
-import ohrrpgce.menu.MenuItem;
-import ohrrpgce.menu.SpecialLabel;
-import ohrrpgce.menu.transitions.Transition;
-import ohrrpgce.runtime.Meta;
-import ohrrpgce.runtime.OHRRPG;
-
 
 /**
  * The OHRRPGCEFMF's menu.

@@ -19,7 +19,6 @@ import ohrrpgce.data.Spell;
 import ohrrpgce.data.RPG;
 import ohrrpgce.henceforth.Int;
 import ohrrpgce.menu.Action;
-import ohrrpgce.menu.Button;
 import ohrrpgce.menu.Composite;
 import ohrrpgce.menu.FlatList;
 import ohrrpgce.menu.HeroSelector;

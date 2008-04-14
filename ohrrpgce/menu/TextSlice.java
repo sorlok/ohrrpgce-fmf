@@ -270,6 +270,9 @@ public class TextSlice extends MenuSlice {
     
     
     public boolean consumeInput(int direction) {
+    	if (screenHeight==0)
+    		return false;
+    	
         if (direction==MenuSlice.CONNECT_TOP)
             scrollBox(-SCROLL_INCREMENT);
         else if (direction == MenuSlice.CONNECT_BOTTOM)
