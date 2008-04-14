@@ -240,7 +240,7 @@ public class OHRRPG {
        * @param doPause If true, the caller is paused.
        */
      public void showTextBox(ActiveNPC caller, int id, boolean doPause) {
-    	 System.out.println("Show text box: " + id);
+    	 System.out.println("Show text box: " + id + " of " + getBaseRPG().getNumTextBoxes());
     	 
          //Do we jump to another box instead?
          Message txtBox = baseRPG.getTextBox(id);

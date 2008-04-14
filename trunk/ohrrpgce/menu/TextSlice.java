@@ -40,8 +40,11 @@ public class TextSlice extends MenuSlice {
     	if (getWidth()==0 || getHeight()==0)
     		return false;
     	
-    	if (lines==null)
+    	if (lines==null) {
+    		System.out.println("fit lines");
     		fitLines();
+    		System.out.println("fit lines done");
+    	}
         bufferText();
         
         return true;
@@ -193,36 +196,35 @@ public class TextSlice extends MenuSlice {
 	protected void setWidth(int newWidth) {		
 		super.setWidth(newWidth);
 		if (layoutText() && autoDiet) {
-			System.out.println("0");
-			String line = "";
-			for (int i=0; i<lines.length; i++) {
-				if (lines[i].length() > line.length())
-					line = lines[i];
-			}
-			
-			System.out.println("1");
-			int amtPadded = mFormat.borderPadding*2 + mFormat.borderColors.length*2;
-			System.out.println("2");
-			newWidth = line.length()*blockSize + amtPadded;
-			System.out.println("3");
-			super.setWidth(newWidth);
-			System.out.println("4");
-			layoutText();
-			System.out.println("5");
+			makeSkinny();
 		}
 	}
 	protected void setHeight(int newHeight) {		
 		super.setHeight(newHeight);
 		if (layoutText() && autoDiet) {
-			int amtPadded = mFormat.borderPadding*2 + mFormat.borderColors.length*2;
-			newHeight = lines.length*blockSize + amtPadded + 1;
-			super.setHeight(newHeight);
-			layoutText();
+			makeSkinny();
 		}
 	}
 	public void setText(String text) {
 		this.text = text;
 		this.lines = null;
+		layoutText();
+	}
+	private void makeSkinny() {
+		//Calculate width/height
+		String line = "";
+		for (int i=0; i<lines.length; i++) {
+			if (lines[i].length() > line.length())
+				line = lines[i];
+		}
+		
+		int amtPadded = mFormat.borderPadding*2 + mFormat.borderColors.length*2;
+		int newWidth = line.length()*blockSize + amtPadded;
+		int newHeight = lines.length*blockSize + amtPadded + 1;
+		
+		//Set, and recalc
+		super.setWidth(newWidth);
+		super.setHeight(newHeight);
 		layoutText();
 	}
 
