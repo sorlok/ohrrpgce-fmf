@@ -57,7 +57,7 @@ public class MetaMenu {
         "main_icons/volume.png",
         "main_icons/quit.png",
     };
-    private static MenuSlice[] mainMenuOverlays = new MenuSlice[mainImageFiles.length];
+    //private static MenuSlice[] mainMenuOverlays = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuUpperButtons = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuLabels = new MenuSlice[mainImageFiles.length];
     
@@ -271,11 +271,11 @@ public class MetaMenu {
                 mainMenuUpperButtons[i].connect(mainMenuLabels[i], MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
                 
                 //Create an overlay for this button which will show when it's activated
-                overlayFmt.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+      /*          overlayFmt.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
                 overlayFmt.widthHint = width - DEFAULT_BORDER_PADDING*2;
                 overlayFmt.heightHint = height - DEFAULT_BORDER_PADDING*2;
                 MenuSlice boxOverlay = new MenuSlice(overlayFmt);
-                mainMenuOverlays[i] = boxOverlay;
+                mainMenuOverlays[i] = boxOverlay;*/
 
                 //Temp!
                 if (mainTextsIDs[i]==QUIT) {

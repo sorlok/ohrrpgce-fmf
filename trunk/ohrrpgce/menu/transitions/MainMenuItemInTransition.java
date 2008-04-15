@@ -26,9 +26,11 @@ public class MainMenuItemInTransition extends Transition {
 	private MenuSlice topmostBox;
 	private MenuSlice itemToMove;
 	private MenuSlice currLbl;
+	private MenuSlice overlaySlice;
 	private int destBoxX;
 	private int destTxtX;
-	
+	private int destOverlayY;
+		
 	private int currBlackIndex;
 	private int speed;
 	
@@ -38,6 +40,10 @@ public class MainMenuItemInTransition extends Transition {
 	
 	private boolean done;
 	private boolean relayoutNeeded;
+	
+	private boolean hackeroo;
+	
+	
 	
 	/**
 	 * There's many ways to do transitions, but we'll do it this way:
@@ -90,9 +96,14 @@ public class MainMenuItemInTransition extends Transition {
 			
 			//Paint the current item on top of the dark overlay
 			itemToMove.paintAt(itemToMove.getPosX(), itemToMove.getPosY());
-			//currLbl.paintAt(currLbl.getPosX(), currLbl.getPosY());
 			
 			return true;
+		} else if (hackeroo) {
+			destOverlayY = overlaySlice.getPosY();
+			overlaySlice.setClip(overlaySlice.getPosX(), overlaySlice.getPosY(), overlaySlice.getWidth()+1, overlaySlice.getHeight()+1);
+			overlaySlice.forceToLocation(overlaySlice.getPosX(), destOverlayY-overlaySlice.getHeight());
+			
+			hackeroo = false;
 		}
 		
 		return false;
@@ -126,21 +137,32 @@ public class MainMenuItemInTransition extends Transition {
             	throw new LiteException(this, null, "Bad currBoxX: " + currBoxX + "  in regards to destBoxX: " + destBoxX);
             }
             
-            //Move the text label?
             int currTxtX = currLbl.getPosX();
+            int currOverlayY = -5;
             if (currBoxX==destBoxX) {
+                //Move the text label?
                 if (currTxtX < destTxtX-defaultSpeed) {
-                	currTxtX += defaultSpeed;
-                	currLbl.forceToLocation(currTxtX, currLbl.getPosY());
+                	currLbl.forceToLocation(currTxtX + defaultSpeed, currLbl.getPosY());
                 } else if (currTxtX < destTxtX) {
                     currTxtX = destTxtX;
                     setupPhaseTwoPointSevenFive();
                 } else if (currTxtX != destTxtX) {
                     throw new LiteException(this, null, "Bad currTxtX: " + currTxtX + "  in regards to destTxtX: " + destTxtX);
                 }
+                
+                //Move the overlay?
+                currOverlayY = overlaySlice.getPosY();
+                if (currOverlayY < destOverlayY-defaultSpeed*3) {
+                	overlaySlice.forceToLocation(overlaySlice.getPosX(), currOverlayY+defaultSpeed*3);
+                } else if (currOverlayY < destOverlayY) {
+                	overlaySlice.forceToLocation(overlaySlice.getPosX(), currOverlayY);
+                	setupPhaseTwoPointEightish();
+                } else if (currOverlayY != destOverlayY) {
+                    throw new RuntimeException("Bad currBkgrdY: " + currOverlayY + "  in regards to destBkgrdY: " + destOverlayY);
+                }
             }
             
-			if (itemToMove.getPosX()==destBoxX && currLbl.getPosX()==destTxtX) {
+			if (itemToMove.getPosX()==destBoxX && currLbl.getPosX()==destTxtX && currOverlayY==destOverlayY) {
 				phase = PHASE_THREE;
 			}
 		} else if (phase==PHASE_THREE) {
@@ -166,10 +188,20 @@ public class MainMenuItemInTransition extends Transition {
 		itemToMove.getInitialFormatArgs().xHint = itemToMove.getPosX();
 		itemToMove.connect(currLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		
+		//Make a new overlay, and size it correctly
+		MenuFormatArgs mForm = new MenuFormatArgs(currLbl.getInitialFormatArgs());
+		mForm.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+		mForm.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+		mForm.widthHint = topmostBox.getWidth() - 2*itemToMove.getPosX();
+		mForm.heightHint = topmostBox.getHeight() - (itemToMove.getPosY()+itemToMove.getHeight()) - 1 - itemToMove.getPosX();
+		overlaySlice = new MenuSlice(mForm);
+		itemToMove.connect(overlaySlice, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+		
 		//Clipping
 		currLbl.setClip(destTxtX, itemToMove.getPosY(), topmostBox.getWidth(), itemToMove.getHeight());
 		
 		relayoutNeeded = true;
+		hackeroo = true;
 	}
 
 	
@@ -180,6 +212,13 @@ public class MainMenuItemInTransition extends Transition {
 		currLbl.getInitialFormatArgs().xHint = -1;
 		
 		currLbl.setClip(null);
+		
+		relayoutNeeded = true;
+	}
+	
+	
+	private void setupPhaseTwoPointEightish() {
+		overlaySlice.setClip(null);
 		
 		relayoutNeeded = true;
 	}

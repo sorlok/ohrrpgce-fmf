@@ -456,7 +456,9 @@ public class MenuSlice {
     		return newWidth.getValue() - this.getPosX() + this.mFormat.borderPadding + this.mFormat.borderColors.length;
     	} else if (this.mFormat.widthHint == MenuFormatArgs.WIDTH_MAXIMUM) {
     		//First...
-    		if (!alreadyLaidOut.contains(parentContainer))
+    		if (parentContainer==null)
+    			throw new LiteException(this, new IllegalArgumentException(), "Null parent for child layout of MAXIMUM width.");
+    		else if (!alreadyLaidOut.contains(parentContainer))
     			throw new LiteException(this, new IllegalArgumentException(), "Child layout of MAXIMUM width attempted with parent demanding MINIMUM width.");
     		
     		//Maximum width makes sense in only three cases:
@@ -596,7 +598,9 @@ public class MenuSlice {
     		return newHeight.getValue() - this.getPosY() + this.mFormat.borderPadding + this.mFormat.borderColors.length;
     	} else if (this.mFormat.heightHint == MenuFormatArgs.HEIGHT_MAXIMUM) {
     		//First...
-    		if (!alreadyLaidOut.contains(parentContainer))
+    		if (parentContainer==null)
+    			throw new LiteException(this, new IllegalArgumentException(), "Null parent for child layout of MAXIMUM height.");
+    		else if (!alreadyLaidOut.contains(parentContainer))
     			throw new LiteException(this, new IllegalArgumentException(), "Child layout of MAXIMUM height attempted with parent demanding MINIMUM height.");
     		
     		//Maximum height makes sense in only three cases:
