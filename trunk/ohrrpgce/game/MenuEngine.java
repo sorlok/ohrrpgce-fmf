@@ -160,8 +160,12 @@ public class MenuEngine extends Engine {
             } catch (Exception ex) {
             	throw new LiteException(this, ex, "Transition Layout Error");
             }
-            if (MetaMenu.currTransition.isDone())
+            if (MetaMenu.currTransition.isDone()) {
+            	if (MetaMenu.currTransition.getNewFocus()!=null) {
+            		MetaMenu.currTransition.getNewFocus().moveTo();
+            	}
             	MetaMenu.currTransition = null;
+            }
         }
     }
 

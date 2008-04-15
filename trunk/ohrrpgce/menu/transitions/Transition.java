@@ -8,6 +8,7 @@ package ohrrpgce.menu.transitions;
 import java.util.Vector;
 
 import ohrrpgce.data.RPG;
+import ohrrpgce.menu.MenuSlice;
 
 /**
  * Allows top-level control of menu transitions.
@@ -31,6 +32,7 @@ public abstract class Transition {
     
     public abstract boolean isDone();
     public abstract boolean requiresReLayout();
+    public abstract MenuSlice getNewFocus();
     
 
     

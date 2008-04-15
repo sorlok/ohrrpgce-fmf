@@ -28,6 +28,8 @@ public class ImageSlice extends MenuSlice {
 		rawImageRect[X] = scanlength;
 		rawImageRect[Y] = rawImage.length/scanlength;
 	}
+
+	
     
     protected void drawPixelBuffer(int atX, int atY) {
     	if (pngImage!=null)

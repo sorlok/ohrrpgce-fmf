@@ -2,6 +2,7 @@ package ohrrpgce.menu.transitions;
 
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.RPG;
+import ohrrpgce.menu.MenuSlice;
 
 /**
  * A simple transition that draws a bunch of circles over the screen, and slowly
@@ -117,6 +118,10 @@ public class MenuInTransition extends Transition {
         return true;
 	}
 
+	
+	public MenuSlice getNewFocus() {
+		return null;
+	}
 
 
 	public void step() {

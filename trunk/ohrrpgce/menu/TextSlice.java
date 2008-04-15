@@ -217,6 +217,12 @@ public class TextSlice extends MenuSlice {
 	}
 	
 	
+	//Useful:
+	public ImageAdapter getFont() {
+		return font;
+	}
+	
+	
 	//Over-ride....
 	protected void setWidth(int newWidth) {		
 		super.setWidth(newWidth);
