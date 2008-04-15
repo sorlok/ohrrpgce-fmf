@@ -112,6 +112,10 @@ public class GraphicsAdapter_applet {
 		g.setClip(x, y, width, height);
 	}
 	
+	public static final void resetClip() {
+		g.setClip(null);
+	}
+	
 	public static final int getColor() {
 		return g.getColor().getRGB();
 	}

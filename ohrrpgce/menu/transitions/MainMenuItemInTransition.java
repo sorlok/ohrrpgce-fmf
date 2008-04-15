@@ -166,6 +166,9 @@ public class MainMenuItemInTransition extends Transition {
 		itemToMove.getInitialFormatArgs().xHint = itemToMove.getPosX();
 		itemToMove.connect(currLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		
+		//Clipping
+		currLbl.setClip(destTxtX, itemToMove.getPosY(), topmostBox.getWidth(), itemToMove.getHeight());
+		
 		relayoutNeeded = true;
 	}
 
@@ -175,6 +178,8 @@ public class MainMenuItemInTransition extends Transition {
 		currLbl.getInitialFormatArgs().fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
 		currLbl.getInitialFormatArgs().toAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.LEFT;
 		currLbl.getInitialFormatArgs().xHint = -1;
+		
+		currLbl.setClip(null);
 		
 		relayoutNeeded = true;
 	}
