@@ -210,6 +210,7 @@ public class MetaMenu {
 		mFormat.fillType = MenuSlice.FILL_NONE;
 		mFormat.xHint = 0;
 		mFormat.yHint = 0;
+		mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
 		mFormat.widthHint = MenuFormatArgs.WIDTH_MAXIMUM;
 		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
 		mFormat.borderPadding = 0;
@@ -287,8 +288,7 @@ public class MetaMenu {
 			public boolean perform(Object caller) {
 				Object currPic = ((Object[])currHeroPicture.getData())[heroSelector.getCurrSelectedID()];
 				currHeroPicture.setImage((ImageAdapter)currPic);
-				//topLeftMI.doLayout(); //Not strictly necessary, since all our pictures are the same width/height.
-				//bug on topLeftMI.doLayout()... something's amiss!
+				topLeftMI.doLayout(); //Not strictly necessary, since all our pictures are the same width/height.
 				return true;
 			}
 		});
