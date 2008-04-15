@@ -17,10 +17,7 @@ public abstract class Transition {
 
 	public abstract void reset();
     
-    /**
-     * @return true if done.
-     */
-    public abstract boolean step();
+    public abstract void step();
 
     
     /**
@@ -30,6 +27,10 @@ public abstract class Transition {
      *  NOT be re-drawn until after this transition completes.  
      */
     public abstract boolean doPaintOver();
+    
+    
+    public abstract boolean isDone();
+    public abstract boolean requiresReLayout();
     
 
     

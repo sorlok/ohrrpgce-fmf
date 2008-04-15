@@ -106,6 +106,14 @@ public class MenuSlice {
     	this.hasExpanded = false;
     }
     
+    /**
+     * Warning: Modify the return value of this function 
+     *  ONLY if you know what you're doing.
+     */
+    public MenuFormatArgs getInitialFormatArgs() {
+    	return mFormat;
+    }
+    
     
     /**
      * Draw directly onto the surface of this Slice
@@ -663,7 +671,9 @@ public class MenuSlice {
     	this.topLeftChildMI = child;
     }
     
-    
+    public MenuSlice getTopLeftChild() {
+    	return this.topLeftChildMI;
+    }
     
     /**
      * Called when width is minimum and there're no internal components.
