@@ -66,6 +66,9 @@ public class MenuSlice {
     //User-specific, a la SWT
     private Object data;
     
+    private boolean hasClip;
+    private int[] clipRectangle = new int[]{0,0,0,0};
+    
     
     //Switch directions
     private static final int inverseDir(int dir) {
@@ -90,7 +93,7 @@ public class MenuSlice {
      */
     public MenuSlice(MenuFormatArgs mFormat) {
     	this.mFormat = new MenuFormatArgs(mFormat);
-        
+    	
 		//A fill type of GUESS implies we are asking the system to try and 
     	//  guess the fill type for us, from the argument sent...
 		//IMPORTANT: This assumes that there IS an alpha channel.
@@ -157,6 +160,10 @@ public class MenuSlice {
         if (hasExpanded)
         	contract();
         
+        //Clip
+        if (hasClip)
+        	GraphicsAdapter.setClip(clipRectangle[X], clipRectangle[Y], clipRectangle[WIDTH], clipRectangle[HEIGHT]);
+        
         //Draw the background
         if (this.mFormat.fillType==FILL_SOLID) {
         	GraphicsAdapter.setColor(this.mFormat.bgColor);
@@ -175,6 +182,11 @@ public class MenuSlice {
             GraphicsAdapter.setColor(this.mFormat.borderColors[i]);
             GraphicsAdapter.drawRect(x+i, y+i, getWidth()-2*i-1, getHeight()-2*i-1);
         }
+        
+        //Un-clip
+        if (hasClip)
+        	GraphicsAdapter.resetClip();
+
     }
     
     
@@ -894,6 +906,26 @@ public class MenuSlice {
     }
     
     
+    public void setClip(int x, int y, int w, int h) {
+    	hasClip = true;
+    	clipRectangle[X] = x;
+    	clipRectangle[Y] = y;
+    	clipRectangle[WIDTH] = w;
+    	clipRectangle[HEIGHT] = h;
+    }
+    
+    
+    public void setClip(int[] bounds) {
+    	if (bounds == null) {
+    		hasClip = false;
+    	} else {
+    		hasClip = true;
+        	clipRectangle[X] = bounds[X];
+        	clipRectangle[Y] = bounds[Y];
+        	clipRectangle[WIDTH] = bounds[WIDTH];
+        	clipRectangle[HEIGHT] = bounds[HEIGHT];
+    	}
+    }
     
     
 
