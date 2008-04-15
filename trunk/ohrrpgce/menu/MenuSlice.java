@@ -319,6 +319,9 @@ public class MenuSlice {
     	//  our x/y/w/h "hints". Depending on the hints, various additional data
     	//  are needed.
     	
+    	//First:
+    	this.parent = parentContainer;
+    	
     	//Get the component we're connecting FROM
     	MenuSlice lastPaintedMI = null;
     	int dirToLastPaintedMI = -1;
@@ -614,8 +617,8 @@ public class MenuSlice {
             this.commandConnect[connectOn] = secondary;
             secondary.commandConnect[converse] = this;
             
-            //Also
-            secondary.parent = this.parent;
+            //Debug
+            //System.out.println("connected from["+connectOn+"]: " + this.getClass().getName().replaceAll(".*\\.", "") + "  to["+converse+"]  " + secondary.getClass().getName().replaceAll(".*\\.", ""));
         }
         		
         //Paint connect:		
@@ -658,7 +661,6 @@ public class MenuSlice {
     
     public void setTopLeftChild(MenuSlice child) {
     	this.topLeftChildMI = child;
-    	this.topLeftChildMI.parent = this;
     }
     
     
@@ -812,17 +814,24 @@ public class MenuSlice {
         }
         
         //Move, and fire the focus-gained listener
+        //System.out.println("moving from["+direction+"]: " + this.getClass().getName().replaceAll(".*\\.", "") + "  to  " + commandConnect[direction].getClass().getName().replaceAll(".*\\.", ""));
         commandConnect[direction].moveTo();
         return true;
     }
     
     public void moveTo() {
-    	//Set active...
-    	if (this.parent != null)
-    		this.parent.currActiveChildMI = this;
+    	//Set active, cascade this to all parent components.
+    	MenuSlice currParent = this;
+    	MenuSlice prevParent = this.parent;
+    	while (prevParent != null) {
+    		prevParent.currActiveChildMI = currParent;
+    		currParent = prevParent;
+    		prevParent = prevParent.parent;
+    	}
     	
     	//Move to child..
-    	currActiveChildMI = topLeftChildMI;
+    	if (currActiveChildMI==null)
+    		currActiveChildMI = topLeftChildMI;
     	if (currActiveChildMI!=null)
     		currActiveChildMI.moveTo();
     	
