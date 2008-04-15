@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import ohrrpgce.adapter.GraphicsAdapter;
+import ohrrpgce.game.LiteException;
 import ohrrpgce.menu.ImageSlice;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
+import ohrrpgce.runtime.MetaMenu;
 
 public class MainMenuItemInTransition extends Transition {
 	private static final int defaultSpeed = 20; //pix/tick
@@ -23,7 +25,9 @@ public class MainMenuItemInTransition extends Transition {
 	
 	private MenuSlice topmostBox;
 	private MenuSlice itemToMove;
+	private MenuSlice currLbl;
 	private int destBoxX;
+	private int destTxtX;
 	
 	private int currBlackIndex;
 	private int speed;
@@ -45,9 +49,11 @@ public class MainMenuItemInTransition extends Transition {
 	 * @param destBoxX
 	 * @param selectedButton
 	 */
-	public MainMenuItemInTransition(int destBoxX, MenuSlice selectedButton, int screenWidth, int screenHeight, MenuSlice topmostBox) {
+	public MainMenuItemInTransition(int destBoxX, int destTxtX, MenuSlice selectedButton, MenuSlice currSubMenuLbl, int screenWidth, int screenHeight, MenuSlice topmostBox) {
 		this.destBoxX = destBoxX;
+		this.destTxtX = destTxtX-1;
 		this.itemToMove = selectedButton;
+		this.currLbl = currSubMenuLbl;
 		this.quarterBoxWidth = (int)Math.ceil(screenWidth/2.0F);
 		this.quarterBoxHeight = (int)Math.ceil(screenHeight/2.0F);
 		this.quarterBoxDark = new int[quarterBoxWidth*quarterBoxHeight];
@@ -56,6 +62,8 @@ public class MainMenuItemInTransition extends Transition {
 		this.phase = PHASE_ONE;
 		
 		//Connect our components and get an initial layout...
+		itemToMove.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+		//itemToMove.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		topmostBox.connect(itemToMove, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		topmostBox.doLayout();
 		
@@ -82,6 +90,7 @@ public class MainMenuItemInTransition extends Transition {
 			
 			//Paint the current item on top of the dark overlay
 			itemToMove.paintAt(itemToMove.getPosX(), itemToMove.getPosY());
+			//currLbl.paintAt(currLbl.getPosX(), currLbl.getPosY());
 			
 			return true;
 		}
@@ -107,23 +116,38 @@ public class MainMenuItemInTransition extends Transition {
 				phase = PHASE_TWO;
 			}
 		} else if (phase==PHASE_TWO) {
-			int currBoxX = itemToMove.getInitialFormatArgs().xHint;
+			int currBoxX = itemToMove.getPosX();
             if (currBoxX > destBoxX+speed) {
-            	currBoxX-=speed;
+            	itemToMove.forceToLocation(currBoxX-speed, itemToMove.getPosY());
             } else if (currBoxX > destBoxX) {
-            	currBoxX = destBoxX;
+            	itemToMove.forceToLocation(destBoxX, itemToMove.getPosY());
+            	setupPhaseTwoPointFive();
             } else if (currBoxX != destBoxX) {
-                throw new RuntimeException("Bad currBoxX: " + currBoxX + "  in regards to destBoxX: " + destBoxX);
+            	throw new LiteException(this, null, "Bad currBoxX: " + currBoxX + "  in regards to destBoxX: " + destBoxX);
             }
-            itemToMove.getInitialFormatArgs().xHint = currBoxX;
-            relayoutNeeded = true;
-			if (itemToMove.getPosX()==destBoxX) {
+            
+            //Move the text label?
+            int currTxtX = currLbl.getPosX();
+            if (currBoxX==destBoxX) {
+                if (currTxtX < destTxtX-defaultSpeed) {
+                	currTxtX += defaultSpeed;
+                	currLbl.forceToLocation(currTxtX, currLbl.getPosY());
+                } else if (currTxtX < destTxtX) {
+                    currTxtX = destTxtX;
+                    setupPhaseTwoPointSevenFive();
+                } else if (currTxtX != destTxtX) {
+                    throw new LiteException(this, null, "Bad currTxtX: " + currTxtX + "  in regards to destTxtX: " + destTxtX);
+                }
+            }
+            
+			if (itemToMove.getPosX()==destBoxX && currLbl.getPosX()==destTxtX) {
 				phase = PHASE_THREE;
 			}
 		} else if (phase==PHASE_THREE) {
 			
 			//temp
 			done = true;
+			relayoutNeeded = true;
 		}
 		
 		
@@ -132,7 +156,31 @@ public class MainMenuItemInTransition extends Transition {
 	}
 	
 	
-	private void setupPhaseTwo() {
+	
+	private void setupPhaseTwoPointFive() {
+		//Place our label correctly
+		currLbl.getInitialFormatArgs().fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.LEFT;
+		currLbl.getInitialFormatArgs().toAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
+		currLbl.getInitialFormatArgs().xHint = 0;
+		currLbl.getInitialFormatArgs().yHint = 0;
+		itemToMove.getInitialFormatArgs().xHint = itemToMove.getPosX();
+		itemToMove.connect(currLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+		
+		relayoutNeeded = true;
+	}
+
+	
+	private void setupPhaseTwoPointSevenFive() {
+		//Place our label correctly
+		currLbl.getInitialFormatArgs().fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
+		currLbl.getInitialFormatArgs().toAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.LEFT;
+		currLbl.getInitialFormatArgs().xHint = -1;
+		
+		relayoutNeeded = true;
+	}
+	
+	
+	private void setupPhaseTwo() {		
 		//Set up our black overlays
 		quarterBoxDark = null;
 		int[] darkerBox = new int[quarterBoxHeight*quarterBoxWidth];
@@ -167,8 +215,11 @@ public class MainMenuItemInTransition extends Transition {
 	}
 	
 	public boolean requiresReLayout() {
-		relayoutNeeded = !relayoutNeeded;
-		return !relayoutNeeded;
+		if (relayoutNeeded) {
+			relayoutNeeded = false;
+			return true;
+		}
+		return false;
 	}
 	
 
