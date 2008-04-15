@@ -14,6 +14,7 @@ public class MainMenuItemInTransition extends Transition {
 	
 	private static final int PHASE_ONE = 1;
 	private static final int PHASE_TWO = 2;
+	private static final int PHASE_THREE = 3;
 	private int phase;
 
 	private int[] quarterBoxDark;
@@ -54,6 +55,9 @@ public class MainMenuItemInTransition extends Transition {
 		
 		this.phase = PHASE_ONE;
 		
+		//Connect our components and get an initial layout...
+		topmostBox.connect(itemToMove, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+		topmostBox.doLayout();
 		
 		//Init our black value
 		currLayerCombinedAlpha = 0xFF;
@@ -75,7 +79,9 @@ public class MainMenuItemInTransition extends Transition {
 			
 			//Track this layer's alpha value
 			currLayerCombinedAlpha = 0xFF&((currLayerCombinedAlpha*(0xFF-alphaInterval))/0xFF);
-			//System.out.println(Integer.toHexString(currLayerCombinedAlpha));
+			
+			//Paint the current item on top of the dark overlay
+			itemToMove.paintAt(itemToMove.getPosX(), itemToMove.getPosY());
 			
 			return true;
 		}
@@ -101,6 +107,20 @@ public class MainMenuItemInTransition extends Transition {
 				phase = PHASE_TWO;
 			}
 		} else if (phase==PHASE_TWO) {
+			int currBoxX = itemToMove.getInitialFormatArgs().xHint;
+            if (currBoxX > destBoxX+speed) {
+            	currBoxX-=speed;
+            } else if (currBoxX > destBoxX) {
+            	currBoxX = destBoxX;
+            } else if (currBoxX != destBoxX) {
+                throw new RuntimeException("Bad currBoxX: " + currBoxX + "  in regards to destBoxX: " + destBoxX);
+            }
+            itemToMove.getInitialFormatArgs().xHint = currBoxX;
+            relayoutNeeded = true;
+			if (itemToMove.getPosX()==destBoxX) {
+				phase = PHASE_THREE;
+			}
+		} else if (phase==PHASE_THREE) {
 			
 			//temp
 			done = true;
@@ -125,7 +145,7 @@ public class MainMenuItemInTransition extends Transition {
 		mf.borderColors =  new int[]{};
 		mf.fillType = MenuSlice.FILL_NONE;
 		ImageSlice box1 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
-		topmostBox.connect(box1, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+		topmostBox.connect(box1, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
 		
 		mf.fromAnchor = GraphicsAdapter.RIGHT|GraphicsAdapter.TOP;
 		ImageSlice box2 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
