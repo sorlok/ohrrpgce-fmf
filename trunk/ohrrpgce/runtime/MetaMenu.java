@@ -57,6 +57,7 @@ public class MetaMenu {
         "main_icons/quit.png",
     };
     private static MenuSlice[] mainMenuOverlays = new MenuSlice[mainImageFiles.length];
+    private static MenuSlice[] mainMenuUpperButtons = new MenuSlice[mainImageFiles.length];
     
     
     private static MenuSlice buttonList;
@@ -255,12 +256,16 @@ public class MetaMenu {
             	currBox.setData(new Int(i));
                 currBox.addFocusGainedListener(highlightAction);
                 
-                //Create an overlay for this button which will show when it's activated
+                //Create an additional copy
                 MenuFormatArgs overlayFmt = new MenuFormatArgs(mFormat);
+                overlayFmt.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+                overlayFmt.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+                mainMenuUpperButtons[i] = new ImageSlice(overlayFmt, adaptGen.createImageAdapter(Meta.pathToGameFolder+mainImageFiles[i]));
+                
+                //Create an overlay for this button which will show when it's activated
+                overlayFmt.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
                 overlayFmt.widthHint = width - DEFAULT_BORDER_PADDING*2;
                 overlayFmt.heightHint = height - DEFAULT_BORDER_PADDING*2;
-                overlayFmt.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
-                overlayFmt.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
                 MenuSlice boxOverlay = new MenuSlice(overlayFmt);
                 mainMenuOverlays[i] = boxOverlay;
 
@@ -274,7 +279,13 @@ public class MetaMenu {
                 } else {
                 	currBox.setAcceptListener(new Action() {
                 		public boolean perform(Object caller) {
-                			currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild().getPosX(), (MenuSlice)caller, MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI);
+                			MenuSlice calledBy = (MenuSlice)caller;
+                			int i = ((Int)calledBy.getData()).getValue();
+                			mainMenuUpperButtons[i].getInitialFormatArgs().xHint = calledBy.getPosX();
+                			mainMenuUpperButtons[i].getInitialFormatArgs().yHint = calledBy.getPosY();
+                			
+                			currCursor = null;
+                			currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild().getPosX(), mainMenuUpperButtons[i], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI);
                 			return true;
                 		}
                 	});
