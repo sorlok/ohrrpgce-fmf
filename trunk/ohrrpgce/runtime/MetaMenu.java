@@ -29,7 +29,7 @@ public class MetaMenu {
 	public static MenuSlice currCursor;
 
 	//Used for laying out components
-    private static final int DEFAULT_INTER_ELEMENT_SPACING = 3;
+    public static final int DEFAULT_INTER_ELEMENT_SPACING = 3;
     private static final int DEFAULT_BORDER_PADDING = 2;
 
     //States, texts
@@ -48,6 +48,7 @@ public class MetaMenu {
     //Main menu stuff
     private static final int[] mainTextsIDs = new int[] {ITEMS, ORDER, MAP, SAVE, VOLUME, QUIT};
     private static final int[] mainColors = new int[] {2, 3, 6, 5, 4, 7};
+    private static final String[] mainMenuTexts = new String[] {"Items","Order","Map","Save","Volume","Quit"};
     private static final String[] mainImageFiles = new String[] {
         "main_icons/items.png",
         "main_icons/order.png",
@@ -58,6 +59,7 @@ public class MetaMenu {
     };
     private static MenuSlice[] mainMenuOverlays = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuUpperButtons = new MenuSlice[mainImageFiles.length];
+    private static MenuSlice[] mainMenuLabels = new MenuSlice[mainImageFiles.length];
     
     
     private static MenuSlice buttonList;
@@ -262,6 +264,12 @@ public class MetaMenu {
                 overlayFmt.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
                 mainMenuUpperButtons[i] = new ImageSlice(overlayFmt, adaptGen.createImageAdapter(Meta.pathToGameFolder+mainImageFiles[i]));
                 
+                //Also create a label for this....
+                overlayFmt.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+                overlayFmt.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+                mainMenuLabels[i] = new TextSlice(overlayFmt, mainMenuTexts[i], rpg.font, true, true, false);
+                mainMenuUpperButtons[i].connect(mainMenuLabels[i], MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+                
                 //Create an overlay for this button which will show when it's activated
                 overlayFmt.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
                 overlayFmt.widthHint = width - DEFAULT_BORDER_PADDING*2;
@@ -285,7 +293,7 @@ public class MetaMenu {
                 			mainMenuUpperButtons[i].getInitialFormatArgs().yHint = calledBy.getPosY();
                 			
                 			currCursor = null;
-                			currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild().getPosX(), mainMenuUpperButtons[i], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI);
+                			currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild().getPosX(),buttonList.getTopLeftChild().getPosX()+buttonList.getTopLeftChild().getWidth(), mainMenuUpperButtons[i], mainMenuLabels[i], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI);
                 			return true;
                 		}
                 	});

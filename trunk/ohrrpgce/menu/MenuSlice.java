@@ -641,6 +641,17 @@ public class MenuSlice {
         }
     }
     
+    
+    /**
+     * Intended only to be used for animation. Does not persist beyond the next doLayout()
+     * @param x,y in screen co-ordinates
+     */
+    public void forceToLocation(int x, int y) {
+    	this.rectangle[X] = x;
+    	this.rectangle[Y] = y;
+    }
+    
+    
     /**
      * Disconnect menu items.
      * @param disconOn
