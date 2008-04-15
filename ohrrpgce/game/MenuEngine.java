@@ -14,24 +14,11 @@ import ohrrpgce.adapter.AdapterGenerator;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.adapter.InputAdapter;
 
-import ohrrpgce.data.Hero;
-import ohrrpgce.data.Spell;
 import ohrrpgce.data.RPG;
-import ohrrpgce.henceforth.Int;
-import ohrrpgce.menu.Action;
-import ohrrpgce.menu.Composite;
-import ohrrpgce.menu.HeroSelector;
-import ohrrpgce.menu.Label;
-import ohrrpgce.menu.List;
-import ohrrpgce.menu.MPBox;
-import ohrrpgce.menu.MenuItem;
-import ohrrpgce.menu.MenuSlice;
-import ohrrpgce.menu.SpecialLabel;
-import ohrrpgce.menu.transitions.MenuInTransition;
-import ohrrpgce.menu.transitions.Transition;
-import ohrrpgce.runtime.Meta;
-import ohrrpgce.runtime.MetaMenu;
-import ohrrpgce.runtime.OHRRPG;
+import ohrrpgce.menu.*;
+import ohrrpgce.menu.transitions.*;
+import ohrrpgce.runtime.*;
+
 
 
 /**

@@ -175,7 +175,7 @@ public class MetaMenu {
         
         //Init our actions
         MakeHighlightAction highlightAction = new MakeHighlightAction();
-        SaveAndRestoreMainMenu stateRestoreAction = new SaveAndRestoreMainMenu();
+      //  SaveAndRestoreMainMenu stateRestoreAction = new SaveAndRestoreMainMenu();
         
 		//Requires a "clear" top-level box with no border, etc. I don't like it so much, but
         //   it is the "proper" way to do it.
@@ -216,8 +216,8 @@ public class MetaMenu {
 		mFormat.borderColors = new int[]{};
 		MenuSlice buttonList = new MenuSlice(mFormat);
 		topHalfBox.setTopLeftChild(buttonList);
-		buttonList.setFocusLostListener(stateRestoreAction);
-		buttonList.addFocusGainedListener(stateRestoreAction);
+		//buttonList.setFocusLostListener(stateRestoreAction);
+		//buttonList.addFocusGainedListener(stateRestoreAction);
 
 		//Add list of buttons...
 		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
@@ -351,7 +351,7 @@ public class MetaMenu {
     };
     
     
-    private static class SaveAndRestoreMainMenu implements Action {
+    /*private static class SaveAndRestoreMainMenu implements Action {
     	public boolean perform(Object caller) {
     		MenuSlice callerSlice = (MenuSlice)caller;
     		
@@ -367,7 +367,7 @@ public class MetaMenu {
     		return true;
     	}
     }
-	
+	*/
 }
 
 
