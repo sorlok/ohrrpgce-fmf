@@ -25,7 +25,9 @@ public class MenuInTransition extends Transition {
     private int numTopRows;
     private int lastTick;
     private int originY; 
-   // private int tideIncrement;
+
+
+    private boolean done;
     
     
     public MenuInTransition(RPG currRPG, int canvasWidth, int canvasHeight) {
@@ -46,6 +48,7 @@ public class MenuInTransition extends Transition {
 
 	public void reset() {
 		currTick = 0;
+		done = false;
 	}
     
 	
@@ -116,15 +119,21 @@ public class MenuInTransition extends Transition {
 
 
 
-	public boolean step() {
+	public void step() {
 		//Are we done?
 		if (currTick == lastTick) {
-			return true;
+			done = true;
 		}
     
 		//Lengthen our arc, tide
 		currTick++;
-
+	}
+	
+	public boolean isDone() {
+		return done;
+	}
+	
+	public boolean requiresReLayout() {
 		return false;
 	}
 

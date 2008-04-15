@@ -69,8 +69,8 @@ public class MenuEngine extends Engine {
     private int height;
     
     //Menu control
-    private MenuSlice topLeftMI;
-    private Transition currTransition;
+    //private MenuSlice topLeftMI;
+    //private Transition currTransition;
     private boolean initDoneOnce;
     private int delayTimer;
     private boolean bufferedESC;
@@ -92,7 +92,7 @@ public class MenuEngine extends Engine {
      */
     public void handleKeys(int keyStates) {
         //Dont' allow the user to mess up any animations.
-        if (currTransition!=null)
+        if (MetaMenu.currTransition!=null)
             return;
     	
         //The key autofires if pressed for a certain length of time.
@@ -103,23 +103,23 @@ public class MenuEngine extends Engine {
                 //OHR key-detect order: MENU, ENTER, UP, DOWN, LEFT, RIGHT
                 if (bufferedESC || (keyStates&InputAdapter.KEY_CANCEL)!=0) {
                     System.out.println("CANCEL");
-                    topLeftMI.cancel();
+                    MetaMenu.topLeftMI.cancel();
                     bufferedESC = false;
                 } else if ((keyStates&InputAdapter.KEY_ACCEPT)!=0) {
                     System.out.println("ACCEPT");
-                    topLeftMI.accept();
+                    MetaMenu.topLeftMI.accept();
                 } else if ((keyStates&InputAdapter.KEY_UP)!=0) {
                     System.out.println("UP");
-                    topLeftMI.processInput(MenuSlice.CONNECT_TOP);
+                    MetaMenu.topLeftMI.processInput(MenuSlice.CONNECT_TOP);
                 } else if ((keyStates&InputAdapter.KEY_DOWN)!=0) {
                     System.out.println("DOWN");
-                    topLeftMI.processInput(MenuSlice.CONNECT_BOTTOM);
+                    MetaMenu.topLeftMI.processInput(MenuSlice.CONNECT_BOTTOM);
                 } else if ((keyStates&InputAdapter.KEY_LEFT)!=0) {
                     System.out.println("LEFT");
-                    topLeftMI.processInput(MenuSlice.CONNECT_LEFT);
+                    MetaMenu.topLeftMI.processInput(MenuSlice.CONNECT_LEFT);
                 } else if ((keyStates&InputAdapter.KEY_RIGHT)!=0) {
                     System.out.println("RIGHT");
-                    topLeftMI.processInput(MenuSlice.CONNECT_RIGHT);
+                    MetaMenu.topLeftMI.processInput(MenuSlice.CONNECT_RIGHT);
                 } else 
                     throw new RuntimeException("Somehow, no input was pressed (but expected) for input: " + keyStates);
                 
@@ -137,13 +137,13 @@ public class MenuEngine extends Engine {
 
     public void paintScene() {
     	//Self-painting transitions?
-    	if (currTransition!=null) {
-    		if (currTransition.doPaintOver())
+    	if (MetaMenu.currTransition!=null) {
+    		if (MetaMenu.currTransition.doPaintOver())
     			return;
     	}
     
     	//Paint the menu
-    	topLeftMI.paintMenuSlice(-1);
+    	MetaMenu.topLeftMI.paintMenuSlice(-1);
     	
     	//Paint the cursor
     	if (MetaMenu.currCursor!=null)
@@ -152,10 +152,12 @@ public class MenuEngine extends Engine {
 
     public void updateScene(long elapsed) {
     	//Update the current transition
-        if (currTransition != null) {
-            if (currTransition.step()) {
-                currTransition = null;
-            }
+        if (MetaMenu.currTransition != null) {
+            MetaMenu.currTransition.step();
+            if (MetaMenu.currTransition.requiresReLayout())
+            	MetaMenu.topLeftMI.doLayout();
+            if (MetaMenu.currTransition.isDone())
+            	MetaMenu.currTransition = null;
         }
     }
 
@@ -175,12 +177,12 @@ public class MenuEngine extends Engine {
         }
         
         //Set components
-        topLeftMI = MetaMenu.topLeftMI;
-        topLeftMI.doLayout();
-        topLeftMI.moveTo();
+        //MetaMenu.topLeftMI = MetaMenu.topLeftMI;
+        MetaMenu.topLeftMI.doLayout();
+        MetaMenu.topLeftMI.moveTo();
         
         //Set transitions
-        currTransition = MetaMenu.menuInTrans;
+        MetaMenu.currTransition = MetaMenu.menuInTrans;
     }
     
     public RPG getRPG() {

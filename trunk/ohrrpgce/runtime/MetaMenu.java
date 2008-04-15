@@ -15,6 +15,7 @@ import ohrrpgce.menu.ImageSlice;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
 import ohrrpgce.menu.TextSlice;
+import ohrrpgce.menu.transitions.MainMenuItemInTransition;
 import ohrrpgce.menu.transitions.MenuInTransition;
 import ohrrpgce.menu.transitions.Transition;
 import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
@@ -24,6 +25,7 @@ public class MetaMenu {
 	//Retrieve these AFTER calling buildMenu()
 	public static MenuSlice topLeftMI;
 	public static Transition menuInTrans;
+	public static Transition currTransition;
 	public static MenuSlice currCursor;
 
 	//Used for laying out components
@@ -54,11 +56,18 @@ public class MetaMenu {
         "main_icons/volume.png",
         "main_icons/quit.png",
     };
+    private static MenuSlice[] mainMenuOverlays = new MenuSlice[mainImageFiles.length];
     
+    
+    private static MenuSlice buttonList;
     
     //Character selection
     private static FlatListSlice heroSelector;
     private static ImageSlice currHeroPicture;
+    
+    //Saved
+    private static int width;
+    private static int height;
 
 
 
@@ -166,6 +175,10 @@ public class MetaMenu {
 
 
 	public static void buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
+		//Save...
+		MetaMenu.width = width;
+		MetaMenu.height = height;
+		
 		//Get colors. We "lighten" a color to provide our basic menu...
         int[] colorZero = rpg.getTextBoxColors(0);
         int colorZeroLight =
@@ -187,6 +200,7 @@ public class MetaMenu {
 		mFormat.widthHint = width;
 		mFormat.heightHint = height+1; //Because we scroll one box up later...
 		MenuSlice clearBox = new MenuSlice(mFormat);
+		topLeftMI = clearBox;
 
 		//Top-half
 		mFormat.bgColor = colorZeroLight;
@@ -215,7 +229,7 @@ public class MetaMenu {
 		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
 		mFormat.borderPadding = 0;
 		mFormat.borderColors = new int[]{};
-		MenuSlice buttonList = new MenuSlice(mFormat);
+		buttonList = new MenuSlice(mFormat);
 		topHalfBox.setTopLeftChild(buttonList);
 		//buttonList.setFocusLostListener(stateRestoreAction);
 		//buttonList.addFocusGainedListener(stateRestoreAction);
@@ -236,15 +250,32 @@ public class MetaMenu {
         		mFormat.bgColor = colors[0];
         		mFormat.borderColors[0] = colors[1];
 
+        		//Create this button
             	ImageSlice currBox = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder+mainImageFiles[i]));
-                currBox.setData(new Int(i));
+            	currBox.setData(new Int(i));
                 currBox.addFocusGainedListener(highlightAction);
+                
+                //Create an overlay for this button which will show when it's activated
+                MenuFormatArgs overlayFmt = new MenuFormatArgs(mFormat);
+                overlayFmt.widthHint = width - DEFAULT_BORDER_PADDING*2;
+                overlayFmt.heightHint = height - DEFAULT_BORDER_PADDING*2;
+                overlayFmt.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+                overlayFmt.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+                MenuSlice boxOverlay = new MenuSlice(overlayFmt);
+                mainMenuOverlays[i] = boxOverlay;
 
                 //Temp!
                 if (mainTextsIDs[i]==QUIT) {
                 	currBox.setAcceptListener(new Action() {
                 		public boolean perform(Object caller) {
                 			throw new RuntimeException("Testing 1 2 3");
+                		}
+                	});
+                } else {
+                	currBox.setAcceptListener(new Action() {
+                		public boolean perform(Object caller) {
+                			currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild().getPosX(), (MenuSlice)caller, MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI);
+                			return true;
                 		}
                 	});
                 }
@@ -326,8 +357,7 @@ public class MetaMenu {
             }
         }
 
-		//Set for later...
-		topLeftMI = clearBox;
+		//Transitions
 		menuInTrans = new MenuInTransition(rpg, width, height);
 	}
 	
