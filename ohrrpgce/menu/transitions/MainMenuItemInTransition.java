@@ -8,6 +8,7 @@ import ohrrpgce.game.LiteException;
 import ohrrpgce.menu.ImageSlice;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
+import ohrrpgce.menu.TextSlice;
 import ohrrpgce.runtime.MetaMenu;
 
 public class MainMenuItemInTransition extends Transition {
@@ -43,6 +44,8 @@ public class MainMenuItemInTransition extends Transition {
 	
 	private boolean hackeroo;
 	
+	private MenuSlice finalItem;
+	
 	
 	
 	/**
@@ -70,8 +73,9 @@ public class MainMenuItemInTransition extends Transition {
 		//Connect our components and get an initial layout...
 		itemToMove.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		//itemToMove.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-		topmostBox.connect(itemToMove, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+		topmostBox.connect(itemToMove, MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
 		topmostBox.doLayout();
+		topmostBox.disconnect(MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
 		
 		//Init our black value
 		currLayerCombinedAlpha = 0xFF;
@@ -166,8 +170,15 @@ public class MainMenuItemInTransition extends Transition {
 				phase = PHASE_THREE;
 			}
 		} else if (phase==PHASE_THREE) {
+			//Ok, a few things here...
+			MenuFormatArgs mForm = new MenuFormatArgs(currLbl.getInitialFormatArgs());
+			mForm.fromAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
+			mForm.toAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
+			finalItem = new TextSlice(mForm, "(Incomplete)", ((TextSlice)currLbl).getFont(), true, true, false);
+			finalItem.addFocusGainedListener(new MetaMenu.MakeHighlightAction());
+			overlaySlice.setTopLeftChild(finalItem);
 			
-			//temp
+			//Also layout
 			done = true;
 			relayoutNeeded = true;
 		}
@@ -177,6 +188,10 @@ public class MainMenuItemInTransition extends Transition {
 		
 	}
 	
+	
+	public MenuSlice getNewFocus() {
+		return finalItem;
+	}
 	
 	
 	private void setupPhaseTwoPointFive() {
@@ -237,19 +252,21 @@ public class MainMenuItemInTransition extends Transition {
 		mf.borderColors =  new int[]{};
 		mf.fillType = MenuSlice.FILL_NONE;
 		ImageSlice box1 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
-		topmostBox.connect(box1, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+		topmostBox.getTopLeftChild().connect(box1, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+		box1.connect(itemToMove, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		
 		mf.fromAnchor = GraphicsAdapter.RIGHT|GraphicsAdapter.TOP;
 		ImageSlice box2 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
-		box1.connect(box2, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+		box1.connect(box2, MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
 		
 		mf.fromAnchor = GraphicsAdapter.LEFT|GraphicsAdapter.BOTTOM;
 		ImageSlice box3 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
-		box1.connect(box3, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+		box2.connect(box3, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		
-		mf.fromAnchor = GraphicsAdapter.RIGHT|GraphicsAdapter.TOP;
+		mf.fromAnchor = GraphicsAdapter.LEFT|GraphicsAdapter.TOP;
+		mf.toAnchor = GraphicsAdapter.RIGHT|GraphicsAdapter.TOP;
 		ImageSlice box4 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
-		box3.connect(box4, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+		box3.connect(box4, MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
 		
 		relayoutNeeded = true;
 	}
