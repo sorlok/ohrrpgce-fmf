@@ -27,23 +27,25 @@ public class MetaMenu {
 	public static Transition menuInTrans;
 	public static Transition currTransition;
 	public static MenuSlice currCursor;
+	public static int mode;
+	private static int prevMode;
 
 	//Used for laying out components
     public static final int DEFAULT_INTER_ELEMENT_SPACING = 3;
     private static final int DEFAULT_BORDER_PADDING = 2;
 
     //States, texts
-    private static final int MAIN = 0;
-    private static final int SPELLS = 1;
-    private static final int EQUIP = 2;
-    private static final int STATS = 3;
-    private static final int ITEMS = 4;
-    private static final int ORDER = 5;
-    private static final int MAP = 6;
-    private static final int SAVE = 7;
-    private static final int VOLUME = 8;
-    private static final int QUIT = 9;
-    private static final int HERO = 10; //Label only
+    public static final int MAIN = 0;
+    public static final int SPELLS = 1;
+    public static final int EQUIP = 2;
+    public static final int STATS = 3;
+    public static final int ITEMS = 4;
+    public static final int ORDER = 5;
+    public static final int MAP = 6;
+    public static final int SAVE = 7;
+    public static final int VOLUME = 8;
+    public static final int QUIT = 9;
+    public static final int HERO = 10; //Label only
 
     //Main menu stuff
     private static final int[] mainTextsIDs = new int[] {ITEMS, ORDER, MAP, SAVE, VOLUME, QUIT};
@@ -58,8 +60,10 @@ public class MetaMenu {
         "main_icons/quit.png",
     };
     //private static MenuSlice[] mainMenuOverlays = new MenuSlice[mainImageFiles.length];
+    private static MenuSlice[] mainMenuButtons = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuUpperButtons = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuLabels = new MenuSlice[mainImageFiles.length];
+    private static MenuSlice currMenuUpperButton;
     
     
     private static MenuSlice buttonList;
@@ -72,6 +76,24 @@ public class MetaMenu {
     private static int width;
     private static int height;
 
+    
+    
+    private static void doMainMenuIn(MenuSlice whichItem) {
+    	int itemID = ((Int)whichItem.getData()).getValue();
+		currCursor = null;
+		currMenuUpperButton = mainMenuUpperButtons[itemID];
+		currTransition = new MainMenuItemInTransition(whichItem, buttonList.getTopLeftChild(), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, false);
+		prevMode = mode;
+		mode = mainTextsIDs[itemID];
+    }
+    
+    private static void doMainMenuOut() {
+    	int itemID = ((Int)currMenuUpperButton.getData()).getValue();
+    	currCursor = null;
+    	currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild(), mainMenuButtons[itemID],  currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, true);
+    	mode = prevMode;
+    }
+    
 
 
 
@@ -155,25 +177,20 @@ public class MetaMenu {
             	ImageSlice currBox = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder+mainImageFiles[i]));
             	currBox.setData(new Int(i));
                 currBox.addFocusGainedListener(highlightAction);
+                mainMenuButtons[i] = currBox;
                 
                 //Create an additional copy
                 MenuFormatArgs overlayFmt = new MenuFormatArgs(mFormat);
                 overlayFmt.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
                 overlayFmt.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
                 mainMenuUpperButtons[i] = new ImageSlice(overlayFmt, adaptGen.createImageAdapter(Meta.pathToGameFolder+mainImageFiles[i]));
+                mainMenuUpperButtons[i].setData(new Int(i));
                 
                 //Also create a label for this....
                 overlayFmt.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
                 overlayFmt.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
                 mainMenuLabels[i] = new TextSlice(overlayFmt, mainMenuTexts[i], rpg.font, true, true, false);
                 mainMenuUpperButtons[i].connect(mainMenuLabels[i], MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-                
-                //Create an overlay for this button which will show when it's activated
-      /*          overlayFmt.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
-                overlayFmt.widthHint = width - DEFAULT_BORDER_PADDING*2;
-                overlayFmt.heightHint = height - DEFAULT_BORDER_PADDING*2;
-                MenuSlice boxOverlay = new MenuSlice(overlayFmt);
-                mainMenuOverlays[i] = boxOverlay;*/
 
                 //Temp!
                 if (mainTextsIDs[i]==QUIT) {
@@ -185,13 +202,7 @@ public class MetaMenu {
                 } else {
                 	currBox.setAcceptListener(new Action() {
                 		public boolean perform(Object caller) {
-                			MenuSlice calledBy = (MenuSlice)caller;
-                			int i = ((Int)calledBy.getData()).getValue();
-                			mainMenuUpperButtons[i].getInitialFormatArgs().xHint = calledBy.getPosX();
-                			mainMenuUpperButtons[i].getInitialFormatArgs().yHint = calledBy.getPosY();
-                			
-                			currCursor = null;
-                			currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild().getPosX(),buttonList.getTopLeftChild().getPosX()+buttonList.getTopLeftChild().getWidth(), mainMenuUpperButtons[i], mainMenuLabels[i], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI);
+                			MetaMenu.doMainMenuIn((MenuSlice)caller);
                 			return true;
                 		}
                 	});
