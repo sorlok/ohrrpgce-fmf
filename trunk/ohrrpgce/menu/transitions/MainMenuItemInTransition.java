@@ -17,7 +17,7 @@ public class MainMenuItemInTransition extends Transition {
 	
 	private static final int PHASE_ONE = 1;
 	private static final int PHASE_TWO = 2;
-	private static final int PHASE_THREE = 3;
+	private static final int PHASE_DONE = 3;
 	private int phase;
 
 	private int[] quarterBoxDark;
@@ -34,6 +34,8 @@ public class MainMenuItemInTransition extends Transition {
 		
 	private int currBlackIndex;
 	private int speed;
+	
+	private boolean doInReverse;
 	
 	//Alpha
 	int alphaInterval = 0x55;
@@ -58,9 +60,20 @@ public class MainMenuItemInTransition extends Transition {
 	 * @param destBoxX
 	 * @param selectedButton
 	 */
-	public MainMenuItemInTransition(int destBoxX, int destTxtX, MenuSlice selectedButton, MenuSlice currSubMenuLbl, int screenWidth, int screenHeight, MenuSlice topmostBox) {
-		this.destBoxX = destBoxX;
-		this.destTxtX = destTxtX-1;
+	public MainMenuItemInTransition(MenuSlice srcButton, MenuSlice destButton, MenuSlice selectedButton, MenuSlice currSubMenuLbl, int screenWidth, int screenHeight, MenuSlice topmostBox, boolean doInReverse) {
+		this.doInReverse = doInReverse;
+		
+		if (!doInReverse) {
+			selectedButton.getInitialFormatArgs().xHint = srcButton.getPosX();
+			selectedButton.getInitialFormatArgs().yHint = srcButton.getPosY();
+		}
+		
+		this.destBoxX = destButton.getPosX(); 
+		if (!doInReverse)
+			this.destTxtX = destButton.getPosX() + destButton.getWidth() - 1;
+		else 
+			this.destTxtX = currSubMenuLbl.getPosX() - currSubMenuLbl.getWidth();
+		
 		this.itemToMove = selectedButton;
 		this.currLbl = currSubMenuLbl;
 		this.quarterBoxWidth = (int)Math.ceil(screenWidth/2.0F);
@@ -68,18 +81,24 @@ public class MainMenuItemInTransition extends Transition {
 		this.quarterBoxDark = new int[quarterBoxWidth*quarterBoxHeight];
 		this.topmostBox = topmostBox;
 		
-		this.phase = PHASE_ONE;
+		if (!doInReverse)
+			this.phase = PHASE_ONE;
+		else
+			this.phase = PHASE_TWO;
 		
 		//Connect our components and get an initial layout...
-		itemToMove.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-		//itemToMove.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-		topmostBox.connect(itemToMove, MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
-		topmostBox.doLayout();
-		topmostBox.disconnect(MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
+		if (!doInReverse) {
+			itemToMove.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+			topmostBox.connect(itemToMove, MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
+			topmostBox.doLayout();
+			topmostBox.disconnect(MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
+		}
 		
 		//Init our black value
-		currLayerCombinedAlpha = 0xFF;
-		Arrays.fill(quarterBoxDark, alphaInterval<<24);
+		if (!doInReverse) {
+			currLayerCombinedAlpha = 0xFF;
+			Arrays.fill(quarterBoxDark, alphaInterval<<24);
+		}
 		
 		//Set other values...
 		this.reset();
@@ -167,9 +186,9 @@ public class MainMenuItemInTransition extends Transition {
             }
             
 			if (itemToMove.getPosX()==destBoxX && currLbl.getPosX()==destTxtX && currOverlayY==destOverlayY) {
-				phase = PHASE_THREE;
+				phase = PHASE_DONE;
 			}
-		} else if (phase==PHASE_THREE) {
+		} else if (phase==PHASE_DONE) {
 			//Ok, a few things here...
 			MenuFormatArgs mForm = new MenuFormatArgs(currLbl.getInitialFormatArgs());
 			mForm.fromAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;

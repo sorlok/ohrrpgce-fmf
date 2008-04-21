@@ -103,7 +103,15 @@ public class MenuEngine extends Engine {
                 //OHR key-detect order: MENU, ENTER, UP, DOWN, LEFT, RIGHT
                 if (bufferedESC || (keyStates&InputAdapter.KEY_CANCEL)!=0) {
                     System.out.println("CANCEL");
-                    MetaMenu.topLeftMI.cancel();
+                    
+                    //The action taken depends on the menu's current state. 
+                    if (MetaMenu.mode == MetaMenu.MAIN)
+                    	midletHook.egress(new Integer(42));
+                    else if (MetaMenu.mode==MetaMenu.ITEMS || MetaMenu.mode==MetaMenu.ORDER || MetaMenu.mode==MetaMenu.MAP || MetaMenu.mode==MetaMenu.SAVE || MetaMenu.mode==MetaMenu.VOLUME || MetaMenu.mode==MetaMenu.QUIT)
+                    	//Do stuff
+                    	###
+                    else
+                    	MetaMenu.topLeftMI.cancel();
                     bufferedESC = false;
                 } else if ((keyStates&InputAdapter.KEY_ACCEPT)!=0) {
                     System.out.println("ACCEPT");
@@ -178,6 +186,7 @@ public class MenuEngine extends Engine {
         if (!initDoneOnce) {
         	try {
         		MetaMenu.buildMenu(width, height, getRPG(), adaptGen);
+        		
         		initDoneOnce = true;
         	} catch (Exception ex) {
         		throw new LiteException(this, ex, "Menu failed on INIT");
@@ -191,6 +200,7 @@ public class MenuEngine extends Engine {
         
         //Set transitions
         MetaMenu.currTransition = MetaMenu.menuInTrans;
+        MetaMenu.mode = MetaMenu.MAIN;
     }
     
     public RPG getRPG() {
