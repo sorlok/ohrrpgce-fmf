@@ -150,6 +150,8 @@ public class MainMenuItemInTransition extends Transition {
 				phase = PHASE_TWO;
 			}
 		} else if (phase==PHASE_TWO) {
+			
+			//NOTE: refactor this out into "movecloser(box, dest, modifier(-1))"
 			int currBoxX = itemToMove.getPosX();
             if (currBoxX > destBoxX+speed) {
             	itemToMove.forceToLocation(currBoxX-speed, itemToMove.getPosY());
