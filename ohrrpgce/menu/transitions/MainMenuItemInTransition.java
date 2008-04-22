@@ -1,7 +1,6 @@
 package ohrrpgce.menu.transitions;
 
 import java.util.Arrays;
-import java.util.List;
 
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.game.LiteException;
@@ -32,6 +31,8 @@ public class MainMenuItemInTransition extends Transition {
 	private int destBoxX;
 	private int destTxtX;
 	private int destOverlayY;
+	
+	private ImageSlice box1,box2,box3,box4;
 		
 	private int currBlackIndex;
 	private int speed;
@@ -48,6 +49,8 @@ public class MainMenuItemInTransition extends Transition {
 	private boolean hackeroo;
 	
 	private int globalMod;
+	private int completedCount;
+	private int blackOutSpeed;
 	
 	private MenuSlice finalItem;
 	
@@ -112,6 +115,12 @@ public class MainMenuItemInTransition extends Transition {
 			overlaySlice.setTopLeftChild(null);
 			destOverlayY = -overlaySlice.getHeight();
 			finalItem = destButton;
+			
+			//ugh
+			box1 = (ImageSlice)topmostBox.getTopLeftChild().getConnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+			box2 = (ImageSlice)box1.getConnect(MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
+			box3 = (ImageSlice)box2.getConnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+			box4 = (ImageSlice)box3.getConnect(MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
 		}
 		
 		//Set other values...
@@ -121,9 +130,16 @@ public class MainMenuItemInTransition extends Transition {
 	
 	public boolean doPaintOver() {
 		if (phase==PHASE_ONE) {
-			if (doInReverse && currBlackIndex == darkenInterval) {
-				//Slightly hackish
-				hackeroo = true;
+			if (doInReverse) {
+				if (currBlackIndex == 0) {
+					//Slightly hackish
+					hackeroo = true;
+					completedCount = 0;
+					currBlackIndex++;
+					blackOutSpeed = quarterBoxWidth/(darkenInterval-1);
+				}
+				
+				//Always repaint 
 				return false;
 			}
 			
@@ -159,10 +175,7 @@ public class MainMenuItemInTransition extends Transition {
 		done = false;
 		relayoutNeeded = false;
 		
-		if (!doInReverse)
-			currBlackIndex = 0;
-		else 
-			currBlackIndex = darkenInterval;
+		currBlackIndex = 0;
 		
 		//Boxes which are further away move in faster.
 		speed = Math.max(defaultSpeed, (itemToMove.getPosX()-destBoxX)/darkenInterval);
@@ -219,8 +232,15 @@ public class MainMenuItemInTransition extends Transition {
 					phase = PHASE_TWO;
 				}
 			} else {
-				currBlackIndex--;
-				if (currBlackIndex<=0) {
+				if (moveCloserX(box2, quarterBoxWidth*2, blackOutSpeed, 1))
+					completedCount++;
+				if (moveCloserX(box3, quarterBoxWidth*2, blackOutSpeed, 1))
+					completedCount++;
+				if (moveCloserX(box1, -quarterBoxWidth, blackOutSpeed, -1))
+					completedCount++;
+				if (moveCloserX(box4, -quarterBoxWidth, blackOutSpeed, -1))
+					completedCount++;
+				if (completedCount==4) {
 					setupPhaseTwo();
 					phase = PHASE_DONE;
 				}
@@ -357,21 +377,21 @@ public class MainMenuItemInTransition extends Transition {
 		mf.heightHint = quarterBoxHeight;
 		mf.borderColors =  new int[]{};
 		mf.fillType = MenuSlice.FILL_NONE;
-		ImageSlice box1 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
+		box1 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
 		topmostBox.getTopLeftChild().connect(box1, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		box1.connect(itemToMove, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		
 		mf.fromAnchor = GraphicsAdapter.RIGHT|GraphicsAdapter.TOP;
-		ImageSlice box2 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
+		box2 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
 		box1.connect(box2, MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
 		
 		mf.fromAnchor = GraphicsAdapter.LEFT|GraphicsAdapter.BOTTOM;
-		ImageSlice box3 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
+		box3 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
 		box2.connect(box3, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 		
 		mf.fromAnchor = GraphicsAdapter.LEFT|GraphicsAdapter.TOP;
 		mf.toAnchor = GraphicsAdapter.RIGHT|GraphicsAdapter.TOP;
-		ImageSlice box4 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
+		box4 = new ImageSlice(mf, darkerBox, quarterBoxWidth);
 		box3.connect(box4, MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
 		
 		relayoutNeeded = true;
