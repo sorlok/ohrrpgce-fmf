@@ -46,6 +46,8 @@ public class MainMenuItemInTransition extends Transition {
 	
 	private boolean hackeroo;
 	
+	private int globalMod;
+	
 	private MenuSlice finalItem;
 	
 	
@@ -69,10 +71,13 @@ public class MainMenuItemInTransition extends Transition {
 		}
 		
 		this.destBoxX = destButton.getPosX(); 
-		if (!doInReverse)
+		if (!doInReverse) {
 			this.destTxtX = destButton.getPosX() + destButton.getWidth() - 1;
-		else 
+			globalMod = 1;
+		} else { 
 			this.destTxtX = currSubMenuLbl.getPosX() - currSubMenuLbl.getWidth();
+			globalMod = -1;
+		}
 		
 		this.itemToMove = selectedButton;
 		this.currLbl = currSubMenuLbl;
@@ -141,6 +146,48 @@ public class MainMenuItemInTransition extends Transition {
 		//Boxes which are further away move in faster.
 		speed = Math.max(defaultSpeed, (itemToMove.getPosX()-destBoxX)/darkenInterval);
 	}
+	
+	
+	
+	//mod:1 = move right/down, -1 = move left/up
+	//returns "true" if the item "just reached" the location
+	private boolean moveCloser(MenuSlice box, int dest, int moveSpeed, boolean isY, int modifier) {
+		//Are we there?
+		int magnitude = isY ? box.getPosY() : box.getPosX();
+		if (magnitude==dest)
+			return false;
+		
+		//Are we far away?
+		int oneStep = dest - modifier*moveSpeed;
+        if (modifier*magnitude < modifier*oneStep) {
+        	if (!isY)
+        		box.forceToLocation(box.getPosX()+modifier*moveSpeed, box.getPosY());
+        	else
+        		box.forceToLocation(box.getPosX(), box.getPosY()+modifier*moveSpeed);
+        	return false;
+        }
+        
+        //Are we at the right spot?
+        if (modifier*magnitude < modifier*dest) {
+        	if (!isY)
+        		box.forceToLocation(dest, box.getPosY());
+        	else
+        		box.forceToLocation(box.getPosX(), dest);
+        	return true;
+        }
+        
+        //Error otherwise
+        throw new LiteException(this, null, "Bad magnitude: " + magnitude + "  in regards to destination: " + dest);
+	}
+	
+	private boolean moveCloserX(MenuSlice box, int destX, int moveSpeed, int modifier) {
+		return moveCloser(box, destX, moveSpeed, false, modifier);
+	}
+	
+	private boolean moveCloserY(MenuSlice box, int destY, int moveSpeed, int modifier) {
+		return moveCloser(box, destY, moveSpeed, true, modifier);
+	}
+	
 
 	public void step() {
 		if (phase==PHASE_ONE) {
@@ -151,43 +198,27 @@ public class MainMenuItemInTransition extends Transition {
 			}
 		} else if (phase==PHASE_TWO) {
 			
-			//NOTE: refactor this out into "movecloser(box, dest, modifier(-1))"
-			int currBoxX = itemToMove.getPosX();
-            if (currBoxX > destBoxX+speed) {
-            	itemToMove.forceToLocation(currBoxX-speed, itemToMove.getPosY());
-            } else if (currBoxX > destBoxX) {
-            	itemToMove.forceToLocation(destBoxX, itemToMove.getPosY());
-            	setupPhaseTwoPointFive();
-            } else if (currBoxX != destBoxX) {
-            	throw new LiteException(this, null, "Bad currBoxX: " + currBoxX + "  in regards to destBoxX: " + destBoxX);
-            }
-            
-            int currTxtX = currLbl.getPosX();
-            int currOverlayY = -5;
-            if (currBoxX==destBoxX) {
+			//Move our button
+			if (moveCloserX(itemToMove, destBoxX, speed, -globalMod)) {
+				setupPhaseTwoPointFive();
+			}
+			
+			//Move other components?
+			int cachedOverlayY = -5;
+            if (itemToMove.getPosX()==destBoxX) {
                 //Move the text label?
-                if (currTxtX < destTxtX-defaultSpeed) {
-                	currLbl.forceToLocation(currTxtX + defaultSpeed, currLbl.getPosY());
-                } else if (currTxtX < destTxtX) {
-                    currTxtX = destTxtX;
-                    setupPhaseTwoPointSevenFive();
-                } else if (currTxtX != destTxtX) {
-                    throw new LiteException(this, null, "Bad currTxtX: " + currTxtX + "  in regards to destTxtX: " + destTxtX);
-                }
-                
-                //Move the overlay?
-                currOverlayY = overlaySlice.getPosY();
-                if (currOverlayY < destOverlayY-defaultSpeed*3) {
-                	overlaySlice.forceToLocation(overlaySlice.getPosX(), currOverlayY+defaultSpeed*3);
-                } else if (currOverlayY < destOverlayY) {
-                	overlaySlice.forceToLocation(overlaySlice.getPosX(), currOverlayY);
-                	setupPhaseTwoPointEightish();
-                } else if (currOverlayY != destOverlayY) {
-                    throw new RuntimeException("Bad currBkgrdY: " + currOverlayY + "  in regards to destBkgrdY: " + destOverlayY);
-                }
+            	if (moveCloserX(currLbl, destTxtX, defaultSpeed, globalMod)) {
+            		setupPhaseTwoPointSevenFive();
+            	}
+            	
+            	//Move the overlay?
+            	cachedOverlayY = overlaySlice.getPosY();
+            	if (moveCloserY(overlaySlice, destOverlayY, defaultSpeed*3, globalMod)) {
+            		setupPhaseTwoPointEightish();
+            	}
             }
             
-			if (itemToMove.getPosX()==destBoxX && currLbl.getPosX()==destTxtX && currOverlayY==destOverlayY) {
+			if (!doInReverse && cachedOverlayY==destOverlayY) {
 				phase = PHASE_DONE;
 			}
 		} else if (phase==PHASE_DONE) {
