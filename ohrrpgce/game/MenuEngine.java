@@ -109,7 +109,7 @@ public class MenuEngine extends Engine {
                     	midletHook.egress(new Integer(42));
                     else if (MetaMenu.mode==MetaMenu.ITEMS || MetaMenu.mode==MetaMenu.ORDER || MetaMenu.mode==MetaMenu.MAP || MetaMenu.mode==MetaMenu.SAVE || MetaMenu.mode==MetaMenu.VOLUME || MetaMenu.mode==MetaMenu.QUIT) {
                     	//Do stuff
-                    	
+                    	MetaMenu.doMainMenuOut();
                     } else
                     	MetaMenu.topLeftMI.cancel();
                     bufferedESC = false;

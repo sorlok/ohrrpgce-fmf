@@ -692,6 +692,20 @@ public class MenuSlice {
             paintConnect[disconOn] = null;
         }
     }
+    
+    public MenuSlice getConnect(int dir, int flags) {    
+        //Command connect:
+        if ((flags&MenuSlice.CFLAG_CONTROL)!=0) {
+        	return commandConnect[dir];
+        }
+        
+        //Paint connect:
+        if ((flags&MenuSlice.CFLAG_PAINT)!=0) {
+            return paintConnect[dir];
+        }
+        
+        return null;
+    }
 
     
     public void setTopLeftChild(MenuSlice child) {
