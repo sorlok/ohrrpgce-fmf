@@ -18,9 +18,9 @@ public class MenuInTransition extends Transition {
     private int currTick;
     
     //Used internally
-    private RPG currRPG;
+    //private RPG currRPG;
     private int menuColor;
-    private int width;
+    //private int width;
     private int height;
     private int boxSize;
     private int numTopRows;
@@ -33,8 +33,8 @@ public class MenuInTransition extends Transition {
     
     public MenuInTransition(RPG currRPG, int canvasWidth, int canvasHeight) {
     	//Save for later
-    	this.currRPG = currRPG;
-    	this.width = canvasWidth;
+    	//this.currRPG = currRPG;
+    	//this.width = canvasWidth;
     	this.height = canvasHeight;
     	
     	//Calculate

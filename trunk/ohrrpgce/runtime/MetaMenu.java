@@ -2,23 +2,12 @@ package ohrrpgce.runtime;
 
 import java.io.IOException;
 
-import ohrrpgce.adapter.AdapterGenerator;
-import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.adapter.ImageAdapter;
-import ohrrpgce.data.Message;
-import ohrrpgce.data.RPG;
-import ohrrpgce.game.LiteException;
-import ohrrpgce.henceforth.Int;
-import ohrrpgce.menu.Action;
-import ohrrpgce.menu.FlatListSlice;
-import ohrrpgce.menu.ImageSlice;
-import ohrrpgce.menu.MenuFormatArgs;
-import ohrrpgce.menu.MenuSlice;
-import ohrrpgce.menu.TextSlice;
-import ohrrpgce.menu.transitions.MainMenuItemInTransition;
-import ohrrpgce.menu.transitions.MenuInTransition;
-import ohrrpgce.menu.transitions.Transition;
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
+import ohrrpgce.adapter.*;
+import ohrrpgce.data.*;
+import ohrrpgce.game.*;
+import ohrrpgce.henceforth.*;
+import ohrrpgce.menu.*;
+import ohrrpgce.menu.transitions.*;
 
 public class MetaMenu {
 

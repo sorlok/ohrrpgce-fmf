@@ -5,19 +5,10 @@
 
 package ohrrpgce.runtime;
 
-import ohrrpgce.data.BattleFormation;
-import ohrrpgce.data.Door;
-import ohrrpgce.data.EncounterSet;
-import ohrrpgce.data.Map;
-import ohrrpgce.data.NPC;
-import ohrrpgce.data.TileAnimation;
-import ohrrpgce.data.loader.LinkedList;
-import ohrrpgce.data.loader.MapParser;
-import ohrrpgce.data.loader.TileAnimationParser;
-import ohrrpgce.game.SimpleCanvas;
-import ohrrpgce.game.LiteException;
-import ohrrpgce.game.SimpleTextBox;
-import ohrrpgce.menu.MenuSlice;
+import ohrrpgce.data.*;
+import ohrrpgce.data.loader.*;
+import ohrrpgce.game.*;
+import ohrrpgce.menu.*;
 
 /**
  * Class for holding a map that's currently being displayed onscreen.

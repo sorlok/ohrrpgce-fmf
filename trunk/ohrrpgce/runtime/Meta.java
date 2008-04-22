@@ -7,7 +7,6 @@ package ohrrpgce.runtime;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Vector;
 import ohrrpgce.adapter.AdapterGenerator;
 
@@ -31,7 +30,6 @@ public class Meta {
     private MetaGame currGame;
     private int currProp;
     private StringBuffer sb;
-    private char[] cBuf;
     //private boolean stopMidletHook;
     
     private AdapterGenerator adaptGen;
@@ -135,7 +133,7 @@ public class Meta {
         currGame = new MetaGame();
         currProp=0;
         sb = new StringBuffer();
-        cBuf = new char[1];
+        //cBuf = new char[1];
         
         //Prepare our "in-between" action.
         /*RunnerMidlet.backgroundAction = new Action() {

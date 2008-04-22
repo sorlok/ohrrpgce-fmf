@@ -3,7 +3,6 @@ package ohrrpgce.henceforth;
 import java.util.Vector;
 
 import ohrrpgce.data.NPC;
-import ohrrpgce.data.RPG;
 import ohrrpgce.game.LiteException;
 import ohrrpgce.runtime.OHRRPG;
 

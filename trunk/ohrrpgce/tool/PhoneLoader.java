@@ -48,9 +48,9 @@ public class PhoneLoader {
 	private GameStatus currGame;
 	
 	//Images
-	private Image iconRED;
+	//private Image iconRED;
 	private Image iconBLUE;
-	private Image iconGREEN;
+	//private Image iconGREEN;
 	
 	private String newRPGName;
 	private ZipOutputStream tempJar;
@@ -74,9 +74,9 @@ public class PhoneLoader {
 		mainShell.setLayout(fl);
 		
 		//Load Images
-		iconRED = new Image(Display.getDefault(), "ohrrpgce/tool/res/RED.PNG");
+		//iconRED = new Image(Display.getDefault(), "ohrrpgce/tool/res/RED.PNG");
 		iconBLUE = new Image(Display.getDefault(), "ohrrpgce/tool/res/BLUE.PNG");
-		iconGREEN = new Image(Display.getDefault(), "ohrrpgce/tool/res/GREEN.PNG");
+		//iconGREEN = new Image(Display.getDefault(), "ohrrpgce/tool/res/GREEN.PNG");
 		
 		//Also
 		libGames = new ArrayList/*<String>*/();

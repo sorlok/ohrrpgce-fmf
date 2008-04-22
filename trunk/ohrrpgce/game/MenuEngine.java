@@ -5,18 +5,9 @@
 
 package ohrrpgce.game;
 
-
-import java.io.IOException;
-import java.util.Vector;
-
-import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.adapter.AdapterGenerator;
-import ohrrpgce.adapter.ImageAdapter;
-import ohrrpgce.adapter.InputAdapter;
-
+import ohrrpgce.adapter.*;
 import ohrrpgce.data.RPG;
 import ohrrpgce.menu.*;
-import ohrrpgce.menu.transitions.*;
 import ohrrpgce.runtime.*;
 
 
