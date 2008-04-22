@@ -5,8 +5,6 @@
 
 package ohrrpgce.game;
 
-import ohrrpgce.adapter.GraphicsAdapter;
-
 /**
  * A basic game engine, with functionality for interacting with other
  *  engines. Current & planned engines include:

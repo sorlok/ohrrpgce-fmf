@@ -5,7 +5,6 @@
 
 package ohrrpgce.game;
 
-import java.util.Vector;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Message;

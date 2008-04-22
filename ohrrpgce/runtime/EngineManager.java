@@ -1,17 +1,9 @@
 package ohrrpgce.runtime;
 
 import java.util.Stack;
-
-import ohrrpgce.adapter.AdapterGenerator;
-import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.adapter.InputAdapter;
-import ohrrpgce.data.loader.RPGLoadSizeListener;
-import ohrrpgce.game.Engine;
-import ohrrpgce.game.EngineSwitcher;
-import ohrrpgce.game.GameEngine;
-import ohrrpgce.game.LiteException;
-import ohrrpgce.game.MenuEngine;
-import ohrrpgce.henceforth.VirtualMachine;
+import ohrrpgce.adapter.*;
+import ohrrpgce.data.loader.*;
+import ohrrpgce.game.*;
 
 public class EngineManager implements Runnable {
 	//Engine management

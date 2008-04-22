@@ -43,8 +43,8 @@ public abstract class MetaDisplay {
     private static int[] lastScans;
     
     //Error info
-    private static String currError="";
-    private static String[] errorStrings={};
+//    private static String currError="";
+//    private static String[] errorStrings={};
     
     private static AdapterGenerator adaptGen;
     

@@ -5,9 +5,6 @@
 
 package ohrrpgce.menu.transitions;
 
-import java.util.Vector;
-
-import ohrrpgce.data.RPG;
 import ohrrpgce.menu.MenuSlice;
 
 /**

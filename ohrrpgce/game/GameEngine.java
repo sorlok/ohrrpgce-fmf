@@ -5,21 +5,10 @@
 
 package ohrrpgce.game;
 
-import ohrrpgce.adapter.AdapterGenerator;
-import ohrrpgce.adapter.FontAdapter;
-import ohrrpgce.adapter.GraphicsAdapter;
-import ohrrpgce.adapter.InputAdapter;
-import ohrrpgce.data.BattlePrompt;
-import ohrrpgce.data.Message;
-import ohrrpgce.data.NPC;
-import ohrrpgce.data.RPG;
-import ohrrpgce.data.loader.RPGLoadSizeListener;
-import ohrrpgce.data.loader.RPGLoader;
-import ohrrpgce.data.loader.SensifiedLoader;
-import ohrrpgce.henceforth.VirtualMachine;
-import ohrrpgce.runtime.Meta;
-import ohrrpgce.runtime.MetaDisplay;
-import ohrrpgce.runtime.OHRRPG;
+import ohrrpgce.adapter.*;
+import ohrrpgce.data.*;
+import ohrrpgce.data.loader.*;
+import ohrrpgce.runtime.*;
 
 /**
  *
