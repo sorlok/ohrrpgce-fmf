@@ -17,7 +17,8 @@ public class MainMenuItemInTransition extends Transition {
 	
 	private static final int PHASE_ONE = 1;
 	private static final int PHASE_TWO = 2;
-	private static final int PHASE_DONE = 3;
+	private static final int PHASE_THREE = 3;
+	private static final int PHASE_DONE = 4;
 	private int phase;
 
 	private int[] quarterBoxDark;
@@ -89,7 +90,7 @@ public class MainMenuItemInTransition extends Transition {
 		if (!doInReverse)
 			this.phase = PHASE_ONE;
 		else
-			this.phase = PHASE_TWO;
+			this.phase = PHASE_THREE;
 		
 		//Connect our components and get an initial layout...
 		if (!doInReverse) {
@@ -105,6 +106,14 @@ public class MainMenuItemInTransition extends Transition {
 			Arrays.fill(quarterBoxDark, alphaInterval<<24);
 		}
 		
+		//Finally..
+		if (doInReverse) {
+			overlaySlice = itemToMove.getConnect(MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+			overlaySlice.setTopLeftChild(null);
+			destOverlayY = -overlaySlice.getHeight();
+			finalItem = destButton;
+		}
+		
 		//Set other values...
 		this.reset();
 	}
@@ -112,6 +121,12 @@ public class MainMenuItemInTransition extends Transition {
 	
 	public boolean doPaintOver() {
 		if (phase==PHASE_ONE) {
+			if (doInReverse && currBlackIndex == darkenInterval) {
+				//Slightly hackish
+				hackeroo = true;
+				return false;
+			}
+			
 			//Draw our ever-darkening boxes
 			for (int y=0; y<2; y++) {
 				for (int x=0; x<2; x++) {
@@ -127,9 +142,12 @@ public class MainMenuItemInTransition extends Transition {
 			
 			return true;
 		} else if (hackeroo) {
-			destOverlayY = overlaySlice.getPosY();
-			overlaySlice.setClip(overlaySlice.getPosX(), overlaySlice.getPosY(), overlaySlice.getWidth()+1, overlaySlice.getHeight()+1);
-			overlaySlice.forceToLocation(overlaySlice.getPosX(), destOverlayY-overlaySlice.getHeight());
+			if (!doInReverse) {			
+				destOverlayY = overlaySlice.getPosY();
+				overlaySlice.setClip(overlaySlice.getPosX(), overlaySlice.getPosY(), overlaySlice.getWidth()+1, overlaySlice.getHeight()+1);
+				overlaySlice.forceToLocation(overlaySlice.getPosX(), destOverlayY-overlaySlice.getHeight());
+			} else 
+				itemToMove.disconnect(MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
 			
 			hackeroo = false;
 		}
@@ -141,7 +159,10 @@ public class MainMenuItemInTransition extends Transition {
 		done = false;
 		relayoutNeeded = false;
 		
-		currBlackIndex = 0;
+		if (!doInReverse)
+			currBlackIndex = 0;
+		else 
+			currBlackIndex = darkenInterval;
 		
 		//Boxes which are further away move in faster.
 		speed = Math.max(defaultSpeed, (itemToMove.getPosX()-destBoxX)/darkenInterval);
@@ -191,54 +212,65 @@ public class MainMenuItemInTransition extends Transition {
 
 	public void step() {
 		if (phase==PHASE_ONE) {
-			currBlackIndex++;
-			if (currBlackIndex>darkenInterval) {
-				setupPhaseTwo();
-				phase = PHASE_TWO;
+			if (!doInReverse) {
+				currBlackIndex++;
+				if (currBlackIndex>darkenInterval) {
+					setupPhaseTwo();
+					phase = PHASE_TWO;
+				}
+			} else {
+				currBlackIndex--;
+				if (currBlackIndex<=0) {
+					setupPhaseTwo();
+					phase = PHASE_DONE;
+				}
 			}
 		} else if (phase==PHASE_TWO) {
-			
 			//Move our button
 			if (moveCloserX(itemToMove, destBoxX, speed, -globalMod)) {
 				setupPhaseTwoPointFive();
+				if (!doInReverse)
+					phase = PHASE_THREE;
+				else
+					phase = PHASE_ONE;
 			}
-			
+		} else if (phase==PHASE_THREE) {
 			//Move other components?
-			int cachedOverlayY = -5;
-			int cachedLabelX = -5;
-            if (itemToMove.getPosX()==destBoxX) {
-                //Move the text label?
-            	cachedLabelX = currLbl.getPosX();
-            	if (moveCloserX(currLbl, destTxtX, defaultSpeed, globalMod)) {
-            		setupPhaseTwoPointSevenFive();
-            	}
-            	
-            	//Move the overlay?
-            	cachedOverlayY = overlaySlice.getPosY();
-            	if (moveCloserY(overlaySlice, destOverlayY, defaultSpeed*3, globalMod)) {
-            		setupPhaseTwoPointEightish();
-            	}
+			int cachedOverlayY = overlaySlice.getPosY();
+			int cachedLabelX = currLbl.getPosX();
+     
+			//Move the text label?
+            if (moveCloserX(currLbl, destTxtX, defaultSpeed, globalMod)) {
+            	setupPhaseTwoPointSevenFive();
             }
             
-			if (!doInReverse && cachedOverlayY==destOverlayY && cachedLabelX==destTxtX) {
-				phase = PHASE_DONE;
+            //Move the overlay?
+            if (moveCloserY(overlaySlice, destOverlayY, defaultSpeed*3, globalMod)) {
+            	setupPhaseTwoPointEightish();
+            }
+			if (cachedOverlayY==destOverlayY && cachedLabelX==destTxtX) {
+				if (!doInReverse)
+					phase = PHASE_DONE;
+				else
+					phase = PHASE_TWO;
 			}
 		} else if (phase==PHASE_DONE) {
 			//Ok, a few things here...
-			MenuFormatArgs mForm = new MenuFormatArgs(currLbl.getInitialFormatArgs());
-			mForm.fromAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
-			mForm.toAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
-			finalItem = new TextSlice(mForm, "(Incomplete)", ((TextSlice)currLbl).getFont(), true, true, false);
-			finalItem.addFocusGainedListener(new MetaMenu.MakeHighlightAction());
-			overlaySlice.setTopLeftChild(finalItem);
+			if (!doInReverse) {
+				MenuFormatArgs mForm = new MenuFormatArgs(currLbl.getInitialFormatArgs());
+				mForm.fromAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
+				mForm.toAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
+				finalItem = new TextSlice(mForm, "(Incomplete)", ((TextSlice)currLbl).getFont(), true, true, false);
+				finalItem.addFocusGainedListener(new MetaMenu.MakeHighlightAction());
+				overlaySlice.setTopLeftChild(finalItem);
+			} else {
+				itemToMove.connect(currLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+			}
 			
 			//Also layout
 			done = true;
 			relayoutNeeded = true;
 		}
-		
-		
-		
 		
 	}
 	
@@ -249,6 +281,11 @@ public class MainMenuItemInTransition extends Transition {
 	
 	
 	private void setupPhaseTwoPointFive() {
+		if (doInReverse) {
+			
+			return;
+		}
+		
 		//Place our label correctly
 		currLbl.getInitialFormatArgs().fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.LEFT;
 		currLbl.getInitialFormatArgs().toAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
@@ -275,29 +312,44 @@ public class MainMenuItemInTransition extends Transition {
 
 	
 	private void setupPhaseTwoPointSevenFive() {
+		if (doInReverse) {
+			itemToMove.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+			return;
+		}
+		
 		//Place our label correctly
 		currLbl.getInitialFormatArgs().fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
 		currLbl.getInitialFormatArgs().toAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.LEFT;
 		currLbl.getInitialFormatArgs().xHint = -1;
 		
-		currLbl.setClip(null);
+		//currLbl.setClip(null);
 		
 		relayoutNeeded = true;
 	}
 	
 	
 	private void setupPhaseTwoPointEightish() {
+		if (doInReverse) {
+			itemToMove.disconnect(MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+			return;
+		}
+		
 		overlaySlice.setClip(null);
 		
 		relayoutNeeded = true;
 	}
 	
 	
-	private void setupPhaseTwo() {		
+	private void setupPhaseTwo() {
+		if (doInReverse) {
+			topmostBox.getTopLeftChild().disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+			return;
+		}
+		
 		//Set up our black overlays
 		quarterBoxDark = null;
 		int[] darkerBox = new int[quarterBoxHeight*quarterBoxWidth];
-		Arrays.fill(darkerBox, (0xFF-currLayerCombinedAlpha)<<24); 
+		Arrays.fill(darkerBox, (0xFF-currLayerCombinedAlpha)<<24);
 
 		//Our quarter box.
 		MenuFormatArgs mf = new MenuFormatArgs();

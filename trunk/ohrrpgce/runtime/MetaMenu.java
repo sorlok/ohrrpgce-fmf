@@ -87,12 +87,13 @@ public class MetaMenu {
 		mode = mainTextsIDs[itemID];
     }
     
-    private static void doMainMenuOut() {
+    public static void doMainMenuOut() {
     	int itemID = ((Int)currMenuUpperButton.getData()).getValue();
     	currCursor = null;
     	currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild(), mainMenuButtons[itemID],  currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, true);
     	mode = prevMode;
     }
+    
     
 
 
