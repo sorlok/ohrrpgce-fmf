@@ -205,8 +205,10 @@ public class MainMenuItemInTransition extends Transition {
 			
 			//Move other components?
 			int cachedOverlayY = -5;
+			int cachedLabelX = -5;
             if (itemToMove.getPosX()==destBoxX) {
                 //Move the text label?
+            	cachedLabelX = currLbl.getPosX();
             	if (moveCloserX(currLbl, destTxtX, defaultSpeed, globalMod)) {
             		setupPhaseTwoPointSevenFive();
             	}
@@ -218,7 +220,7 @@ public class MainMenuItemInTransition extends Transition {
             	}
             }
             
-			if (!doInReverse && cachedOverlayY==destOverlayY) {
+			if (!doInReverse && cachedOverlayY==destOverlayY && cachedLabelX==destTxtX) {
 				phase = PHASE_DONE;
 			}
 		} else if (phase==PHASE_DONE) {

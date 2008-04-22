@@ -107,10 +107,10 @@ public class MenuEngine extends Engine {
                     //The action taken depends on the menu's current state. 
                     if (MetaMenu.mode == MetaMenu.MAIN)
                     	midletHook.egress(new Integer(42));
-                    else if (MetaMenu.mode==MetaMenu.ITEMS || MetaMenu.mode==MetaMenu.ORDER || MetaMenu.mode==MetaMenu.MAP || MetaMenu.mode==MetaMenu.SAVE || MetaMenu.mode==MetaMenu.VOLUME || MetaMenu.mode==MetaMenu.QUIT)
+                    else if (MetaMenu.mode==MetaMenu.ITEMS || MetaMenu.mode==MetaMenu.ORDER || MetaMenu.mode==MetaMenu.MAP || MetaMenu.mode==MetaMenu.SAVE || MetaMenu.mode==MetaMenu.VOLUME || MetaMenu.mode==MetaMenu.QUIT) {
                     	//Do stuff
-                    	###
-                    else
+                    	
+                    } else
                     	MetaMenu.topLeftMI.cancel();
                     bufferedESC = false;
                 } else if ((keyStates&InputAdapter.KEY_ACCEPT)!=0) {
