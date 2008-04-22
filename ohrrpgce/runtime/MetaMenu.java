@@ -16,6 +16,7 @@ public class MetaMenu {
 	public static Transition menuInTrans;
 	public static Transition currTransition;
 	public static MenuSlice currCursor;
+	public static MakeHighlightAction highlightAction;
 	public static int mode;
 	private static int prevMode;
 
@@ -54,12 +55,14 @@ public class MetaMenu {
     private static MenuSlice[] mainMenuLabels = new MenuSlice[mainImageFiles.length];
     private static MenuSlice currMenuUpperButton;
     
-    
     private static MenuSlice buttonList;
     
     //Character selection
     private static FlatListSlice heroSelector;
     private static ImageSlice currHeroPicture;
+    
+    //Spells
+    private static HeroSelectSlice heroUsesSpellOn;
     
     //Saved
     private static int width;
@@ -84,6 +87,18 @@ public class MetaMenu {
     }
     
     
+    public static void resetHeroParty(RPG rpg) {
+        int hrs = Math.min(4, rpg.getNumHeroes());
+        Hero[] temp = new Hero[hrs];
+        for (int i=0; i<temp.length; i++)
+            temp[i] = rpg.getHero(i);
+        MetaMenu.heroUsesSpellOn.setHeroParty(temp, 0);
+        MenuSlice curr = MetaMenu.heroUsesSpellOn.getTopLeftChild();
+        while (curr!=null) {
+        	curr.addFocusGainedListener(MetaMenu.highlightAction);
+        	curr = curr.getConnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+        }
+    }
 
 
 
@@ -100,7 +115,7 @@ public class MetaMenu {
                     Math.min(((colorZero[0]&0xFF)*14)/10, 0xFF)+0xFF000000;
         
         //Init our actions
-        MakeHighlightAction highlightAction = new MakeHighlightAction();
+        highlightAction = new MakeHighlightAction();
       //  SaveAndRestoreMainMenu stateRestoreAction = new SaveAndRestoreMainMenu();
         
 		//Requires a "clear" top-level box with no border, etc. I don't like it so much, but
@@ -274,6 +289,23 @@ public class MetaMenu {
                 throw new LiteException(MetaMenu.class, null, "IO Error making hero "+i+"'s pic: " + ex.getMessage());
             }
         }
+        
+        
+        //TEMP: hero select:
+		mFormat.fillType = MenuSlice.FILL_SOLID;
+		mFormat.xHint = 0;
+		mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
+		mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+		mFormat.borderPadding = DEFAULT_BORDER_PADDING;
+		mFormat.bgColor = colorZeroLight;
+		mFormat.borderColors = new int[]{colorZero[1], 0};
+		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+        heroUsesSpellOn = new HeroSelectSlice(mFormat, rpg, 4, 4);
+        MetaMenu.resetHeroParty(rpg);
+        currHeroPicture.connect(heroUsesSpellOn, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+        
 
 		//Transitions
 		menuInTrans = new MenuInTransition(rpg, width, height);
@@ -299,23 +331,7 @@ public class MetaMenu {
     };
     
     
-    /*private static class SaveAndRestoreMainMenu implements Action {
-    	public boolean perform(Object caller) {
-    		MenuSlice callerSlice = (MenuSlice)caller;
-    		
-    		if (callerSlice.getData() != null) {
-    			//Restore this... be careful, this can lead to infinite loops...
-    			MenuSlice prevChild = (MenuSlice)callerSlice.getData();
-    			callerSlice.setData(null);
-    			prevChild.moveTo();
-    		} else {
-    			//Save this to restore later.
-    			callerSlice.setData(callerSlice.getCurrActiveChild());
-    		}
-    		return true;
-    	}
-    }
-	*/
+
 }
 
 

@@ -6,6 +6,7 @@
 package ohrrpgce.game;
 
 import ohrrpgce.adapter.*;
+import ohrrpgce.data.Hero;
 import ohrrpgce.data.RPG;
 import ohrrpgce.menu.*;
 import ohrrpgce.runtime.*;
@@ -184,8 +185,10 @@ public class MenuEngine extends Engine {
         	}
         }
         
+        //Reset hero party, if necessary
+        MetaMenu.resetHeroParty(getRPG());
+        
         //Set components
-        //MetaMenu.topLeftMI = MetaMenu.topLeftMI;
         MetaMenu.topLeftMI.doLayout();
         MetaMenu.topLeftMI.moveTo();
         
