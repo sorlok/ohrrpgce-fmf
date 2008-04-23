@@ -72,8 +72,16 @@ public class FlatListSlice extends MenuSlice {
 			FlatListSlice.arrowR = new TextSlice(copyFormat, ">", font, true, true, false);
 			FlatListSlice.arrowR.doLayout();
 		}
+		
+		currItem.setValue(0);
 	}
+
 	
+	//Untested!
+	public void resetItems(String[] newItems) {
+		this.items = newItems;
+		initTextSlices(this.getInitialFormatArgs());
+	}
 	
 	
 	protected void drawPixelBuffer(int atX, int atY) {
