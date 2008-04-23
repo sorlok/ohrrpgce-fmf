@@ -67,7 +67,17 @@ public class MetaMenu {
     //Spells
     private static ImageSlice spellsButton;
     private static TextSlice spellsLbl;
+    private static MenuSlice spellsLvlBigBox;
+    private static MenuSlice spellsUsageBigBox;
+    private static MPBarSlice currSpellMP;
+    private static FlatListSlice currSpellGroup;
     private static HeroSelectSlice heroUsesSpellOn;
+    
+    //Stats
+    private static ImageSlice statsButton;
+    
+    //Equip
+    private static ImageSlice equipButton;
     
     //Saved
     private static int width;
@@ -299,8 +309,30 @@ public class MetaMenu {
         }
         
         
+        //Placeholders
+        mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
+        mFormat.fromAnchor = GraphicsAdapter.HCENTER | GraphicsAdapter.BOTTOM;
+        mFormat.toAnchor = GraphicsAdapter.HCENTER | GraphicsAdapter.TOP;
+        try {
+        	statsButton = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder + imgStats));
+        	statsButton.addFocusGainedListener(highlightAction);
+        	
+            mFormat.xHint = -DEFAULT_INTER_ELEMENT_SPACING;
+            mFormat.yHint = 0;
+            mFormat.fromAnchor = GraphicsAdapter.VCENTER | GraphicsAdapter.LEFT;
+            mFormat.toAnchor = GraphicsAdapter.VCENTER | GraphicsAdapter.RIGHT;
+        	equipButton = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder + imgEquip));
+        	equipButton.addFocusGainedListener(highlightAction);
+        } catch (Exception ex) {
+        	throw new LiteException(MetaMenu.class, ex, "Stats/Equip button(s) couldn't be loaded.");
+        }
+        currHeroPicture.connect(statsButton, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
+        currHeroPicture.connect(equipButton, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
+        
+        
         //Load: spells
         mFormat.xHint = DEFAULT_INTER_ELEMENT_SPACING;
+        mFormat.yHint = 0;
         mFormat.fromAnchor = GraphicsAdapter.VCENTER | GraphicsAdapter.RIGHT;
         mFormat.toAnchor = GraphicsAdapter.VCENTER | GraphicsAdapter.LEFT;
         try {
@@ -309,10 +341,18 @@ public class MetaMenu {
         	spellsButton.setAcceptListener(new Action() {
         		public boolean perform(Object caller) {
         			currHeroPicture.getInitialFormatArgs().xHint = -currHeroPicture.getPosX()-currHeroPicture.getWidth()/2;
+        			currHeroPicture.disconnect(MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+        			currHeroPicture.disconnect(MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
+        			
         			spellsButton.getInitialFormatArgs().fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
         			spellsButton.getInitialFormatArgs().toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
         			spellsButton.connect(spellsLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+        			
+        			currHeroPicture.connect(spellsLvlBigBox, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
+        			currHeroPicture.connect(spellsUsageBigBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
         			topLeftMI.doLayout();
+        			
+        			currSpellGroup.moveTo();
         			return false;
         		}
         	});
@@ -325,6 +365,49 @@ public class MetaMenu {
         mFormat.fromAnchor = GraphicsAdapter.TOP | GraphicsAdapter.RIGHT;
         mFormat.toAnchor = GraphicsAdapter.TOP | GraphicsAdapter.LEFT;
         spellsLbl = new TextSlice(mFormat, "Spells", rpg.font, true, true, false);
+        
+        //Next stuff requires a box
+        mFormat.fillType = MenuSlice.FILL_NONE;
+        mFormat.borderColors = new int[]{};
+        mFormat.borderPadding = 0;
+        mFormat.widthHint = MenuFormatArgs.WIDTH_MAXIMUM;
+        mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+        mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.RIGHT;
+        mFormat.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+        mFormat.xHint = 0;
+        spellsLvlBigBox = new MenuSlice(mFormat);
+        
+        //MP bar
+        mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+        mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+        mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;        
+        currSpellMP = new MPBarSlice(mFormat, rpg, 0);
+        currSpellMP.setToRandom();
+        spellsLvlBigBox.setTopLeftChild(currSpellMP);
+        
+        //Spell group
+		mFormat.bgColor = colorZeroLight;
+		mFormat.borderColors = new int[]{colorZero[1], 0};
+		mFormat.fillType = MenuSlice.FILL_SOLID;
+        mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+        mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+        mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
+        currSpellGroup = new FlatListSlice(mFormat, new String[]{"T"}, rpg.font, true);
+        currSpellGroup.addFocusGainedListener(highlightAction);
+        currSpellMP.connect(currSpellGroup, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+        
+        //Also requires a box...
+        mFormat.fillType = MenuSlice.FILL_SOLID;
+        mFormat.borderColors = new int[]{};
+        mFormat.borderPadding = 0;
+        mFormat.bgColor = 0xFF0000;
+        mFormat.widthHint = width-2*(bottomHalfBox.getInitialFormatArgs().borderPadding+bottomHalfBox.getInitialFormatArgs().borderColors.length);
+        mFormat.heightHint = MenuFormatArgs.HEIGHT_MAXIMUM;
+        mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+        mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+        mFormat.xHint = bottomHalfBox.getInitialFormatArgs().borderPadding+bottomHalfBox.getInitialFormatArgs().borderColors.length;
+        mFormat.yHint = 0;
+        spellsUsageBigBox = new MenuSlice(mFormat);
         
 		//Transitions
 		menuInTrans = new MenuInTransition(rpg, width, height);
