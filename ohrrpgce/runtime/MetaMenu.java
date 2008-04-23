@@ -311,7 +311,31 @@ public class MetaMenu {
         mFormat.borderPadding = 0;
         MPBarSlice currSpellMP = new MPBarSlice(mFormat, rpg, 0);
         currSpellMP.setMP(42, 123, false, 1);
-        currHeroPicture.connect(currSpellMP, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+        //currHeroPicture.connect(currSpellMP, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+        
+        //TEMP: ListSlice
+        mFormat.widthHint = width-heroUsesSpellOn.getWidth()-2*2+1;
+        mFormat.heightHint = 200-2*2;
+        Action slItemChanged = new Action() {
+            public boolean perform(Object o) {
+                //Fix Description
+            	highlightAction.makeHighlightAt(((ListSlice)o).getCurrItemRectangle());
+                return true;
+            } 
+        };
+        System.out.println("1");
+        ListSlice spellList =  new ListSlice(mFormat, rpg.font);
+        System.out.println("2");
+        spellList.setListItemChangedListener(slItemChanged);
+        spellList.addFocusGainedListener(slItemChanged);
+        String[] names = new String[]{"Fire Strike", "Heal", "Egress"};
+        int[] mps = new int[]{100, 2, 34};
+        boolean[] canUses = new boolean[]{false, true, true};
+        System.out.println("2 again");
+        spellList.setItems(names, mps, canUses, true);
+        System.out.println("2");
+        currHeroPicture.connect(spellList, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
+        System.out.println("3");
         
 
 		//Transitions
@@ -323,17 +347,25 @@ public class MetaMenu {
     	public boolean perform(Object caller) {
     		MenuSlice calledBy = (MenuSlice)caller;
     		
+    		makeHighlightAt(calledBy.getPosX(), calledBy.getPosY(), calledBy.getWidth(), calledBy.getHeight());
+    		return true;
+    	}
+    	
+    	public void makeHighlightAt(int[] rectangle) {
+    		makeHighlightAt(rectangle[0], rectangle[1], rectangle[2], rectangle[3]);
+    	}
+    	
+    	public void makeHighlightAt(int xPos, int yPos, int width, int height) {
     		MenuFormatArgs mf = new MenuFormatArgs();
     		mf.bgColor = 0x66FF0000;
     		mf.borderColors = new int[]{0xFF0000};
     		mf.fillType = MenuSlice.FILL_TRANSLUCENT;
-    		mf.xHint = calledBy.getPosX();
-    		mf.yHint = calledBy.getPosY();
-    		mf.widthHint = calledBy.getWidth();
-    		mf.heightHint = calledBy.getHeight();
+    		mf.xHint = xPos;
+    		mf.yHint = yPos;
+    		mf.widthHint = width;
+    		mf.heightHint = height;
     		currCursor = new MenuSlice(mf);
     		currCursor.doLayout();
-    		return true;
     	}
     };
     
