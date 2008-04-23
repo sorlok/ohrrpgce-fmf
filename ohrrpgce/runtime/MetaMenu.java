@@ -92,7 +92,7 @@ public class MetaMenu {
         Hero[] temp = new Hero[hrs];
         for (int i=0; i<temp.length; i++)
             temp[i] = rpg.getHero(i);
-        MetaMenu.heroUsesSpellOn.setHeroParty(temp, 0);
+        MetaMenu.heroUsesSpellOn.setHeroParty(temp, rpg, 0);
         MenuSlice curr = MetaMenu.heroUsesSpellOn.getTopLeftChild();
         while (curr!=null) {
         	curr.addFocusGainedListener(MetaMenu.highlightAction);

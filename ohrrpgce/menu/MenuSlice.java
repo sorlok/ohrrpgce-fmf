@@ -449,8 +449,9 @@ public class MenuSlice {
     		}
     		
     		//We need to calculate all internal widths first.
+    		//  But since we're only doing this for the width, we pass in an empty array list
     		Int newWidth = new Int(0);
-    		this.topLeftChildMI.doHorizontalLayout(alreadyLaidOut, this, newWidth);
+    		this.topLeftChildMI.doHorizontalLayout(new Vector(), this, newWidth);
     		
     		//Now, get the right-most point and return it.
     		return newWidth.getValue() - this.getPosX() + this.mFormat.borderPadding + this.mFormat.borderColors.length;
@@ -592,7 +593,7 @@ public class MenuSlice {
     		
     		//We need to calculate all internal heights first.
     		Int newHeight = new Int(0);
-    		this.topLeftChildMI.doVerticalLayout(alreadyLaidOut, this, newHeight);
+    		this.topLeftChildMI.doVerticalLayout(new Vector(), this, newHeight);
     			
     		//Now, get the right-most point and return it.
     		return newHeight.getValue() - this.getPosY() + this.mFormat.borderPadding + this.mFormat.borderColors.length;

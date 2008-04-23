@@ -28,6 +28,19 @@ public class ImageSlice extends MenuSlice {
 		rawImageRect[X] = scanlength;
 		rawImageRect[Y] = rawImage.length/scanlength;
 	}
+	
+	public ImageSlice(MenuFormatArgs mFormat, int[] indexedImage, int paletteID, RPG rpg, int scanlength) {
+		this(mFormat, index(indexedImage, rpg, paletteID), scanlength);
+	}
+	
+	private static int[] index(int[] src, RPG rpg, int paletteID) {
+		int[] res = new int[src.length];
+		for (int i=0; i<res.length; i++) {
+			if (src[i]!=0)
+				res[i] = 0xFF000000|rpg.getIndexedColor(paletteID, src[i]);
+		}
+		return res;
+	}
 
 	
     
