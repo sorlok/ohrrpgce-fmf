@@ -190,7 +190,7 @@ public class ListSlice extends MenuSlice {
             if (listItemChangedListener!=null)
                 listItemChangedListener.perform(this);
             return true;
-        } else if (direction==MenuItem.CONNECT_BOTTOM && currItemID!=maxItems-1) {
+        } else if (direction==MenuSlice.CONNECT_BOTTOM && currItemID!=maxItems-1) {
             currItemID++;
             recalcScroll();
             if (listItemChangedListener!=null)
