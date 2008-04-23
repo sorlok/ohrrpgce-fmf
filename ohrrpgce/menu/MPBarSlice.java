@@ -1,16 +1,12 @@
 package ohrrpgce.menu;
 
-import java.util.Vector;
 
-import ohrrpgce.data.Message;
+import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.RPG;
-import ohrrpgce.game.SimpleCanvas;
-import ohrrpgce.game.SimpleTextBox;
-import ohrrpgce.henceforth.Int;
 
 public class MPBarSlice extends MenuSlice {
 	
-	private RPG game;
+	//private RPG game;
 	private int[] barColors;
 	private int storedWidth;
 	private int storedHeight;
@@ -34,7 +30,7 @@ public class MPBarSlice extends MenuSlice {
 	 * @param txtBoxColorID - Used to fill in mFormat
 	 */
     public MPBarSlice(MenuFormatArgs mFormat, RPG game, int txtBoxColorID) {
-        this(mFormat, 3, new int[]{0xFF0000, 0xD43F3F, 0x8A0101, 0x660000}, game);
+        this(mFormat, 3, new int[]{0xFF0000, 0xD43F3F, 0x8A0101, 0x660000}, game.font);
         
         int[] colors = game.getTextBoxColors(txtBoxColorID);
         this.mFormat.bgColor = 0xFF000000|colors[0];
@@ -47,7 +43,7 @@ public class MPBarSlice extends MenuSlice {
      * @param mpDigits The maximum number of digits any character's mp can reach. E.g., 99->2, 255->3
      * @param barColors Determines the height of the box; an entry for each horizontal line.
      */
-    public MPBarSlice(MenuFormatArgs mFormat, int mpDigits, int[] barColors, RPG game) {
+    public MPBarSlice(MenuFormatArgs mFormat, int mpDigits, int[] barColors, ImageAdapter font) {
     	super(mFormat);
     	
     	//System-wide default
@@ -55,7 +51,7 @@ public class MPBarSlice extends MenuSlice {
     		this.getInitialFormatArgs().borderPadding = 4;
     	
         //For later
-        this.game = game;
+      //  this.game = game;
         this.barColors = barColors;
         
         //Dummy string
@@ -68,7 +64,7 @@ public class MPBarSlice extends MenuSlice {
         mf.fillType = MenuSlice.FILL_NONE;
         mf.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
         mf.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
-        mpText = new TextSlice(mf, txt, game.font, true, true, false);
+        mpText = new TextSlice(mf, txt, font, true, true, false);
         mpText.doLayout();
         //this.setTopLeftChild(mpText);
      //   int halfMargin = (mpText.getHeight()-Message.FONT_SIZE)/2;

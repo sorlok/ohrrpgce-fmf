@@ -49,7 +49,10 @@ public class MetaMenu {
         "main_icons/volume.png",
         "main_icons/quit.png",
     };
-    //private static MenuSlice[] mainMenuOverlays = new MenuSlice[mainImageFiles.length];
+    private static final String imgEquip = "main_icons/equip.png";
+    private static final String imgStats = "main_icons/stats.png";
+    private static final String imgSpells = "main_icons/spells.png";
+    
     private static MenuSlice[] mainMenuButtons = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuUpperButtons = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuLabels = new MenuSlice[mainImageFiles.length];
@@ -62,6 +65,8 @@ public class MetaMenu {
     private static ImageSlice currHeroPicture;
     
     //Spells
+    private static ImageSlice spellsButton;
+    private static TextSlice spellsLbl;
     private static HeroSelectSlice heroUsesSpellOn;
     
     //Saved
@@ -88,6 +93,9 @@ public class MetaMenu {
     
     
     public static void resetHeroParty(RPG rpg) {
+    	if (MetaMenu.heroUsesSpellOn==null)
+    		return;
+    	
         int hrs = Math.min(4, rpg.getNumHeroes());
         Hero[] temp = new Hero[hrs];
         for (int i=0; i<temp.length; i++)
@@ -291,53 +299,33 @@ public class MetaMenu {
         }
         
         
-        //TEMP: hero select:
-		mFormat.fillType = MenuSlice.FILL_SOLID;
-		mFormat.xHint = 0;
-		mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
-		mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
-		mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
-		mFormat.borderPadding = DEFAULT_BORDER_PADDING;
-		mFormat.bgColor = colorZeroLight;
-		mFormat.borderColors = new int[]{colorZero[1], 0};
-		mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
-		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
-        heroUsesSpellOn = new HeroSelectSlice(mFormat, rpg, 4, 4);
-        MetaMenu.resetHeroParty(rpg);
-        //currHeroPicture.connect(heroUsesSpellOn, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+        //Load: spells
+        mFormat.xHint = DEFAULT_INTER_ELEMENT_SPACING;
+        mFormat.fromAnchor = GraphicsAdapter.VCENTER | GraphicsAdapter.RIGHT;
+        mFormat.toAnchor = GraphicsAdapter.VCENTER | GraphicsAdapter.LEFT;
+        try {
+        	spellsButton = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder + imgSpells));
+        	spellsButton.addFocusGainedListener(highlightAction);
+        	spellsButton.setAcceptListener(new Action() {
+        		public boolean perform(Object caller) {
+        			currHeroPicture.getInitialFormatArgs().xHint = -currHeroPicture.getPosX()-currHeroPicture.getWidth()/2;
+        			spellsButton.getInitialFormatArgs().fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+        			spellsButton.getInitialFormatArgs().toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+        			spellsButton.connect(spellsLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+        			topLeftMI.doLayout();
+        			return false;
+        		}
+        	});
+        } catch (Exception ex) {
+        	throw new LiteException(MetaMenu.class, ex, "Spells button couldn't be loaded.");
+        }
+        currHeroPicture.connect(spellsButton, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
         
+        //Spells label:
+        mFormat.fromAnchor = GraphicsAdapter.TOP | GraphicsAdapter.RIGHT;
+        mFormat.toAnchor = GraphicsAdapter.TOP | GraphicsAdapter.LEFT;
+        spellsLbl = new TextSlice(mFormat, "Spells", rpg.font, true, true, false);
         
-        //TEMP: MP Box
-        mFormat.borderPadding = 0;
-        MPBarSlice currSpellMP = new MPBarSlice(mFormat, rpg, 0);
-        currSpellMP.setMP(42, 123, false, 1);
-        //currHeroPicture.connect(currSpellMP, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
-        
-        //TEMP: ListSlice
-        mFormat.widthHint = width-heroUsesSpellOn.getWidth()-2*2+1;
-        mFormat.heightHint = 200-2*2;
-        Action slItemChanged = new Action() {
-            public boolean perform(Object o) {
-                //Fix Description
-            	highlightAction.makeHighlightAt(((ListSlice)o).getCurrItemRectangle());
-                return true;
-            } 
-        };
-        System.out.println("1");
-        ListSlice spellList =  new ListSlice(mFormat, rpg.font);
-        System.out.println("2");
-        spellList.setListItemChangedListener(slItemChanged);
-        spellList.addFocusGainedListener(slItemChanged);
-        String[] names = new String[]{"Fire Strike", "Heal", "Egress"};
-        int[] mps = new int[]{100, 2, 34};
-        boolean[] canUses = new boolean[]{false, true, true};
-        System.out.println("2 again");
-        spellList.setItems(names, mps, canUses, true);
-        System.out.println("2");
-        currHeroPicture.connect(spellList, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
-        System.out.println("3");
-        
-
 		//Transitions
 		menuInTrans = new MenuInTransition(rpg, width, height);
 	}
