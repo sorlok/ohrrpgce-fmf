@@ -304,7 +304,14 @@ public class MetaMenu {
 		mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
         heroUsesSpellOn = new HeroSelectSlice(mFormat, rpg, 4, 4);
         MetaMenu.resetHeroParty(rpg);
-        currHeroPicture.connect(heroUsesSpellOn, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+        //currHeroPicture.connect(heroUsesSpellOn, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+        
+        
+        //TEMP: MP Box
+        mFormat.borderPadding = 0;
+        MPBarSlice currSpellMP = new MPBarSlice(mFormat, rpg, 0);
+        currSpellMP.setMP(42, 123, false, 1);
+        currHeroPicture.connect(currSpellMP, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
         
 
 		//Transitions
