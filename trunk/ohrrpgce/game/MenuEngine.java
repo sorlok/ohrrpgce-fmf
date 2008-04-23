@@ -6,8 +6,7 @@
 package ohrrpgce.game;
 
 import ohrrpgce.adapter.*;
-import ohrrpgce.data.Hero;
-import ohrrpgce.data.RPG;
+import ohrrpgce.data.*;
 import ohrrpgce.menu.*;
 import ohrrpgce.runtime.*;
 

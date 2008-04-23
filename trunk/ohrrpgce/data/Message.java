@@ -1,6 +1,5 @@
 package ohrrpgce.data;
 
-import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.game.LiteException;
 import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
@@ -31,9 +30,9 @@ public class Message {
         public int boxColor;
         public int boxBorderColor;
     
-        private int crX;
-        private int topY;
-        private int lowY;
+        //private int crX;
+        //private int topY;
+        //private int lowY;
        
         
         //Stuff to do

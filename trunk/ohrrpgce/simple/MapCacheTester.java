@@ -35,7 +35,7 @@ public class MapCacheTester {
 	
 	//Model
 	private RPG res = null;
-	private String rpgFilePath;
+	//private String rpgFilePath;
 	
 	public MapCacheTester() {
 		//Set up our SWT application
@@ -391,7 +391,7 @@ public class MapCacheTester {
 		
 		//Cached
 		private Image offscreen;
-		private Font actualFont;
+		//private Font actualFont;
 		private int tileSize = TilesetParser.TILE_SIZE;
 		
 		//For now

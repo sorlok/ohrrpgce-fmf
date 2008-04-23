@@ -3,7 +3,6 @@ package ohrrpgce.menu;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.RPG;
-import ohrrpgce.game.LiteException;
 
 public class ImageSlice extends MenuSlice {
 

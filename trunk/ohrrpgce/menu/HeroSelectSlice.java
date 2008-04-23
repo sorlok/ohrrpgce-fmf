@@ -1,12 +1,10 @@
 package ohrrpgce.menu;
 
-import java.util.Vector;
 
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.data.Hero;
 import ohrrpgce.data.RPG;
 import ohrrpgce.data.loader.PictureParser;
-import ohrrpgce.henceforth.Int;
 
 
 public class HeroSelectSlice extends MenuSlice {

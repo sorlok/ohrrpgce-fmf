@@ -1,11 +1,9 @@
 package ohrrpgce.menu;
 
 import java.util.Vector;
-
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Message;
-import ohrrpgce.data.NPC;
 import ohrrpgce.game.LiteException;
 
 public class TextSlice extends MenuSlice {
