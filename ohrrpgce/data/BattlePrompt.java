@@ -11,7 +11,8 @@ import ohrrpgce.data.loader.BattleFormationParser;
 import ohrrpgce.data.loader.PictureParser;
 import ohrrpgce.game.SimpleCanvas;
 import ohrrpgce.game.SimpleTextBox;
-import ohrrpgce.menu.ImageBox;
+import ohrrpgce.menu.ImageSlice;
+import ohrrpgce.menu.MenuFormatArgs;
 import ohrrpgce.menu.MenuSlice;
 
 /**
@@ -31,7 +32,8 @@ public class BattlePrompt {
     private static SimpleCanvas highlight;
     private static SimpleTextBox enemyNames;
     private static SimpleTextBox outcomeChoice;
-    private ImageBox enemiesBox;
+    private SimpleCanvas enemiesBox;
+    private Vector enemiesImages;
     private int cursorPos;
     
     //Size...
@@ -74,6 +76,21 @@ public class BattlePrompt {
         dispHeight = height;
     }
     
+    
+    private static ImageSlice makeImage(int[] spriteData, int paletteID, RPG game, int[] rectangle) {    	
+    	MenuFormatArgs mf = new MenuFormatArgs();
+    	mf.borderColors = new int[]{};
+    	mf.fillType = MenuSlice.FILL_NONE;
+    	mf.xHint = rectangle[0];
+    	mf.yHint = rectangle[1];
+    	mf.widthHint = rectangle[2];
+    	mf.heightHint = rectangle[3];
+    	ImageSlice res =  new ImageSlice(mf, spriteData, paletteID, game, rectangle[2]);
+    	res.doLayout();
+    	return res;
+    }
+    
+    
     private void setBox(BattleFormation form) {
         //Prepare the "choice" box
         int[] clrs = parent.getTextBoxColors(0);
@@ -112,9 +129,11 @@ public class BattlePrompt {
             
         //Reset enemy names
         StringBuffer sb = new StringBuffer("");
-        Vector v = new Vector();
-        enemiesBox = new ImageBox(enBoxWidth, enBoxHeight, 0x44DDDDDD, new int[]{}, MenuSlice.FILL_TRANSLUCENT);
+        Vector v = new Vector();        
+        enemiesBox = new SimpleCanvas(0x44DDDDDD, new int[]{}, MenuSlice.FILL_TRANSLUCENT);
+        enemiesBox.setSize(enBoxWidth, enBoxHeight);
         enemiesBox.setPosition(MARGIN+2, MARGIN+2);
+        enemiesImages = new Vector();
         OUTER:
         for (int id=0; id<form.enemies.length; id++) {
             int enID = form.enemies[id];
@@ -129,7 +148,9 @@ public class BattlePrompt {
                 int xPos = xBlock*blockSize+off;
                 int yPos = yBlock*blockSize+off;
                 try {
-                    enemiesBox.overlayImage(en.getBattlePic().spData[0], en.spritePaletteID, parent, new int[]{xPos, yPos, en.getSizeInPix(), en.getSizeInPix()});
+                	enemiesImages.add(
+                			BattlePrompt.makeImage(en.getBattlePic().spData[0], en.spritePaletteID, parent, new int[]{xPos, yPos, en.getSizeInPix(), en.getSizeInPix()})
+                			);
                 } catch (Exception ex) {
                     throw new RuntimeException("Can't overlay image: " + xPos + "," + yPos);
                 }
@@ -180,6 +201,9 @@ public class BattlePrompt {
         
         enemyNames.paint();
         enemiesBox.paint();
+        
+        for (int i=0; i<enemiesImages.size(); i++)
+        	((ImageSlice)enemiesImages.get(i)).paintMenuSlice(-1);
         
         outcomeChoice.paint();
         highlight.paint();
