@@ -471,7 +471,7 @@ public class MenuSlice {
     		if (lastPaintedMI == null)
     			return parentContainer.getWidth() - 2*parentContainer.mFormat.borderPadding - 2*parentContainer.mFormat.borderColors.length - this.mFormat.xHint;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0))
-    			return parentContainer.getWidth() - (lastPaintedMI.getPosX()-parentContainer.getPosX() + lastPaintedMI.getWidth()) - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
+    			return parentContainer.getWidth() - (lastPaintedMI.getPosX()-parentContainer.getPosX() + lastPaintedMI.getWidth() + this.mFormat.xHint) - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.LEFT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.RIGHT)!=0))
     			return lastPaintedMI.getPosX() - parentContainer.getPosX() - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.LEFT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0))
@@ -619,7 +619,7 @@ public class MenuSlice {
     		if (lastPaintedMI == null)
     			return parentContainer.getHeight() - 2*parentContainer.mFormat.borderPadding - 2*parentContainer.mFormat.borderColors.length - this.mFormat.yHint;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.BOTTOM)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.TOP)!=0))
-    			return parentContainer.getHeight() - (lastPaintedMI.getPosY()-parentContainer.getPosY() + lastPaintedMI.getHeight())- parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
+    			return parentContainer.getHeight() - (lastPaintedMI.getPosY()-parentContainer.getPosY() + lastPaintedMI.getHeight() + this.mFormat.yHint)- parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.TOP)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.BOTTOM)!=0))
     			return lastPaintedMI.getPosY() - parentContainer.getPosY()- parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.TOP)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.TOP)!=0))

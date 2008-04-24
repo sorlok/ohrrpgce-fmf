@@ -402,12 +402,12 @@ public class MetaMenu {
         mFormat.borderColors = new int[]{};
         mFormat.borderPadding = 0;
         mFormat.bgColor = 0xFF0000;
-        mFormat.widthHint = width-2*(bottomHalfBox.getInitialFormatArgs().borderPadding+bottomHalfBox.getInitialFormatArgs().borderColors.length);
+        mFormat.widthHint = width-2*(bottomHalfBox.getInitialFormatArgs().borderPadding+bottomHalfBox.getInitialFormatArgs().borderColors.length)+1;
         mFormat.heightHint = MenuFormatArgs.HEIGHT_MAXIMUM;
         mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
         mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
-        mFormat.xHint = bottomHalfBox.getInitialFormatArgs().borderPadding+bottomHalfBox.getInitialFormatArgs().borderColors.length;
-        mFormat.yHint = 0;
+        mFormat.xHint = bottomHalfBox.getInitialFormatArgs().borderPadding+bottomHalfBox.getInitialFormatArgs().borderColors.length-1;
+        mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
         spellsUsageBigBox = new MenuSlice(mFormat);
         
         //Hero selector
