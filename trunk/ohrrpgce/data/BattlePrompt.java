@@ -148,7 +148,7 @@ public class BattlePrompt {
                 int xPos = xBlock*blockSize+off;
                 int yPos = yBlock*blockSize+off;
                 try {
-                	enemiesImages.add(
+                    enemiesImages.addElement(
                 			BattlePrompt.makeImage(en.getBattlePic().spData[0], en.spritePaletteID, parent, new int[]{xPos, yPos, en.getSizeInPix(), en.getSizeInPix()})
                 			);
                 } catch (Exception ex) {
@@ -203,7 +203,7 @@ public class BattlePrompt {
         enemiesBox.paint();
         
         for (int i=0; i<enemiesImages.size(); i++)
-        	((ImageSlice)enemiesImages.get(i)).paintMenuSlice(-1);
+        	((ImageSlice)enemiesImages.elementAt(i)).paintMenuSlice(-1);
         
         outcomeChoice.paint();
         highlight.paint();

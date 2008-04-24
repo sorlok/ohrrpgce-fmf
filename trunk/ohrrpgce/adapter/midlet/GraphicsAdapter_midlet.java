@@ -26,6 +26,8 @@ public class GraphicsAdapter_midlet {
 	
 	private static Graphics g;
 	private static Action flushAction;
+        
+        private static int[] origClip;
 	
 	public static final void init(Graphics gContext, Action doFlush) {
 		g = gContext;
@@ -84,11 +86,13 @@ public class GraphicsAdapter_midlet {
 	
 	
 	public static final void setClip(int x, int y, int width, int height) {
-		g.setClip(x, y, width, height);
+            if (origClip==null)
+                origClip = new int[]{x, y, width, height};
+	    g.setClip(x, y, width, height);
 	}
 	
 	public static final void resetClip() {
-		g.setClip(null);
+		g.setClip(origClip[0], origClip[1], origClip[2], origClip[3]);
 	}
 	
 	public static final int getColor() {
