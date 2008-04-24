@@ -101,6 +101,8 @@ public class MenuEngine extends Engine {
                     else if (MetaMenu.mode==MetaMenu.ITEMS || MetaMenu.mode==MetaMenu.ORDER || MetaMenu.mode==MetaMenu.MAP || MetaMenu.mode==MetaMenu.SAVE || MetaMenu.mode==MetaMenu.VOLUME || MetaMenu.mode==MetaMenu.QUIT) {
                     	//Do stuff
                     	MetaMenu.doMainMenuOut();
+                    } else if (MetaMenu.mode==MetaMenu.SPELLS || MetaMenu.mode==MetaMenu.STATS || MetaMenu.mode==MetaMenu.EQUIP) {
+                    	MetaMenu.doSubMenuOut();
                     } else
                     	MetaMenu.topLeftMI.cancel();
                     bufferedESC = false;

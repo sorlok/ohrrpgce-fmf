@@ -72,6 +72,7 @@ public class MetaMenu {
     private static MPBarSlice currSpellMP;
     private static FlatListSlice currSpellGroup;
     private static ListSlice currSpellList;
+    private static TextSlice currSpellDescription;
     private static HeroSelectSlice heroUsesSpellOn;
     
     //Stats
@@ -83,6 +84,9 @@ public class MetaMenu {
     //Saved
     private static int width;
     private static int height;
+    
+    //Useful
+    private static SubMenuInTransition lastSubMenuTransition;
 
     
     
@@ -101,6 +105,41 @@ public class MetaMenu {
     	currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild(), mainMenuButtons[itemID], (itemID==0), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, true);
     	mode = prevMode;
     }
+    
+    private static void doSpellsMenuIn() {
+    	currCursor = null;
+    	prevMode = mode;
+    	mode = SPELLS;
+
+    	Action finalConnectFwd = new Action() {
+    		public boolean perform(Object caller) {
+    			spellsButton.connect(spellsLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);		
+    			currHeroPicture.connect(spellsLvlBigBox, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
+    			currHeroPicture.connect(spellsUsageBigBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+    			return true;
+    		}
+    	};
+    	
+    	Action finalConnectRev = new Action() {
+    		public boolean perform(Object caller) {
+    			spellsButton.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);		
+    			currHeroPicture.disconnect(MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
+    			currHeroPicture.disconnect(MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+    			return true;
+    		}
+    	};
+    	lastSubMenuTransition = new SubMenuInTransition(currSpellGroup, currHeroPicture, -currHeroPicture.getWidth()/2, currHeroPicture.getPosY(), 20*3, spellsButton, -currHeroPicture.getWidth()/2+(spellsButton.getPosX()-currHeroPicture.getPosX()), currHeroPicture.getPosY(), 20, finalConnectFwd, finalConnectRev);
+    	currTransition = lastSubMenuTransition;
+    }
+    
+    public static void doSubMenuOut() {
+    	currCursor = null;
+    	lastSubMenuTransition.setupReverse();
+    	currTransition = lastSubMenuTransition;
+    	mode = prevMode;
+    }
+    
+    
     
     
     public static void resetHeroParty(RPG rpg) {
@@ -341,19 +380,7 @@ public class MetaMenu {
         	spellsButton.addFocusGainedListener(highlightAction);
         	spellsButton.setAcceptListener(new Action() {
         		public boolean perform(Object caller) {
-        			currHeroPicture.getInitialFormatArgs().xHint = -currHeroPicture.getPosX()-currHeroPicture.getWidth()/2;
-        			currHeroPicture.disconnect(MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
-        			currHeroPicture.disconnect(MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
-        			
-        			spellsButton.getInitialFormatArgs().fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
-        			spellsButton.getInitialFormatArgs().toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
-        			spellsButton.connect(spellsLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-        			
-        			currHeroPicture.connect(spellsLvlBigBox, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
-        			currHeroPicture.connect(spellsUsageBigBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
-        			topLeftMI.doLayout();
-        			
-        			currSpellGroup.moveTo();
+        			MetaMenu.doSpellsMenuIn();
         			return false;
         		}
         	});
@@ -398,7 +425,7 @@ public class MetaMenu {
         currSpellMP.connect(currSpellGroup, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
         
         //The bottom components also require a box...
-        mFormat.fillType = MenuSlice.FILL_SOLID;
+        mFormat.fillType = MenuSlice.FILL_NONE;
         mFormat.borderColors = new int[]{};
         mFormat.borderPadding = 0;
         mFormat.bgColor = 0xFF0000;
@@ -437,6 +464,14 @@ public class MetaMenu {
         mFormat.heightHint = MenuFormatArgs.HEIGHT_MAXIMUM;
         currSpellList = new ListSlice(mFormat, rpg.font);
         heroSl.connect(currSpellList, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
+        
+        //Description
+        mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+        mFormat.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+        mFormat.xHint = 0;
+        mFormat.yHint = 0;
+        currSpellDescription = new TextSlice(mFormat, "t", rpg.font, true, true, false);
+        heroSl.connect(currSpellDescription, MenuSlice.CONNECT_TOP, MenuSlice.CFLAG_PAINT);
         
 		//Transitions
 		menuInTrans = new MenuInTransition(rpg, width, height);
