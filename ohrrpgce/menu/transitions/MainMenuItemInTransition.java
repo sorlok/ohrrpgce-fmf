@@ -1,7 +1,5 @@
 package ohrrpgce.menu.transitions;
 
-import java.util.Arrays;
-
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.game.LiteException;
 import ohrrpgce.menu.ImageSlice;
@@ -108,7 +106,7 @@ public class MainMenuItemInTransition extends Transition {
 		//Init our black value
 		if (!doInReverse) {
 			currLayerCombinedAlpha = 0xFF;
-			Arrays.fill(quarterBoxDark, alphaInterval<<24);
+			MainMenuItemInTransition.fillArray(quarterBoxDark, alphaInterval<<24);
 		}
 		
 		//Finally..
@@ -371,7 +369,7 @@ public class MainMenuItemInTransition extends Transition {
 		//Set up our black overlays
 		quarterBoxDark = null;
 		int[] darkerBox = new int[quarterBoxHeight*quarterBoxWidth];
-		Arrays.fill(darkerBox, (0xFF-currLayerCombinedAlpha)<<24);
+		MainMenuItemInTransition.fillArray(darkerBox, (0xFF-currLayerCombinedAlpha)<<24);
 
 		//Our quarter box.
 		MenuFormatArgs mf = new MenuFormatArgs();
@@ -410,6 +408,12 @@ public class MainMenuItemInTransition extends Transition {
 		}
 		return false;
 	}
+        
+        
+        private static void fillArray(int[] array, int val) {
+            for (int i=0; i<array.length; i++)
+                array[i] = val;
+        }
 	
 
 }

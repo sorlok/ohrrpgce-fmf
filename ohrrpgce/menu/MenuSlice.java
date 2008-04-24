@@ -414,7 +414,7 @@ public class MenuSlice {
     	this.setWidth(calcdWidth);
     	
     	//Layout's done for this object
-    	alreadyLaidOut.add(this);
+    	alreadyLaidOut.addElement(this);
     	if (this.getPosX()+this.getWidth() > rightMostPoint.getValue())
     		rightMostPoint.setValue(this.getPosX()+this.getWidth());
     	
@@ -562,7 +562,7 @@ public class MenuSlice {
     	this.setHeight(calcdHeight);
     	
     	//Layout's done for this object
-    	alreadyLaidOut.add(this);
+    	alreadyLaidOut.addElement(this);
     	if (this.getPosY()+this.getHeight() > lowerMostPoint.getValue())
     		lowerMostPoint.setValue(this.getPosY()+this.getHeight());
     	
