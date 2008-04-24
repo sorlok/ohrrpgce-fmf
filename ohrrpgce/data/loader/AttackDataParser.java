@@ -8,6 +8,8 @@ import ohrrpgce.data.Spell;
 
 public class AttackDataParser extends LumpParser {
 
+	public static final int MAX_SPELL_NAME = 10;
+	
 	public long readLump(RPG result, InputStream input, long length, HookbackListener hookUpdater) {
             throw new RuntimeException("Old-style attack data not supported.");
         }

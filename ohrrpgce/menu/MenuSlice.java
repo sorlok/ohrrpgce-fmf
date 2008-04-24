@@ -467,7 +467,7 @@ public class MenuSlice {
     		//  2) You're left-connected to the right edge
     		//  3) You're right-connected to the left edge
     		if (lastPaintedMI == null)
-    			return parentContainer.getWidth() - 2*parentContainer.mFormat.borderPadding - 2*parentContainer.mFormat.borderColors.length;
+    			return parentContainer.getWidth() - 2*parentContainer.mFormat.borderPadding - 2*parentContainer.mFormat.borderColors.length - this.mFormat.xHint;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0))
     			return parentContainer.getWidth() - (lastPaintedMI.getPosX()-parentContainer.getPosX() + lastPaintedMI.getWidth()) - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.LEFT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.RIGHT)!=0))
@@ -609,7 +609,7 @@ public class MenuSlice {
     		//  2) You're top-connected to the bottom edge
     		//  3) You're bottom-connected to the top edge
     		if (lastPaintedMI == null)
-    			return parentContainer.getHeight() - 2*parentContainer.mFormat.borderPadding - 2*parentContainer.mFormat.borderColors.length;
+    			return parentContainer.getHeight() - 2*parentContainer.mFormat.borderPadding - 2*parentContainer.mFormat.borderColors.length - this.mFormat.yHint;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.BOTTOM)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.TOP)!=0))
     			return parentContainer.getHeight() - (lastPaintedMI.getPosY()-parentContainer.getPosY() + lastPaintedMI.getHeight())- parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.TOP)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.BOTTOM)!=0))
@@ -905,6 +905,15 @@ public class MenuSlice {
      */
     public boolean consumeInput(int direction) {
     	return false;
+    }
+    
+    
+    /**
+     * Possibly over-ridden for help with sub-components 
+     * @return
+     */
+    public int[] getActiveRectangle() {
+    	return new int[]{this.getPosX(), this.getPosY(), this.getWidth(), this.getHeight()};
     }
     
     

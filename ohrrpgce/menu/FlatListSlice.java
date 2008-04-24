@@ -135,6 +135,10 @@ public class FlatListSlice extends MenuSlice {
         }
     }
 	
+    
+    public int[] getActiveRectangle() {
+    	return new int[]{this.getPosX()+FlatListSlice.arrowL.getWidth()-1, this.getPosY(), this.getWidth()-2*FlatListSlice.arrowL.getWidth()+2, this.getHeight()};
+    }
 	
 	
 	/**
