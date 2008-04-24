@@ -3,6 +3,7 @@ package ohrrpgce.menu;
 import ohrrpgce.adapter.GraphicsAdapter;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.Message;
+import ohrrpgce.data.loader.AttackDataParser;
 import ohrrpgce.game.LiteException;
 
 
@@ -52,15 +53,22 @@ public class ListSlice extends MenuSlice {
     //Additional listeners
     private Action listItemChangedListener;
     
+    //Temporary store
+	private String[] savedNames;
+	private int[] savedCosts;
+	private boolean[] savedValids;
+	private boolean savedIsLevelMP;
+	private boolean setItemsNeeded;
+    
     
     public ListSlice(MenuFormatArgs mForm, ImageAdapter font) {
     	super(mForm);
-    	if (mForm.widthHint<=0 || mForm.heightHint<=0)
-    		throw new LiteException(this, new IllegalArgumentException(), "ListSlice cannot use any width hints.");
+    	if (mForm.heightHint==MenuFormatArgs.HEIGHT_MINIMUM)
+    		throw new LiteException(this, new IllegalArgumentException(), "ListSlice cannot have a minimum height.");
     	if (mForm.borderPadding==0)
     		mForm.borderPadding = 2;
     	
-    	onscreenItemCount = mForm.widthHint/(Message.FONT_SIZE+1+mForm.borderPadding);
+    	onscreenItemCount = mForm.heightHint/(Message.FONT_SIZE+1+mForm.borderPadding);
     	this.font = font;
     }
     
@@ -79,6 +87,20 @@ public class ListSlice extends MenuSlice {
     
     
     public void setItems(String[] names, int[] costs, boolean[] valids, boolean levelBasedMP) {
+    	//Can do now?
+    	if (getWidth()<=0 || getHeight()<=0) {
+    		this.savedNames = names;
+    		this.savedCosts = costs;
+    		this.savedValids = valids;
+    		this.savedIsLevelMP = levelBasedMP;
+    		this.setItemsNeeded = true;
+    		return;
+    	} else {
+    		this.savedNames = null;
+    		this.savedCosts = null;
+    		this.savedValids = null;
+    	}
+    	
         //Get the maximum number of digits for spell cost.
         int maxCostDigits = 0;
         maxItems = names.length;
@@ -91,7 +113,7 @@ public class ListSlice extends MenuSlice {
             maxCostDigits = new String(""+maxCostDigits).length();
         }
         
-        int maxNameDigits = (getInitialFormatArgs().widthHint-getInitialFormatArgs().borderColors.length*2-getInitialFormatArgs().borderPadding)/(Message.FONT_SIZE+1) - maxCostDigits - 1;
+        int maxNameDigits = (getWidth()-getInitialFormatArgs().borderColors.length*2-getInitialFormatArgs().borderPadding)/(Message.FONT_SIZE+1) - maxCostDigits - 1;
         foregroundSize[0] = (maxNameDigits+maxCostDigits+1)*(Message.FONT_SIZE+1)+getInitialFormatArgs().borderPadding;
         foregroundSize[1] = names.length*(Message.FONT_SIZE+1+getInitialFormatArgs().borderPadding);
         foreground = new int[foregroundSize[0]*foregroundSize[1]];
@@ -170,7 +192,7 @@ public class ListSlice extends MenuSlice {
     public int getCurrItemID() {
         return currItemID;
     }
-    public int[] getCurrItemRectangle() {
+    public int[] getActiveRectangle() {
         int tlX = getPosX()+getInitialFormatArgs().borderColors.length;
         int tlY = getPosY()+getInitialFormatArgs().borderColors.length+(Message.FONT_SIZE+1+getInitialFormatArgs().borderPadding)*currItemID;
         int w = getWidth()-getInitialFormatArgs().borderColors.length*2;
@@ -221,6 +243,27 @@ public class ListSlice extends MenuSlice {
         }
     }
     
+    protected void setWidth(int newWidth) {
+    	super.setWidth(newWidth);
+    	
+    	if (setItemsNeeded) {
+    		setItemsNeeded = false;
+    		setItems(savedNames, savedCosts, savedValids, savedIsLevelMP);
+    	}
+    }
+    
+    protected void setHeight(int newHeight) {
+    	super.setHeight(newHeight);
+    	
+    	if (setItemsNeeded) {
+    		setItemsNeeded = false;
+    		setItems(savedNames, savedCosts, savedValids, savedIsLevelMP);
+    	}
+    }
+    protected int calcMinWidth() {
+    	//Minimum width is that of our cursor plus the maximum length of attack names
+    	return (AttackDataParser.MAX_SPELL_NAME+1)*(Message.FONT_SIZE+1);
+    }
     
     
 }

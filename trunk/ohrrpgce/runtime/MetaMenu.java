@@ -71,6 +71,7 @@ public class MetaMenu {
     private static MenuSlice spellsUsageBigBox;
     private static MPBarSlice currSpellMP;
     private static FlatListSlice currSpellGroup;
+    private static ListSlice currSpellList;
     private static HeroSelectSlice heroUsesSpellOn;
     
     //Stats
@@ -396,7 +397,7 @@ public class MetaMenu {
         currSpellGroup.addFocusGainedListener(highlightAction);
         currSpellMP.connect(currSpellGroup, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
         
-        //Also requires a box...
+        //The bottom components also require a box...
         mFormat.fillType = MenuSlice.FILL_SOLID;
         mFormat.borderColors = new int[]{};
         mFormat.borderPadding = 0;
@@ -409,6 +410,19 @@ public class MetaMenu {
         mFormat.yHint = 0;
         spellsUsageBigBox = new MenuSlice(mFormat);
         
+        //Spell list
+		mFormat.bgColor = colorZeroLight;
+		mFormat.borderColors = new int[]{colorZero[1], 0};
+		mFormat.fillType = MenuSlice.FILL_SOLID;
+        mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+        mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+        mFormat.xHint = 0;
+        mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
+        mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+        mFormat.heightHint = MenuFormatArgs.HEIGHT_MAXIMUM;
+        currSpellList = new ListSlice(mFormat, rpg.font);
+        spellsUsageBigBox.setTopLeftChild(currSpellList);
+        
 		//Transitions
 		menuInTrans = new MenuInTransition(rpg, width, height);
 	}
@@ -418,7 +432,7 @@ public class MetaMenu {
     	public boolean perform(Object caller) {
     		MenuSlice calledBy = (MenuSlice)caller;
     		
-    		makeHighlightAt(calledBy.getPosX(), calledBy.getPosY(), calledBy.getWidth(), calledBy.getHeight());
+    		makeHighlightAt(calledBy.getActiveRectangle());
     		return true;
     	}
     	
