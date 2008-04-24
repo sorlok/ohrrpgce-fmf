@@ -90,7 +90,7 @@ public class MetaMenu {
     	int itemID = ((Int)whichItem.getData()).getValue();
 		currCursor = null;
 		currMenuUpperButton = mainMenuUpperButtons[itemID];
-		currTransition = new MainMenuItemInTransition(whichItem, buttonList.getTopLeftChild(), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, false);
+		currTransition = new MainMenuItemInTransition(whichItem, buttonList.getTopLeftChild(), (itemID==0), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, false);
 		prevMode = mode;
 		mode = mainTextsIDs[itemID];
     }
@@ -98,7 +98,7 @@ public class MetaMenu {
     public static void doMainMenuOut() {
     	int itemID = ((Int)currMenuUpperButton.getData()).getValue();
     	currCursor = null;
-    	currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild(), mainMenuButtons[itemID],  currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, true);
+    	currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild(), mainMenuButtons[itemID], (itemID==0), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, true);
     	mode = prevMode;
     }
     
