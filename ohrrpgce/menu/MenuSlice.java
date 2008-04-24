@@ -462,16 +462,22 @@ public class MenuSlice {
     		else if (!alreadyLaidOut.contains(parentContainer))
     			throw new LiteException(this, new IllegalArgumentException(), "Child layout of MAXIMUM width attempted with parent demanding MINIMUM width.");
     		
-    		//Maximum width makes sense in only three cases:
+    		//Maximum width makes sense in only a few cases:
     		//  1) You're the only MI
     		//  2) You're left-connected to the right edge
     		//  3) You're right-connected to the left edge
+    		//  4) You're left-connected to the left edge
+    		//  5) You're right-connected to the right edge
     		if (lastPaintedMI == null)
     			return parentContainer.getWidth() - 2*parentContainer.mFormat.borderPadding - 2*parentContainer.mFormat.borderColors.length - this.mFormat.xHint;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0))
     			return parentContainer.getWidth() - (lastPaintedMI.getPosX()-parentContainer.getPosX() + lastPaintedMI.getWidth()) - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.LEFT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.RIGHT)!=0))
     			return lastPaintedMI.getPosX() - parentContainer.getPosX() - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
+    		else if (((this.mFormat.fromAnchor&GraphicsAdapter.LEFT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.LEFT)!=0))
+    			return parentContainer.getWidth() - (lastPaintedMI.getPosX()-parentContainer.getPosX()) - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
+    		else if (((this.mFormat.fromAnchor&GraphicsAdapter.RIGHT)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.RIGHT)!=0))
+    			return lastPaintedMI.getPosX()+lastPaintedMI.getWidth() - parentContainer.getPosX() - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else
     			throw new LiteException(this, new IllegalArgumentException(), "Invalid connect fromAnchor("+this.mFormat.fromAnchor+") and toAnchor("+this.mFormat.toAnchor+") for MAX_WIDTH");
     	} else
@@ -604,16 +610,22 @@ public class MenuSlice {
     		else if (!alreadyLaidOut.contains(parentContainer))
     			throw new LiteException(this, new IllegalArgumentException(), "Child layout of MAXIMUM height attempted with parent demanding MINIMUM height.");
     		
-    		//Maximum height makes sense in only three cases:
+    		//Maximum height makes sense in only a few cases:
     		//  1) You're the only MI
     		//  2) You're top-connected to the bottom edge
     		//  3) You're bottom-connected to the top edge
+    		//  4) You're top-connected to the top edge
+    		//  5) You're bottom-connected to the bottom edge
     		if (lastPaintedMI == null)
     			return parentContainer.getHeight() - 2*parentContainer.mFormat.borderPadding - 2*parentContainer.mFormat.borderColors.length - this.mFormat.yHint;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.BOTTOM)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.TOP)!=0))
     			return parentContainer.getHeight() - (lastPaintedMI.getPosY()-parentContainer.getPosY() + lastPaintedMI.getHeight())- parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else if (((this.mFormat.fromAnchor&GraphicsAdapter.TOP)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.BOTTOM)!=0))
     			return lastPaintedMI.getPosY() - parentContainer.getPosY()- parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
+    		else if (((this.mFormat.fromAnchor&GraphicsAdapter.TOP)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.TOP)!=0))
+    			return parentContainer.getHeight() - (lastPaintedMI.getPosY()-parentContainer.getPosY()) - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
+    		else if (((this.mFormat.fromAnchor&GraphicsAdapter.BOTTOM)!=0) && ((this.mFormat.toAnchor&GraphicsAdapter.BOTTOM)!=0))
+    			return lastPaintedMI.getPosY()+lastPaintedMI.getHeight() - parentContainer.getPosY() - parentContainer.mFormat.borderPadding - parentContainer.mFormat.borderColors.length;
     		else
     			throw new LiteException(this, new IllegalArgumentException(), "Invalid connect fromAnchor("+this.mFormat.fromAnchor+") and toAnchor("+this.mFormat.toAnchor+") for MAX_HEIGHT");
     	} else
