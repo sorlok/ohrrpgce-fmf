@@ -47,6 +47,7 @@ public class MainMenuItemInTransition extends Transition {
 	private boolean relayoutNeeded;
 	
 	private boolean hackeroo;
+	private boolean skipButtonMove;
 	
 	private int globalMod;
 	private int completedCount;
@@ -66,8 +67,9 @@ public class MainMenuItemInTransition extends Transition {
 	 * @param destBoxX
 	 * @param selectedButton
 	 */
-	public MainMenuItemInTransition(MenuSlice srcButton, MenuSlice destButton, MenuSlice selectedButton, MenuSlice currSubMenuLbl, int screenWidth, int screenHeight, MenuSlice topmostBox, boolean doInReverse) {
+	public MainMenuItemInTransition(MenuSlice srcButton, MenuSlice destButton, boolean skipButtonMove, MenuSlice selectedButton, MenuSlice currSubMenuLbl, int screenWidth, int screenHeight, MenuSlice topmostBox, boolean doInReverse) {
 		this.doInReverse = doInReverse;
+		this.skipButtonMove = skipButtonMove;
 		
 		if (!doInReverse) {
 			selectedButton.getInitialFormatArgs().xHint = srcButton.getPosX();
@@ -247,7 +249,7 @@ public class MainMenuItemInTransition extends Transition {
 			}
 		} else if (phase==PHASE_TWO) {
 			//Move our button
-			if (moveCloserX(itemToMove, destBoxX, speed, -globalMod)) {
+			if (skipButtonMove || moveCloserX(itemToMove, destBoxX, speed, -globalMod)) {
 				setupPhaseTwoPointFive();
 				if (!doInReverse)
 					phase = PHASE_THREE;
