@@ -410,18 +410,33 @@ public class MetaMenu {
         mFormat.yHint = 0;
         spellsUsageBigBox = new MenuSlice(mFormat);
         
-        //Spell list
+        //Hero selector
 		mFormat.bgColor = colorZeroLight;
 		mFormat.borderColors = new int[]{colorZero[1], 0};
 		mFormat.fillType = MenuSlice.FILL_SOLID;
-        mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
-        mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+        mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.RIGHT;
+        mFormat.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.RIGHT;
         mFormat.xHint = 0;
-        mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
+        mFormat.yHint = 0;
         mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+        mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+        int hrs = Math.min(4, rpg.getNumHeroes());
+        Hero[] temp = new Hero[hrs];
+        for (int i=0; i<temp.length; i++)
+            temp[i] = rpg.getHero(i);
+        HeroSelectSlice heroSl = new HeroSelectSlice(mFormat, rpg, 4, 4);
+        heroSl.setHeroParty(temp, rpg, 1);
+        spellsUsageBigBox.setTopLeftChild(heroSl);
+        
+        //Spell list
+        mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+        mFormat.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.RIGHT;
+        mFormat.xHint = 1;
+        mFormat.yHint = 0;
+        mFormat.widthHint = MenuFormatArgs.WIDTH_MAXIMUM;
         mFormat.heightHint = MenuFormatArgs.HEIGHT_MAXIMUM;
         currSpellList = new ListSlice(mFormat, rpg.font);
-        spellsUsageBigBox.setTopLeftChild(currSpellList);
+        heroSl.connect(currSpellList, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
         
 		//Transitions
 		menuInTrans = new MenuInTransition(rpg, width, height);
