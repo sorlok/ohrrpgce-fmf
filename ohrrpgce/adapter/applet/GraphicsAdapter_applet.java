@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Hashtable;
 import ohrrpgce.adapter.FontAdapter;
@@ -111,8 +112,10 @@ public class GraphicsAdapter_applet {
 	
 	
 	public static final void setClip(int x, int y, int width, int height) {
-            if (origClip==null)
-                origClip = new int[]{x, y, width, height};
+            if (origClip==null) {
+            	Rectangle r = g.getClipBounds();
+                origClip = new int[]{r.x, r.y, r.width, r.height};
+            }
 	    g.setClip(x, y, width, height);
 	}
 	
