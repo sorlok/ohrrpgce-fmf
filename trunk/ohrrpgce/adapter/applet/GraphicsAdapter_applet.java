@@ -33,7 +33,6 @@ public class GraphicsAdapter_applet {
 	private static Hashtable preComputedImages;
 	private static final int MAX_IMAGES = 1024;
         
-        private static int[] origClip;
 	
 	public static final void init(Graphics gContext, Action doFlush) {
 		g = gContext;
@@ -112,15 +111,11 @@ public class GraphicsAdapter_applet {
 	
 	
 	public static final void setClip(int x, int y, int width, int height) {
-            if (origClip==null) {
-            	Rectangle r = g.getClipBounds();
-                origClip = new int[]{r.x, r.y, r.width, r.height};
-            }
 	    g.setClip(x, y, width, height);
 	}
 	
 	public static final void resetClip() {
-		g.setClip(origClip[0], origClip[1], origClip[2], origClip[3]);
+		g.setClip(null);
 	}
 	
 	public static final int getColor() {

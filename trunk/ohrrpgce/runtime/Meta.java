@@ -54,8 +54,9 @@ public class Meta {
         
         if (games==null || (games.length!=gamesSoFar.size())) {
             games = new MetaGame[gamesSoFar.size()];
-            for (int i=0; i<gamesSoFar.size(); i++)
-              games[i] = (MetaGame)gamesSoFar.elementAt(i);            
+            for (int i=0; i<gamesSoFar.size(); i++) {
+              games[i] = (MetaGame)gamesSoFar.elementAt(i);
+            }
         }
         
         return games;
