@@ -117,6 +117,14 @@ public class Slackulator extends JFrame implements KeyListener {
 	}
 
 	
+	
+	private void escHit() {
+		if (!engineMgr.canExit())
+			return;
+		System.exit(1);
+	}
+	
+	
 
 	private void loadComponents() {
 		MouseListener buttonListener = new MouseListener() {
@@ -333,6 +341,8 @@ public class Slackulator extends JFrame implements KeyListener {
 				return InputAdapter.KEY_UP;
 			case KeyEvent.VK_DOWN:
 				return InputAdapter.KEY_DOWN;
+			case KeyEvent.VK_BACK_SPACE:
+				escHit(); //fall-through
 			case KeyEvent.VK_ESCAPE:
 			//case KeyEvent.VK_ALT:
 				return InputAdapter.KEY_CANCEL;

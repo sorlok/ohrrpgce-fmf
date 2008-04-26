@@ -338,6 +338,8 @@ public class GameEngine extends Engine {
     }
 
     public boolean canExit() {
+    	System.out.println("CanExit() called... catch this later to show our \"quit\" menu.");
+    	
         return true;
     }
 
