@@ -87,7 +87,7 @@ public class GraphicsAdapter_midlet {
 	
 	public static final void setClip(int x, int y, int width, int height) {
             if (origClip==null)
-                origClip = new int[]{x, y, width, height};
+                origClip = new int[]{g.getClipX(), g.getClipY(), g.getClipWidth(), g.getClipHeight()};
 	    g.setClip(x, y, width, height);
 	}
 	
