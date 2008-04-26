@@ -152,7 +152,9 @@ public class GameEngine extends Engine {
                     //Select a loader for this game.
                     System.out.println("Loading game: " + metaInfo.getGames()[currGameID].fullName);
                     metaInfo.stopLoadingGames();
+
                     adaptGen.setGameName(metaInfo.getGames()[currGameID].name);
+
                     RPGLoader loader = null;
                     if (metaInfo.getGames()[currGameID].mobileFormat==0) {
                     	throw new RuntimeException("RPG lump format not supported; please convert to XRPG.");
@@ -168,6 +170,7 @@ public class GameEngine extends Engine {
 						if (!metaInfo.getGames()[currGameID].name.toUpperCase().equals(metaInfo.getGames()[currGameID].name)) {
 							throw new RuntimeException("Error! Version 1 requires that the game name be in upper case.");
 						}
+
                         loader = new SensifiedLoader(metaInfo.getGames()[currGameID].name, adaptGen, metaInfo.getGames()[currGameID].numBytes);
                     } else {
                         throw new RuntimeException("Invalid RPG format: " + metaInfo.getGames()[currGameID].mobileFormat);

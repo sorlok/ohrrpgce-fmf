@@ -7,6 +7,7 @@ import java.io.InputStream;
 import ohrrpgce.adapter.AdapterGenerator;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.RPG;
+import ohrrpgce.game.LiteException;
 
 public class TilesetParser extends LumpParser {
 	public static final int TILE_SIZE = 20;
@@ -46,7 +47,7 @@ public class TilesetParser extends LumpParser {
             ImageAdapter img = null;
             try {
                 img = adaptGen.createImageAdapter(input);
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 System.out.println("Error on tileset resource: " + id);
                 return;
             }

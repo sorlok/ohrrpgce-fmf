@@ -23,7 +23,7 @@ public class ImageAdapter implements ohrrpgce.adapter.ImageAdapter {
 		try {
 			img = ImageIO.read(ImageAdapter.class.getResourceAsStream(path));
 		} catch (IllegalArgumentException ex) {
-			throw new LiteException(this, ex, "Null("+path+")");
+			throw new LiteException(this, ex, "Null Image("+path+")");
 		}
 	}
 	
