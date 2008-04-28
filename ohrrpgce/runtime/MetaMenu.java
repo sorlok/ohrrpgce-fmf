@@ -158,9 +158,69 @@ public class MetaMenu {
         }
     }
 
+    
+    public static void buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
+    	//Blue box
+    	MenuFormatArgs mf1 = new MenuFormatArgs();
+    	mf1.bgColor = 0x99D9EA;
+    	mf1.borderColors = new int[]{0x4D6DF3, 0x4D6DF3, 0x000000};
+    	mf1.fillType = MenuSlice.FILL_SOLID;
+    	mf1.xHint = 22;
+    	mf1.yHint = 22;
+    	mf1.widthHint = 60;
+    	mf1.heightHint = 60;
+    	MenuSlice blueBox = new MenuSlice(mf1);
+    	
+    	//Green box
+    	MenuFormatArgs mf2 = new MenuFormatArgs();
+    	mf2.bgColor = 0xA8E61D;
+    	mf2.borderColors = new int[]{0x22B14C, 0x22B14C, 0x000000};
+    	mf2.fillType = MenuSlice.FILL_SOLID;
+    	mf2.fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
+    	mf2.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+    	mf2.xHint = 10;
+    	mf2.yHint = 0;
+    	mf2.widthHint = 43;
+    	mf2.heightHint = 50;
+    	MenuSlice greenBox = new MenuSlice(mf2);
+
+    	//Orange box
+    	MenuFormatArgs mf3 = new MenuFormatArgs();
+    	mf3.bgColor = 0xFFC20E;
+    	mf3.borderColors = new int[]{0xFF7E00, 0xFF7E00, 0x000000};
+    	mf3.fillType = MenuSlice.FILL_SOLID;
+    	mf3.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+    	mf3.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+    	mf3.xHint = 0;
+    	mf3.yHint = 10;
+    	mf3.widthHint = 50;
+    	mf3.heightHint = 20;
+    	MenuSlice orangeBox = new MenuSlice(mf3);
+    	
+    	//Purple box
+    	MenuFormatArgs mf4 = new MenuFormatArgs();
+    	mf4.bgColor = 0xB5A5D5;
+    	mf4.borderColors = new int[]{0x6F3198, 0x6F3198, 0x000000};
+    	mf4.fillType = MenuSlice.FILL_SOLID;
+    	mf4.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.RIGHT;
+    	mf4.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.RIGHT;
+    	mf4.xHint = 0;
+    	mf4.yHint = 150;
+    	mf4.widthHint = 60;
+    	mf4.heightHint = 60;
+    	MenuSlice purpleBox = new MenuSlice(mf4);
+
+    	//Connect
+    	blueBox.connect(greenBox, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_CONTROL|MenuSlice.CFLAG_PAINT);
+    	blueBox.connect(orangeBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_CONTROL|MenuSlice.CFLAG_PAINT);
+    	greenBox.connect(purpleBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_CONTROL|MenuSlice.CFLAG_PAINT);
+    	
+    	//Some bookkeeping
+    	MetaMenu.topLeftMI = blueBox;
+    }
 
 
-	public static void buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
+	public static void buildMenuTEMP(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
 		//Save...
 		MetaMenu.width = width;
 		MetaMenu.height = height;
