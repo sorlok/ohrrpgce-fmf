@@ -87,6 +87,9 @@ public class MetaMenu {
     
     //Useful
     private static SubMenuInTransition lastSubMenuTransition;
+    
+    //For our tutorial
+    private static ImageSlice blueGraphic;
 
     
     
@@ -160,63 +163,147 @@ public class MetaMenu {
 
     
     public static void buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
-    	//Blue box
-    	MenuFormatArgs mf1 = new MenuFormatArgs();
-    	mf1.bgColor = 0x99D9EA;
-    	mf1.borderColors = new int[]{0x4D6DF3, 0x4D6DF3, 0x000000};
-    	mf1.fillType = MenuSlice.FILL_SOLID;
-    	mf1.xHint = 22;
-    	mf1.yHint = 22;
-    	mf1.widthHint = 60;
-    	mf1.heightHint = 60;
-    	MenuSlice blueBox = new MenuSlice(mf1);
+    	//Large overlay
+    	MenuFormatArgs mfClear = new MenuFormatArgs();
+    	mfClear.bgColor = 0x333333;
+    	mfClear.fillType = MenuSlice.FILL_SOLID;
+    	mfClear.borderColors = new int[]{};
+    	mfClear.widthHint = width;
+    	mfClear.heightHint = height;
+    	mfClear.borderPadding = 22;
+    	MenuSlice largeClearBox = new MenuSlice(mfClear);
     	
-    	//Green box
-    	MenuFormatArgs mf2 = new MenuFormatArgs();
-    	mf2.bgColor = 0xA8E61D;
-    	mf2.borderColors = new int[]{0x22B14C, 0x22B14C, 0x000000};
-    	mf2.fillType = MenuSlice.FILL_SOLID;
-    	mf2.fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
-    	mf2.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
-    	mf2.xHint = 10;
-    	mf2.yHint = 0;
-    	mf2.widthHint = 43;
-    	mf2.heightHint = 50;
-    	MenuSlice greenBox = new MenuSlice(mf2);
-
-    	//Orange box
-    	MenuFormatArgs mf3 = new MenuFormatArgs();
-    	mf3.bgColor = 0xFFC20E;
-    	mf3.borderColors = new int[]{0xFF7E00, 0xFF7E00, 0x000000};
-    	mf3.fillType = MenuSlice.FILL_SOLID;
-    	mf3.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
-    	mf3.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
-    	mf3.xHint = 0;
-    	mf3.yHint = 10;
-    	mf3.widthHint = 50;
-    	mf3.heightHint = 20;
-    	MenuSlice orangeBox = new MenuSlice(mf3);
+    	//Intialize our cursor
+    	String workingDir = Meta.pathToGameFolder;
+    	MenuFormatArgs mfCursor = new MenuFormatArgs();
+    	mfCursor.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+    	mfCursor.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+    	mfCursor.borderColors = new int[]{};
+    	mfCursor.fillType = MenuSlice.FILL_NONE;
+    	ImageAdapter cursorImg = null;
+    	try {
+    		cursorImg = adaptGen.createImageAdapter(workingDir+"hand.png");
+    	} catch (IOException ex) {
+    		cursorImg = adaptGen.createBlankImage(10, 10);
+    	}
+    	MetaMenu.currCursor =  new ImageSlice(mfCursor, cursorImg);
+    	MetaMenu.currCursor.doLayout();
     	
-    	//Purple box
-    	MenuFormatArgs mf4 = new MenuFormatArgs();
-    	mf4.bgColor = 0xB5A5D5;
-    	mf4.borderColors = new int[]{0x6F3198, 0x6F3198, 0x000000};
-    	mf4.fillType = MenuSlice.FILL_SOLID;
-    	mf4.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.RIGHT;
-    	mf4.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.RIGHT;
-    	mf4.xHint = 0;
-    	mf4.yHint = 150;
-    	mf4.widthHint = 60;
-    	mf4.heightHint = 60;
-    	MenuSlice purpleBox = new MenuSlice(mf4);
+    	//Image for our box
+    	ImageAdapter box1Pic = null;
+    	ImageAdapter[] picsArray = new ImageAdapter[3];
+    	try {
+    		picsArray[0] = box1Pic = adaptGen.createImageAdapter(workingDir + "box1.png");
+    		picsArray[1] = adaptGen.createImageAdapter(workingDir + "box2.png");
+    		picsArray[2] = adaptGen.createImageAdapter(workingDir + "box3.png");
+    	} catch (IOException ex) {
+    		picsArray[2] = picsArray[1] = picsArray[0] = box1Pic = adaptGen.createBlankImage(10, 10);
+    	}
+    	
+    	//Blue background "circle"
+    	MenuFormatArgs mf = new MenuFormatArgs();
+    	mf.fillType = MenuSlice.FILL_NONE;
+    	mf.borderColors = new int[]{};
+    	mf.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+    	mf.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+    	blueGraphic = new ImageSlice(mf, box1Pic);
+    	blueGraphic.setData(picsArray);
+    	
+    	//Never allow this item to have focus
+    	blueGraphic.addFocusGainedListener(new Action() {
+    		public boolean perform(Object caller) {
+    			MenuSlice calledBy = (MenuSlice)caller;
+    			MenuSlice rightConnect = calledBy.getConnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+    			rightConnect.moveTo();
+    			return true; //Return anything. Doesn't matter
+    		}
+    	});
+    	
+    	//Our smaller collection slice
+    	// NOTE: we don't need to set any fields of mfClear that were already
+    	//   set for largeClearBox, unless we specifically want them to be changed.
+    	mfClear.fillType = MenuSlice.FILL_NONE;
+    	mfClear.fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
+    	mfClear.toAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.LEFT;
+    	mfClear.xHint = 20;
+    	mfClear.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+    	mfClear.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+    	mfClear.borderPadding = 00;
+    	MenuSlice smallClearCollection = new MenuSlice(mfClear);
+    	
+    	//Bob's Name
+    	mf.fillType = MenuSlice.FILL_SOLID;
+    	mf.bgColor = 0xA8E61D;
+    	mf.borderColors = new int[]{0x22B14C};
+    	mf.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+    	mf.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+    	TextSlice greenBox = new TextSlice(mf, "Bob T. H.", rpg.font, true, true, false);
+    	
+    	//Listener for Bob
+    	Action bobFocusGained = new Action() {
+    		public boolean perform(Object caller) {
+    			MenuSlice bobBox = (MenuSlice)caller;
+    		      int newX = bobBox.getPosX()-MetaMenu.currCursor.getWidth()+4;
+    		      int newY = bobBox.getPosY()+3;
+    			MetaMenu.currCursor.forceToLocation(newX, newY);
+    			ImageAdapter[] imgArray = (ImageAdapter[])blueGraphic.getData();
+    			blueGraphic.setImage(imgArray[0]);
+    			return true;
+    		}
+    	};
+    	greenBox.addFocusGainedListener(bobFocusGained);
 
-    	//Connect
-    	blueBox.connect(greenBox, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_CONTROL|MenuSlice.CFLAG_PAINT);
-    	blueBox.connect(orangeBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_CONTROL|MenuSlice.CFLAG_PAINT);
-    	greenBox.connect(purpleBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_CONTROL|MenuSlice.CFLAG_PAINT);
+    	//James's Name
+    	mf.bgColor = 0xFFC20E;
+    	mf.borderColors[0] = 0xFF7E00;
+    	mf.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.LEFT;
+    	mf.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+    	TextSlice orangeBox = new TextSlice(mf, "James", rpg.font, true, true, false);
+    	
+    	//Listener for James
+    	Action jamesFocusGained = new Action() {
+    		public boolean perform(Object caller) {
+    			MenuSlice jamesBox = (MenuSlice)caller;
+    		      int newX = jamesBox.getPosX() - MetaMenu.currCursor.getWidth()+4;
+    		      int newY = jamesBox.getPosY()+3;
+    			MetaMenu.currCursor.forceToLocation(newX, newY);
+    			ImageAdapter[] imgArray = (ImageAdapter[])blueGraphic.getData();
+    			blueGraphic.setImage(imgArray[1]);
+    			return true;
+    		}
+    	};
+    	orangeBox.addFocusGainedListener(jamesFocusGained);
+    	
+    	//Dusty's Name
+    	mf.bgColor = 0xB5A5D5;
+    	mf.borderColors[0] = 0x6F3198;
+    	TextSlice purpleBox = new TextSlice(mf, "Dusty", rpg.font, true, true, false);
+    	
+    	//Listener for Dusty
+    	Action dustyFocusGained = new Action() {
+    		public boolean perform(Object caller) {
+    			MenuSlice dustyBox = (MenuSlice)caller;
+    		      int newX = dustyBox.getPosX()-MetaMenu.currCursor.getWidth()+4;
+    		      int newY = dustyBox.getPosY()+3;
+    			MetaMenu.currCursor.forceToLocation(newX, newY);
+    			ImageAdapter[] imgArray = (ImageAdapter[])blueGraphic.getData();
+    			blueGraphic.setImage(imgArray[2]);
+    			return true;
+    		}
+    	};
+    	purpleBox.addFocusGainedListener(dustyFocusGained);
+
+    	//Connect & set Children
+    	largeClearBox.setTopLeftChild(blueGraphic);    	
+    	blueGraphic.connect(smallClearCollection, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+    	smallClearCollection.setTopLeftChild(greenBox);
+    	greenBox.connect(orangeBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_CONTROL|MenuSlice.CFLAG_PAINT);
+    	orangeBox.connect(purpleBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_CONTROL|MenuSlice.CFLAG_PAINT);
+    	purpleBox.connect(greenBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_CONTROL);
+    	//smallClearCollection.connect(MetaMenu.currCursor, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
     	
     	//Some bookkeeping
-    	MetaMenu.topLeftMI = blueBox;
+    	MetaMenu.topLeftMI = largeClearBox;
     }
 
 

@@ -174,8 +174,9 @@ public class MenuSlice {
         drawPixelBuffer(x+pixelBufferSize[X]+this.mFormat.borderColors.length, y+pixelBufferSize[Y]+this.mFormat.borderColors.length);
         
         //Draw all inner components
-        if (paintInner && topLeftChildMI!=null)
+        if (paintInner && topLeftChildMI!=null) {
         	topLeftChildMI.paintMenuSlice(-1);
+        }
 
         //Draw the borders as ever-decreasing rectangles.
         for (int i=0; i<this.mFormat.borderColors.length; i++) {
@@ -204,8 +205,9 @@ public class MenuSlice {
         
         //Draw all connected components
         for (int i=0; i<paintConnect.length; i++) {
-        	if (paintConnect[i]!=null && i!=paintFromDir)
+        	if (paintConnect[i]!=null && i!=paintFromDir) {
         		paintConnect[i].paintMenuSlice(MenuSlice.inverseDir(i));
+        	}
         }
     }
     
