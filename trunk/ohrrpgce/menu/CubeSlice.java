@@ -17,6 +17,10 @@ public class CubeSlice extends MenuSlice {
 		this.cubeImg = pngImage;
 		this.currCubeSide = 'L';
 	}
+	
+	public char getCubeSide() {
+		return this.currCubeSide;
+	}
 
 	//Draw this slice
 	protected void drawPixelBuffer(int atX, int atY) {
