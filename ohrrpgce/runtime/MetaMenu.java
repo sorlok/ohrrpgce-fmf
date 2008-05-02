@@ -90,7 +90,7 @@ public class MetaMenu {
     private static SubMenuInTransition lastSubMenuTransition;
     
     //For our tutorial
-    //private static ImageSlice blueGraphic;
+    private static SlideDownTransition mySlideTrans;
 
     
     
@@ -163,6 +163,59 @@ public class MetaMenu {
     }
 
     
+    
+    private static MenuSlice makeSubMenu(RPG rpg, Hero heroData, String heroName, int heroBGColor, int heroBorderColor, int heroShadowColor) {
+    	//Let's make a box for our "sub" menu
+    	MenuFormatArgs mf = new MenuFormatArgs();
+    	mf.bgColor = heroBGColor;
+    	mf.borderColors = new int[]{0x333333, heroBorderColor};
+    	mf.fillType = MenuSlice.FILL_SOLID;
+    	mf.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+    	mf.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+    	mf.xHint = 10;
+    	mf.widthHint = 100;
+    	mf.heightHint = 150;
+    	mf.borderPadding = 0;
+    	MenuSlice subMenuSlice = new MenuSlice(mf);
+    	
+    	//Our label & pic will be transparent, and laid out within THIS box:
+    	mf.borderColors = new int[]{heroShadowColor, heroBorderColor};
+    	mf.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+    	mf.xHint = -2;
+    	mf.yHint = -2;
+    	mf.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+    	mf.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+    	mf.borderPadding = 3;
+    	MenuSlice captionSlice = new MenuSlice(mf);
+    	
+    	//int[] data for our hero
+    	int[] heroWalkabout = heroData.getWalkabout().spData[4];
+    	int jamesWalkPalette = heroData.walkaboutPaletteID;
+    	int walkaboutWidth = 20;
+    	
+    	//Hero's Pic
+    	mf.fillType = MenuSlice.FILL_NONE;
+    	mf.borderColors = new int[0];
+    	mf.borderPadding = 0;
+    	mf.xHint = 0;
+    	mf.yHint = 0;
+    	ImageSlice heroPic = new ImageSlice(mf, heroWalkabout, jamesWalkPalette, rpg, walkaboutWidth);
+    	
+    	//Hero's Name
+    	mf.xHint = 3;
+    	mf.fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
+    	mf.toAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.LEFT;
+    	TextSlice heroText = new TextSlice(mf, heroName, rpg.font, true, true, false);
+    	
+    	//Connect them
+    	subMenuSlice.setTopLeftChild(captionSlice);
+    	captionSlice.setTopLeftChild(heroPic);
+    	heroPic.connect(heroText, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+    	
+    	return subMenuSlice;
+    }
+    
+    
     public static void buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
     	//Large overlay
     	MenuFormatArgs mfClear = new MenuFormatArgs();
@@ -206,80 +259,65 @@ public class MetaMenu {
     	mf.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
     	CubeSlice blueGraphic = new CubeSlice(mf, box1Pic);
     	
-    	//Our cube will share the same highlight and focus listeners
-    	Action makeHighlightAction = new Action() {
-    		public boolean perform(Object caller) {
-    			//Put the cursor somewhere near the middle of this slice's sub-component
-    			MenuSlice calledBy = (MenuSlice)caller;
-    			int[] rectangle = calledBy.getActiveRectangle();
-    			MetaMenu.currCursor.forceToLocation(
-    					rectangle[0]+rectangle[2]/2-MetaMenu.currCursor.getWidth(), 
-    					rectangle[1]+rectangle[3]/2-MetaMenu.currCursor.getHeight()/2);    			
-    			return true; //Return value doesn't matter.
-    		}
-    	};
-    	blueGraphic.setSubSelectionChangedListener(makeHighlightAction);
-    	blueGraphic.addFocusGainedListener(makeHighlightAction);
+    	// Our cube will share the same highlight and focus listeners
+		Action makeHighlightAction = new Action() {
+			// makeHighlight() was covered earlier and hasn't changed.
+			private void makeHighlight(MenuSlice calledBy) {
+				// Put the cursor somewhere near the middle of this slice's
+				// sub-component
+				int[] rectangle = calledBy.getActiveRectangle();
+				MetaMenu.currCursor.forceToLocation(rectangle[0] + rectangle[2]
+						/ 2 - MetaMenu.currCursor.getWidth(), rectangle[1]
+						+ rectangle[3] / 2 - MetaMenu.currCursor.getHeight()
+						/ 2);
+			}
+
+			private void startSlideIn(CubeSlice calledBy) {
+				// We only transition if we're moving to a NEW menu slice... we
+				// need to fail silently on the "focus gained" call.
+				MenuSlice oldMenu = calledBy.getConnect(
+						MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+				MenuSlice newMenu = null;
+				MenuSlice[] savedMenus = (MenuSlice[]) calledBy.getData();
+				if (calledBy.getCubeSide() == 'L')
+					newMenu = savedMenus[0];
+				else if (calledBy.getCubeSide() == 'R')
+					newMenu = savedMenus[1];
+				else if (calledBy.getCubeSide() == 'T')
+					newMenu = savedMenus[2];
+				if (newMenu.equals(oldMenu))
+					return;
+
+				// A bit wordy, but now that that's over, let's fire up our
+				// transition
+				if (mySlideTrans == null)
+					mySlideTrans = new SlideDownTransition(calledBy);
+				mySlideTrans.setTargets(newMenu, oldMenu);
+				mySlideTrans.reset();
+				MetaMenu.currTransition = mySlideTrans;
+			}
+
+			public boolean perform(Object caller) {
+				CubeSlice calledBy = (CubeSlice) caller;
+				makeHighlight(calledBy);
+				startSlideIn(calledBy);
+				
+			    return true; //Return value doesn't matter.
+			}
+		};
+		blueGraphic.setSubSelectionChangedListener(makeHighlightAction);
+		blueGraphic.addFocusGainedListener(makeHighlightAction);
+
     	
-    	//Clip within subMenuSlice's bounds
-    	/*blueGraphic.addFocusGainedListener(
-    		new Action() {
-    			public boolean perform(Object caller) {
-    				MenuSlice rightConnect = ((MenuSlice)caller).getConnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-    				rightConnect.setClip(rightConnect.getPosX(), rightConnect.getPosY(), rightConnect.getWidth(), rightConnect.getHeight());
-    				return false;
-    			}	
-    	});*/
-    	
-    	
-    	//Let's make a box for our "sub" menu
-    	mf.bgColor = 0xFFC20E;
-    	mf.borderColors = new int[]{0x333333, 0xFF7E00};
-    	mf.fillType = MenuSlice.FILL_SOLID;
-    	mf.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
-    	mf.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
-    	mf.xHint = 10;
-    	mf.widthHint = 100;
-    	mf.heightHint = 150;
-    	mf.borderPadding = 0;
-    	MenuSlice subMenuSlice = new MenuSlice(mf);
-    	
-    	//Our label & pic will be transparent, and laid out within THIS box:
-    	mf.borderColors = new int[]{0xBD8A00, 0xFF7E00};
-    	mf.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
-    	mf.xHint = -2;
-    	mf.yHint = -2;
-    	mf.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
-    	mf.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
-    	mf.borderPadding = 3;
-    	MenuSlice captionSlice = new MenuSlice(mf);
-    	
-    	//int[] data for James
-    	Hero james = rpg.getHero(1);
-    	int[] jamesWalk = james.getWalkabout().spData[4];
-    	int jamesWalkPalette = james.walkaboutPaletteID;
-    	int walkaboutWidth = 20;
-    	
-    	//James's Pic
-    	mf.fillType = MenuSlice.FILL_NONE;
-    	mf.borderColors = new int[0];
-    	mf.borderPadding = 0;
-    	mf.xHint = 0;
-    	mf.yHint = 0;
-    	ImageSlice jamesPic = new ImageSlice(mf, jamesWalk, jamesWalkPalette, rpg, walkaboutWidth);
-    	
-    	//James's Name
-    	mf.xHint = 3;
-    	mf.fromAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.RIGHT;
-    	mf.toAnchor = GraphicsAdapter.VCENTER|GraphicsAdapter.LEFT;
-    	TextSlice jamesText = new TextSlice(mf, "James", rpg.font, true, true, false);
+    	// Add our data objects
+    	MenuSlice bobSlice = makeSubMenu(rpg, rpg.getHero(0), "Bob", 0xA8E61D, 0x22B14C, 0x000000);
+    	MenuSlice jamesSlice = makeSubMenu(rpg, rpg.getHero(1), "James", 0xFFC20E, 0xFF7E00, 0xBD8A00);
+    	MenuSlice dustySlice = makeSubMenu(rpg, rpg.getHero(3), "Dusty", 0xB5A5D5, 0x6F3198, 0x000000);
+    	blueGraphic.setData( new MenuSlice[]{jamesSlice, dustySlice, bobSlice} );
 
     	//Connect & set Children
     	largeClearBox.setTopLeftChild(blueGraphic);    	
-    	blueGraphic.connect(subMenuSlice, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-    	subMenuSlice.setTopLeftChild(captionSlice);
-    	captionSlice.setTopLeftChild(jamesPic);
-    	jamesPic.connect(jamesText, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+    	blueGraphic.connect(jamesSlice, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
     	
     	//Some bookkeeping
     	MetaMenu.topLeftMI = largeClearBox;
