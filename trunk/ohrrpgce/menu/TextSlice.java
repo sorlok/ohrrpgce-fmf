@@ -16,6 +16,7 @@ public class TextSlice extends MenuSlice {
 	private int blockSize;
 	private boolean shade;
 	private boolean skipNLSymbol;
+	private int fontColor;
 	
 	//Hackish
 	private boolean autoDiet;
@@ -35,6 +36,7 @@ public class TextSlice extends MenuSlice {
 	
 	public TextSlice(MenuFormatArgs mFormat, String text, ImageAdapter font, boolean skipNLSymbol, boolean shade, boolean autoDiet) {
 		super(mFormat);
+		this.fontColor = 0xFFFFFF;
 		
 		this.text = text;
 		this.font = font;
@@ -51,6 +53,12 @@ public class TextSlice extends MenuSlice {
 		this.screenHeight = scrollAt;
 	}
 	
+	/**
+	 * Experimental
+	 */
+	public void forceTextColor(int rgb) {
+		this.fontColor = rgb;
+	}
 	
     private boolean layoutText() {
     	//Can we?
@@ -177,7 +185,7 @@ public class TextSlice extends MenuSlice {
                         }
                     }
    
-                    color = 0xFFFFFFFF;
+                    color = 0xFF000000|this.fontColor;
                 }
 
                 //Increment

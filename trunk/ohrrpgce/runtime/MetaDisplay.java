@@ -362,6 +362,15 @@ public abstract class MetaDisplay {
     }
     
     public static void debugPaint(OHRRPG rpg, int width, int height) {
+    	//Special case: quit menu doesn't redraw anything under it.
+    	if (rpg.getCurrentQuitMenu() != null) {
+    		rpg.getCurrentQuitMenu().paintMenuSlice(-1);
+    		if (MetaMenu.currCursor!=null)
+    			MetaMenu.currCursor.paintMenuSlice(-1);
+    		
+    		return;
+    	}
+    	
         //Draw the "Loading" sign while loading the cached data.
         try {
             rpg.testCaches();

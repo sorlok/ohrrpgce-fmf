@@ -6,6 +6,8 @@
 package ohrrpgce.runtime;
 
 import java.util.Random;
+
+import ohrrpgce.adapter.AdapterGenerator;
 import ohrrpgce.adapter.ImageAdapter;
 import ohrrpgce.data.BattleFormation;
 import ohrrpgce.data.BattlePrompt;
@@ -17,6 +19,7 @@ import ohrrpgce.data.Message;
 import ohrrpgce.data.Vehicle;
 import ohrrpgce.data.loader.RPGLoadSizeListener;
 import ohrrpgce.henceforth.VirtualMachine;
+import ohrrpgce.menu.MenuSlice;
 
 /**
  * Runtime RPG object.
@@ -34,6 +37,7 @@ public class OHRRPG {
     private Message currTextBox;
     private BattlePrompt currBattleBox;
     private Vehicle currVehicle;
+    private MenuSlice currQuitMenu;
     
     public Random rand;
     private RPGLoadSizeListener gcListener;
@@ -130,6 +134,10 @@ public class OHRRPG {
          int totalTicks = 1; //In case we need to migrate this into a parameter later (maybe for frameskip?)
          
          for (int ticks=0; ticks<totalTicks; ticks++) {
+        	 //If we're showing the quit menu, don't update anything else
+        	 if (currQuitMenu!=null)
+        		 continue;
+        	 
         	 //Update all scripts
         	 hvm.updateScripts();
         	 
@@ -308,7 +316,7 @@ public class OHRRPG {
      }
      
      public boolean heroCanMove() {
-         return currTextBox==null && currBattleBox==null && !suspendedPlayer;
+         return currTextBox==null && currBattleBox==null && currQuitMenu==null && !suspendedPlayer;
      }
      
      /**
@@ -393,6 +401,9 @@ public class OHRRPG {
     public Vehicle getCurrVehicle() {
         return currVehicle;
     }
+    public MenuSlice getCurrentQuitMenu() {
+    	return currQuitMenu;
+    }
     
     
     public Hero[] getHeroParty() {
@@ -431,6 +442,15 @@ public class OHRRPG {
         currParty = newArray;
     }
     
+    
+    public void showQuitMenu(AdapterGenerator adaptGen, int width) {
+    	//Re-create each time; shouldn't really be that costly.
+    	currQuitMenu = MetaMenu.createQuitMenu(adaptGen, this.baseRPG, width);
+    }
+    
+    public void hideQuitMenu() {
+    	currQuitMenu = null;
+    }
     
     
     

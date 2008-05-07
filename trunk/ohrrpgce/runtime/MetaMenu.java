@@ -215,8 +215,100 @@ public class MetaMenu {
     	return subMenuSlice;
     }
     
+    /**
+     * For now, this is used only to create the floating Quit menu; we'll find a 
+     *   way to tuck this into the main menu later.
+     */
+    public static MenuSlice createQuitMenu(AdapterGenerator adaptGen, RPG rpg, int width) {
+    	int spacing = 10;
+    	MenuFormatArgs mFormat = new MenuFormatArgs();
+    	String mainIconsPath = Meta.pathToGameFolder + "main_icons\\";
+    	
+    	//Pull out our images
+    	ImageAdapter imageL = null;
+    	ImageAdapter imageM = null;
+    	ImageAdapter imageR = null;
+    	ImageAdapter imgC = null;
+    	try {
+    		imageL = adaptGen.createImageAdapter(mainIconsPath + "temp_large.png");
+    		imageR = adaptGen.createImageAdapter(mainIconsPath + "temp_large.png");
+    		imageM = adaptGen.createImageAdapter(mainIconsPath + "quit_large.png");
+    		imgC = adaptGen.createImageAdapter(Meta.pathToGameFolder + "hand.png");
+    	} catch (IOException ex) {
+    		throw new LiteException(MenuSlice.class, ex, "Couldn't make quit menu images");
+    	}
+    	
+    	//Make our cursor
+    	mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+    	mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+    	mFormat.borderColors = new int[]{};
+    	mFormat.fillType = MenuSlice.FILL_NONE;
+    	MetaMenu.currCursor = new ImageSlice(mFormat, imgC);
+    	MetaMenu.currCursor.doLayout();
+    	
+    	//Button 1
+    	MenuSlice buttonL = new ImageSlice(mFormat, imageL);
+    	/*buttonL.addFocusGainedListener(new Action() {
+    		public boolean perform(Object caller) {
+    			//Transfer control to the "quit" button.
+    			((MenuSlice)caller).getConnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT).moveTo();
+    			return false;
+    		}
+    	});*/
+    	
+    	//Button 2
+    	mFormat.xHint = spacing;
+    	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+    	MenuSlice buttonM = new ImageSlice(mFormat, imageM);
+    	buttonL.connect(buttonM, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+    	buttonM.addFocusGainedListener(new Action() {
+    		public boolean perform(Object caller) {
+    			MenuSlice thisBox = (MenuSlice)caller;
+    			MetaMenu.currCursor.forceToLocation(thisBox.getPosX() - MetaMenu.currCursor.getWidth() + thisBox.getWidth()/3, thisBox.getPosY() - MetaMenu.currCursor.getHeight() + thisBox.getHeight()/3);
+    			return false;
+    		}
+    	});
+    	
+    	//Button 3
+    	MenuSlice buttonR = new ImageSlice(mFormat, imageR);
+    	buttonM.connect(buttonR, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+    	
+    	//Button 2's label
+    	mFormat.xHint = 2;
+    	mFormat.yHint = -1 - Message.FONT_SIZE/2;
+    	mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+    	mFormat.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+    	TextSlice labelM = new TextSlice(mFormat, "QUIT", rpg.font, true, false, false);
+    	labelM.forceTextColor(0);
+    	buttonM.connect(labelM, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+    	
+    	//Top-most box:
+    	int[] quitColor = rpg.getTextBoxColors(mainColors[5]);
+    	mFormat.xHint = 0;
+    	mFormat.yHint = 0;
+    	mFormat.fillType = MenuSlice.FILL_SOLID;
+    	mFormat.bgColor = quitColor[0];
+    	mFormat.borderColors = new int[]{quitColor[1], 0};
+    	mFormat.borderPadding = spacing;
+    	MenuSlice retVal = new MenuSlice(mFormat);
+    	retVal.setTopLeftChild(buttonL);
+    	
+    	//Force the layout
+    	retVal.doLayout();
+		int widthOffset = width/2 - retVal.getWidth()/2;
+		retVal.getInitialFormatArgs().xHint = widthOffset;
+		retVal.getInitialFormatArgs().yHint = widthOffset;
+		retVal.doLayout();
+		
+		//Might as well do this now
+		buttonM.moveTo();
+    	
+		//All done; return it.
+    	return retVal;
+    }
     
-    public static void buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
+    
+    public static void buildMenuTUTORIAL(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
     	//Large overlay
     	MenuFormatArgs mfClear = new MenuFormatArgs();
     	mfClear.bgColor = 0x333333;
@@ -324,7 +416,7 @@ public class MetaMenu {
     }
 
 
-	public static void buildMenuTEMP(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
+	public static void buildMenu(int width, int height, RPG rpg, AdapterGenerator adaptGen) {
 		//Save...
 		MetaMenu.width = width;
 		MetaMenu.height = height;
@@ -338,7 +430,6 @@ public class MetaMenu {
         
         //Init our actions
         highlightAction = new MakeHighlightAction();
-      //  SaveAndRestoreMainMenu stateRestoreAction = new SaveAndRestoreMainMenu();
         
 		//Requires a "clear" top-level box with no border, etc. I don't like it so much, but
         //   it is the "proper" way to do it.

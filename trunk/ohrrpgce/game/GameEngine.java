@@ -205,10 +205,15 @@ public class GameEngine extends Engine {
         } else {
             //OHR key-detect order: MENU, ENTER, UP, DOWN, LEFT, RIGHT
             if ((keyStates&InputAdapter.KEY_CANCEL)!=0 && !rpg.suspendedPlayer) {
-                if (gameSelectTimer==0) {
-                    midletHook.switchEngine(Engine.MENU);
-                    gameSelectTimer = 1;
-                }
+            	if (rpg.getCurrentQuitMenu()!=null) {
+            		if (gameSelectTimer==0)
+            			rpg.hideQuitMenu();
+            	} else {
+            		if (gameSelectTimer==0) {
+            			midletHook.switchEngine(Engine.MENU);
+            			gameSelectTimer = 1;
+            		}
+            	}
             } else if ((keyStates&InputAdapter.KEY_ACCEPT) !=0) {
                 if (gameSelectTimer==0) {
                     if (rpg.getCurrTextBox()!=null)
@@ -334,13 +339,20 @@ public class GameEngine extends Engine {
     }
 
     public void reset() {
-        throw new RuntimeException("GAME should never be asked to RESET.");
+        throw new LiteException(this, null, "GAME should never be asked to RESET.");
     }
 
     public boolean canExit() {
-    	System.out.println("CanExit() called... catch this later to show our \"quit\" menu.");
+    	//Always exit if no game's chosen
+    	if (rpg==null || rpg.getBaseRPG()==null)
+    		return true;
     	
-        return true;
+    	//Otherwise, we show our "quit" menu.
+    	if (rpg.getCurrentQuitMenu()==null) {
+    		gameSelectTimer = 750;
+    		rpg.showQuitMenu(adaptGen, width);
+    	}
+    	return false;
     }
 
 
