@@ -206,8 +206,10 @@ public class GameEngine extends Engine {
             //OHR key-detect order: MENU, ENTER, UP, DOWN, LEFT, RIGHT
             if ((keyStates&InputAdapter.KEY_CANCEL)!=0 && !rpg.suspendedPlayer) {
             	if (rpg.getCurrentQuitMenu()!=null) {
-            		if (gameSelectTimer==0)
+            		if (gameSelectTimer==0) {
             			rpg.hideQuitMenu();
+            			gameSelectTimer = 750;
+            		}
             	} else {
             		if (gameSelectTimer==0) {
             			midletHook.switchEngine(Engine.MENU);

@@ -342,7 +342,8 @@ public class Slackulator extends JFrame implements KeyListener {
 			case KeyEvent.VK_DOWN:
 				return InputAdapter.KEY_DOWN;
 			case KeyEvent.VK_BACK_SPACE:
-				escHit(); //fall-through
+				escHit();
+				return 0;
 			case KeyEvent.VK_ESCAPE:
 			//case KeyEvent.VK_ALT:
 				return InputAdapter.KEY_CANCEL;
