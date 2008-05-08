@@ -156,8 +156,9 @@ public class MenuEngine extends Engine {
         if (MetaMenu.currTransition != null) {
             MetaMenu.currTransition.step();
             try {
-            	if (MetaMenu.currTransition.requiresReLayout())
+            	if (MetaMenu.currTransition.requiresReLayout()) {
             		MetaMenu.topLeftMI.doLayout();
+            	}
             } catch (Exception ex) {
             	throw new LiteException(this, ex, "Transition Layout Error");
             }

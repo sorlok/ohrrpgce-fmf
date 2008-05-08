@@ -902,8 +902,9 @@ public class MenuSlice {
     		currActiveChildMI.moveTo();
     	
     	//Listeners...
-    	for (int i=0; i<numberOfFocusGainedListeners; i++)
+    	for (int i=0; i<numberOfFocusGainedListeners; i++) {
     		this.focusGainedListeners[i].perform(this);
+    	}
     }
 
     
@@ -939,6 +940,9 @@ public class MenuSlice {
     	if (numberOfFocusGainedListeners==MAX_LISTENERS)
     		throw new LiteException(this, null, "Maximum number of listeners("+MAX_LISTENERS+") exceeded.");
     	focusGainedListeners[numberOfFocusGainedListeners++] = listener;
+    }
+    public void clearFocusGainedListeners() {
+    	numberOfFocusGainedListeners = 0;
     }
     public void setCancelListener(Action listener) {
     	this.cancelListener = listener;

@@ -365,8 +365,8 @@ public abstract class MetaDisplay {
     	//Special case: quit menu doesn't redraw anything under it.
     	if (rpg.getCurrentQuitMenu() != null) {
     		rpg.getCurrentQuitMenu().paintMenuSlice(-1);
-    		if (MetaMenu.currCursor!=null)
-    			MetaMenu.currCursor.paintMenuSlice(-1);
+    		if (MetaMenu.currQuickCursor!=null)
+    			MetaMenu.currQuickCursor.paintMenuSlice(-1);
     		
     		return;
     	}

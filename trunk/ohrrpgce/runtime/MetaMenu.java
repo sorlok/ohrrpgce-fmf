@@ -17,6 +17,7 @@ public class MetaMenu {
 	public static Transition menuInTrans;
 	public static Transition currTransition;
 	public static MenuSlice currCursor;
+	public static MenuSlice currQuickCursor;
 	public static MakeHighlightAction highlightAction;
 	public static int mode;
 	private static int prevMode;
@@ -57,6 +58,7 @@ public class MetaMenu {
     private static MenuSlice[] mainMenuButtons = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuUpperButtons = new MenuSlice[mainImageFiles.length];
     private static MenuSlice[] mainMenuLabels = new MenuSlice[mainImageFiles.length];
+    private static MenuSlice[] mainMenuOverlayChildren = new MenuSlice[mainImageFiles.length];
     private static MenuSlice currMenuUpperButton;
     
     private static MenuSlice buttonList;
@@ -75,6 +77,10 @@ public class MetaMenu {
     private static ListSlice currSpellList;
     private static TextSlice currSpellDescription;
     private static HeroSelectSlice heroUsesSpellOn;
+    
+    //Quit
+    private static MenuSlice cachedQuitMenu;
+    private static MenuSlice quitButton;
     
     //Stats
     private static ImageSlice statsButton;
@@ -96,9 +102,18 @@ public class MetaMenu {
     
     private static void doMainMenuIn(MenuSlice whichItem) {
     	int itemID = ((Int)whichItem.getData()).getValue();
+    	
+    	//Special case
+    	if (mainTextsIDs[itemID]==QUIT) {
+    		quitButton.getInitialFormatArgs().fromAnchor=GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
+    		quitButton.getInitialFormatArgs().toAnchor=GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
+           	quitButton.clearFocusGainedListeners();
+           	quitButton.addFocusGainedListener(highlightAction);
+    	}
+    	
 		currCursor = null;
 		currMenuUpperButton = mainMenuUpperButtons[itemID];
-		currTransition = new MainMenuItemInTransition(whichItem, buttonList.getTopLeftChild(), (itemID==0), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, false);
+		currTransition = new MainMenuItemInTransition(whichItem, buttonList.getTopLeftChild(), mainMenuOverlayChildren[itemID], (itemID==0), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, false);
 		prevMode = mode;
 		mode = mainTextsIDs[itemID];
     }
@@ -106,7 +121,7 @@ public class MetaMenu {
     public static void doMainMenuOut() {
     	int itemID = ((Int)currMenuUpperButton.getData()).getValue();
     	currCursor = null;
-    	currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild(), mainMenuButtons[itemID], (itemID==0), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, true);
+    	currTransition = new MainMenuItemInTransition(buttonList.getTopLeftChild(), mainMenuButtons[itemID], mainMenuOverlayChildren[itemID], (itemID==0), currMenuUpperButton, mainMenuLabels[itemID], MetaMenu.width, MetaMenu.height, MetaMenu.topLeftMI, true);
     	mode = prevMode;
     }
     
@@ -220,91 +235,101 @@ public class MetaMenu {
      *   way to tuck this into the main menu later.
      */
     public static MenuSlice createQuitMenu(AdapterGenerator adaptGen, RPG rpg, int width) {
-    	int spacing = 10;
-    	MenuFormatArgs mFormat = new MenuFormatArgs();
-    	String mainIconsPath = Meta.pathToGameFolder + "main_icons\\";
-    	
-    	//Pull out our images
-    	ImageAdapter imageL = null;
-    	ImageAdapter imageM = null;
-    	ImageAdapter imageR = null;
-    	ImageAdapter imgC = null;
-    	try {
-    		imageL = adaptGen.createImageAdapter(mainIconsPath + "temp_large.png");
-    		imageR = adaptGen.createImageAdapter(mainIconsPath + "temp_large.png");
-    		imageM = adaptGen.createImageAdapter(mainIconsPath + "quit_large.png");
-    		imgC = adaptGen.createImageAdapter(Meta.pathToGameFolder + "hand.png");
-    	} catch (IOException ex) {
-    		throw new LiteException(MenuSlice.class, ex, "Couldn't make quit menu images");
+    	if (cachedQuitMenu==null) {
+	    	int spacing = 10;
+	    	MenuFormatArgs mFormat = new MenuFormatArgs();
+	    	String mainIconsPath = Meta.pathToGameFolder + "main_icons\\";
+	    	
+	    	//Pull out our images
+	    	ImageAdapter imageL = null;
+	    	ImageAdapter imageM = null;
+	    	ImageAdapter imageR = null;
+	    	ImageAdapter imgC = null;
+	    	try {
+	    		imageL = adaptGen.createImageAdapter(mainIconsPath + "temp_large.png");
+	    		imageR = adaptGen.createImageAdapter(mainIconsPath + "temp_large.png");
+	    		imageM = adaptGen.createImageAdapter(mainIconsPath + "quit_large.png");
+	    		imgC = adaptGen.createImageAdapter(Meta.pathToGameFolder + "hand.png");
+	    	} catch (IOException ex) {
+	    		throw new LiteException(MenuSlice.class, ex, "Couldn't make quit menu images");
+	    	}
+	    	
+	    	//Make our cursor
+	    	mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
+	    	mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
+	    	mFormat.borderColors = new int[]{};
+	    	mFormat.fillType = MenuSlice.FILL_NONE;
+	    	MetaMenu.currQuickCursor = new ImageSlice(mFormat, imgC);
+	    	MetaMenu.currQuickCursor.doLayout();
+	    	
+	    	//Button 2
+	    	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+	    	mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.HCENTER;
+	    	quitButton = new ImageSlice(mFormat, imageM);
+	    	quitButton.setAcceptListener(new CloseAction(adaptGen));
+	    	
+	    	//Button 1
+	    	mFormat.xHint = -spacing;
+	    	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+	    	mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+	    	MenuSlice buttonL = new ImageSlice(mFormat, imageL);
+	    	quitButton.connect(buttonL, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
+	    	
+	    	//Button 3
+	    	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+	    	mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+	    	MenuSlice buttonR = new ImageSlice(mFormat, imageR);
+	    	quitButton.connect(buttonR, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
+	    	
+	    	//Button 2's label
+	    	mFormat.xHint = 2;
+	    	mFormat.yHint = -1 - Message.FONT_SIZE/2;
+	    	mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+	    	mFormat.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
+	    	TextSlice labelM = new TextSlice(mFormat, "QUIT", rpg.font, true, false, false);
+	    	labelM.forceTextColor(0);
+	    	quitButton.connect(labelM, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+	    	
+	    	//Top-most box:
+	    	int[] quitColor = rpg.getTextBoxColors(mainColors[5]);
+	    	mFormat.xHint = 0;
+	    	mFormat.yHint = 0;
+	    	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+	    	mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+	    	mFormat.fillType = MenuSlice.FILL_SOLID;
+	    	mFormat.bgColor = quitColor[0];
+	    	mFormat.borderColors = new int[]{quitColor[1], 0};    	
+	    	mFormat.borderPadding = spacing;
+	    	//Note: we cheat on borders because WIDTH_MINIMUM on horizontally-centered sub-components doesn't work right & isn't an easy fix.
+	    	mFormat.widthHint = imageL.getWidth()+imageM.getWidth()+imageR.getWidth()+spacing*4+mFormat.borderColors.length*2;
+	    	cachedQuitMenu = new MenuSlice(mFormat);
     	}
     	
-    	//Make our cursor
-    	mFormat.widthHint = MenuFormatArgs.WIDTH_MINIMUM;
-    	mFormat.heightHint = MenuFormatArgs.HEIGHT_MINIMUM;
-    	mFormat.borderColors = new int[]{};
-    	mFormat.fillType = MenuSlice.FILL_NONE;
-    	MetaMenu.currCursor = new ImageSlice(mFormat, imgC);
-    	MetaMenu.currCursor.doLayout();
-    	
-    	//Button 1
-    	MenuSlice buttonL = new ImageSlice(mFormat, imageL);
-    	/*buttonL.addFocusGainedListener(new Action() {
-    		public boolean perform(Object caller) {
-    			//Transfer control to the "quit" button.
-    			((MenuSlice)caller).getConnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT).moveTo();
-    			return false;
-    		}
-    	});*/
-    	
-    	//Button 2
-    	mFormat.xHint = spacing;
-    	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
-    	MenuSlice buttonM = new ImageSlice(mFormat, imageM);
-    	buttonL.connect(buttonM, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-    	buttonM.addFocusGainedListener(new Action() {
+    	//Reset child if necessary...
+    	cachedQuitMenu.setTopLeftChild(quitButton);
+		quitButton.getInitialFormatArgs().fromAnchor=GraphicsAdapter.HCENTER|GraphicsAdapter.TOP;
+		quitButton.getInitialFormatArgs().toAnchor=GraphicsAdapter.HCENTER|GraphicsAdapter.TOP;
+    	quitButton.clearFocusGainedListeners();
+    	quitButton.addFocusGainedListener(new Action() {
     		public boolean perform(Object caller) {
     			MenuSlice thisBox = (MenuSlice)caller;
-    			MetaMenu.currCursor.forceToLocation(thisBox.getPosX() - MetaMenu.currCursor.getWidth() + thisBox.getWidth()/3, thisBox.getPosY() - MetaMenu.currCursor.getHeight() + thisBox.getHeight()/3);
+    			MetaMenu.currQuickCursor.forceToLocation(thisBox.getPosX() - MetaMenu.currQuickCursor.getWidth() + thisBox.getWidth()/3, thisBox.getPosY() - MetaMenu.currQuickCursor.getHeight() + thisBox.getHeight()/3);
     			return false;
     		}
     	});
     	
-    	//Button 3
-    	MenuSlice buttonR = new ImageSlice(mFormat, imageR);
-    	buttonM.connect(buttonR, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
-    	
-    	//Button 2's label
-    	mFormat.xHint = 2;
-    	mFormat.yHint = -1 - Message.FONT_SIZE/2;
-    	mFormat.fromAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
-    	mFormat.toAnchor = GraphicsAdapter.BOTTOM|GraphicsAdapter.HCENTER;
-    	TextSlice labelM = new TextSlice(mFormat, "QUIT", rpg.font, true, false, false);
-    	labelM.forceTextColor(0);
-    	buttonM.connect(labelM, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
-    	
-    	//Top-most box:
-    	int[] quitColor = rpg.getTextBoxColors(mainColors[5]);
-    	mFormat.xHint = 0;
-    	mFormat.yHint = 0;
-    	mFormat.fillType = MenuSlice.FILL_SOLID;
-    	mFormat.bgColor = quitColor[0];
-    	mFormat.borderColors = new int[]{quitColor[1], 0};
-    	mFormat.borderPadding = spacing;
-    	MenuSlice retVal = new MenuSlice(mFormat);
-    	retVal.setTopLeftChild(buttonL);
-    	
     	//Force the layout
-    	retVal.doLayout();
-		int widthOffset = width/2 - retVal.getWidth()/2;
-		retVal.getInitialFormatArgs().xHint = widthOffset;
-		retVal.getInitialFormatArgs().yHint = widthOffset;
-		retVal.doLayout();
+    	cachedQuitMenu.doLayout();
+		int widthOffset = width/2 - cachedQuitMenu.getWidth()/2;
+		cachedQuitMenu.getInitialFormatArgs().xHint = widthOffset;
+		cachedQuitMenu.getInitialFormatArgs().yHint = widthOffset;
+		cachedQuitMenu.doLayout();
 		
 		//Might as well do this now
-		buttonM.moveTo();
+		quitButton.moveTo();
     	
 		//All done; return it.
-    	return retVal;
+    	return cachedQuitMenu;
     }
     
     
@@ -510,21 +535,27 @@ public class MetaMenu {
                 mainMenuLabels[i] = new TextSlice(overlayFmt, mainMenuTexts[i], rpg.font, true, true, false);
                 mainMenuUpperButtons[i].connect(mainMenuLabels[i], MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
 
-                //Temp!
-                if (mainTextsIDs[i]==QUIT) {
-                	currBox.setAcceptListener(new Action() {
-                		public boolean perform(Object caller) {
-                			throw new RuntimeException("Testing 1 2 3");
-                		}
-                	});
-                } else {
-                	currBox.setAcceptListener(new Action() {
-                		public boolean perform(Object caller) {
-                			MetaMenu.doMainMenuIn((MenuSlice)caller);
-                			return true;
-                		}
-                	});
-                }
+                //Summon sub menu!
+               	currBox.setAcceptListener(new Action() {
+               		public boolean perform(Object caller) {
+               			MetaMenu.doMainMenuIn((MenuSlice)caller);
+               			return true;
+               		}
+               	});
+               	
+               	if (mainTextsIDs[i]==QUIT) {
+               		//Make our quit menu
+               		createQuitMenu(adaptGen, rpg, width);
+               		
+               		//Create this menu detached.
+               		mainMenuOverlayChildren[i] = MetaMenu.quitButton;
+               	} else {
+    				mFormat.fromAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
+    				mFormat.toAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
+               		mainMenuOverlayChildren[i] = new TextSlice(mFormat, "(Incomplete)", rpg.font, true, true, false);
+               		mainMenuOverlayChildren[i].addFocusGainedListener(highlightAction);
+               	}
+               	
                 
                 //Connect!
                 if (prevBox!=null) {
@@ -532,8 +563,10 @@ public class MetaMenu {
                 } else {
                 	buttonList.setTopLeftChild(currBox);
                 	buttonList.setData(currBox); //Needed for our focus listener...
-                	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
                 }
+            	mFormat.fromAnchor = GraphicsAdapter.TOP|GraphicsAdapter.RIGHT;
+            	mFormat.toAnchor = GraphicsAdapter.TOP|GraphicsAdapter.LEFT;
+            	
                 prevBox = currBox;
             } catch (Exception ex) {
                 throw new LiteException(MetaMenu.class, null, "Menu button couldn't be loaded: " + ex.toString());
@@ -731,6 +764,18 @@ public class MetaMenu {
 		//Transitions
 		menuInTrans = new MenuInTransition(rpg, width, height);
 	}
+
+	
+	public static class CloseAction implements Action {
+		private AdapterGenerator exitHook;
+		public CloseAction(AdapterGenerator exitHook) {
+			this.exitHook = exitHook;
+		}
+		public boolean perform(Object caller) {
+			exitHook.exitGame(true);
+			return false;
+		}
+	}
 	
 	
 	public static class MakeHighlightAction implements Action {
@@ -741,11 +786,11 @@ public class MetaMenu {
     		return true;
     	}
     	
-    	public void makeHighlightAt(int[] rectangle) {
+    	private void makeHighlightAt(int[] rectangle) {
     		makeHighlightAt(rectangle[0], rectangle[1], rectangle[2], rectangle[3]);
     	}
     	
-    	public void makeHighlightAt(int xPos, int yPos, int width, int height) {
+    	private void makeHighlightAt(int xPos, int yPos, int width, int height) {
     		MenuFormatArgs mf = new MenuFormatArgs();
     		mf.bgColor = 0x66FF0000;
     		mf.borderColors = new int[]{0xFF0000};
