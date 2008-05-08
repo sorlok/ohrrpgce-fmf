@@ -52,6 +52,7 @@ public class MainMenuItemInTransition extends Transition {
 	private int blackOutSpeed;
 	
 	private MenuSlice finalItem;
+	private MenuSlice overlayChild;
 	
 	
 	
@@ -65,9 +66,10 @@ public class MainMenuItemInTransition extends Transition {
 	 * @param destBoxX
 	 * @param selectedButton
 	 */
-	public MainMenuItemInTransition(MenuSlice srcButton, MenuSlice destButton, boolean skipButtonMove, MenuSlice selectedButton, MenuSlice currSubMenuLbl, int screenWidth, int screenHeight, MenuSlice topmostBox, boolean doInReverse) {
+	public MainMenuItemInTransition(MenuSlice srcButton, MenuSlice destButton, MenuSlice overlayChild, boolean skipButtonMove, MenuSlice selectedButton, MenuSlice currSubMenuLbl, int screenWidth, int screenHeight, MenuSlice topmostBox, boolean doInReverse) {
 		this.doInReverse = doInReverse;
 		this.skipButtonMove = skipButtonMove;
+		this.overlayChild = overlayChild;
 		
 		if (!doInReverse) {
 			selectedButton.getInitialFormatArgs().xHint = srcButton.getPosX();
@@ -277,11 +279,7 @@ public class MainMenuItemInTransition extends Transition {
 		} else if (phase==PHASE_DONE) {
 			//Ok, a few things here...
 			if (!doInReverse) {
-				MenuFormatArgs mForm = new MenuFormatArgs(currLbl.getInitialFormatArgs());
-				mForm.fromAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
-				mForm.toAnchor = GraphicsAdapter.HCENTER|GraphicsAdapter.VCENTER;
-				finalItem = new TextSlice(mForm, "(Incomplete)", ((TextSlice)currLbl).getFont(), true, true, false);
-				finalItem.addFocusGainedListener(new MetaMenu.MakeHighlightAction());
+				finalItem = overlayChild;
 				overlaySlice.setTopLeftChild(finalItem);
 			} else {
 				itemToMove.connect(currLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);
@@ -408,12 +406,11 @@ public class MainMenuItemInTransition extends Transition {
 		}
 		return false;
 	}
-        
-        
-        private static void fillArray(int[] array, int val) {
-            for (int i=0; i<array.length; i++)
-                array[i] = val;
-        }
+
+	private static void fillArray(int[] array, int val) {
+		for (int i = 0; i < array.length; i++)
+			array[i] = val;
+	}
 	
 
 }
