@@ -196,6 +196,9 @@ public class MenuEngine extends Engine {
         //Set transitions
         MetaMenu.currTransition = MetaMenu.menuInTrans;
         MetaMenu.mode = MetaMenu.MAIN;
+        
+        //Reset key presses
+        delayTimer = MULTIPRESS_DELAY;
     }
     
     public RPG getRPG() {
