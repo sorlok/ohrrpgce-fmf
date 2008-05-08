@@ -8,6 +8,7 @@ package ohrrpgce.game;
 import ohrrpgce.adapter.*;
 import ohrrpgce.data.*;
 import ohrrpgce.data.loader.*;
+import ohrrpgce.menu.MenuSlice;
 import ohrrpgce.runtime.*;
 
 /**
@@ -15,30 +16,55 @@ import ohrrpgce.runtime.*;
  * @author sethhetu
  */
 public class GameEngine extends Engine {
+	//Constants
+	private static final int[] keyDetectOrder = new int[] {InputAdapter.KEY_CANCEL, InputAdapter.KEY_ACCEPT, InputAdapter.KEY_UP, InputAdapter.KEY_DOWN, InputAdapter.KEY_LEFT, InputAdapter.KEY_RIGHT};
+	private static final int[] keyRealIDs = new int[]{InputAdapter.KEY_CANCEL, InputAdapter.KEY_ACCEPT, NPC.DIR_UP, NPC.DIR_DOWN, NPC.DIR_LEFT, NPC.DIR_RIGHT};
     private static final int DEFAULT_CACHE_SIZE = 4;
-
-    private int width;
-    private int height;
-    private OHRRPG rpg;
-    private Meta metaInfo;
-    private int currGameID;
-    private int gameSelectTimer;
-    private AdapterGenerator adaptGen;
-    private RPGLoadSizeListener loadListen;
-    private int currHeroID;
-    private EngineSwitcher midletHook;
-   // private VirtualMachine hvm;
-
+    private static final int MULTIPRESS_DELAY = 4;
+    
+    //Idle states
+    private static final int IDLE_NOTHING = 0;
+    private static final int IDLE_GAME_LIST = 1;
+    private static final int IDLE_PLOTSCRIPT = 2;
+    private int idleState;
+    
+    //Our four different fonts
     public static FontAdapter errorTitleFont;
     public static FontAdapter errorMsgFnt;
     public static FontAdapter gameTitleFnt;
     public static FontAdapter progressFnt;
 
-    private static final int IDLE_NOTHING = 0;
-    private static final int IDLE_GAME_LIST = 1;
-    private static final int IDLE_PLOTSCRIPT = 2;
-    private int idleState;
+    //Screen size
+    private int width;
+    private int height;
+    
+    //Game-related information
+    private Meta metaInfo;
+    private OHRRPG rpg;
+    private AdapterGenerator adaptGen;
+    
+    //Cache loader
+    private RPGLoadSizeListener loadListen;
+    
+    //Ambiguous usage
+    //private int gameSelectTimer;
+    private int currHeroID;
+    
+    //Handle keypresses intelligently
+    private int delayTimer;
+    
+    //Hook back to the main game
+    private EngineSwitcher midletHook;
 
+    
+    public static void initFonts(AdapterGenerator generator) {
+        errorTitleFont = generator.createErrorTitleFont();
+        errorMsgFnt = generator.createErrorMessageFont();
+        gameTitleFnt = generator.createGameTitleFont();
+        progressFnt = generator.createProgressFont();
+    }
+    
+    
     /** Creates a new instance of GameEngine */
     public GameEngine(AdapterGenerator generator, RPGLoadSizeListener loadListen, EngineSwitcher midletHook/*, VirtualMachine hvm*/) {
         this.width = generator.getScreenWidth();
@@ -46,229 +72,163 @@ public class GameEngine extends Engine {
         this.adaptGen = generator;
         this.loadListen = loadListen;
         this.midletHook = midletHook;
-       // this.hvm = hvm;
+
         metaInfo = new Meta(generator);
         Message.initTextBox(width, height);
         BattlePrompt.initPrompts(width, height);
     }
 
-
-    public static void initFonts(AdapterGenerator generator) {
-        errorTitleFont = generator.createErrorTitleFont();
-        errorMsgFnt = generator.createErrorMessageFont();
-        gameTitleFnt = generator.createGameTitleFont();
-        progressFnt = generator.createProgressFont();
-    }
-
-
     public void paintScene() {
         if (rpg==null) {
             try {
-                //Clear
-                MetaDisplay.clearCanvas(width, height);
-
-                //We're at the main loader screen
-                MetaDisplay.drawHeader(width);
-                if (metaInfo.getGames()==null) {
-                    if (metaInfo.gameListError) {
-                        //The game list doesn't exist, for some reason.
-                    	throw new LiteException(this, null, "Invalid Game Library: OHRRPGCEFMF uses a text file to store the locations of installed games. This file (game_list.txt) was not found in the OHRRPGCEFMF.JAR file. Consequently, no games can be loaded.");
-                    }
-                    //Let the user know we're loading, in case this takes time...
-                    MetaDisplay.drawError(new LiteException(this, null, "Reading Library: Please wait..."), width, height);
-                } else if (metaInfo.gamesLibraryIsEmpty()) {
-                    //No games
-                	throw new LiteException(this, null, "No Games: Your games library does not contain any games. While this is not an error, it will certainly reduce the utility of this program.");
-                } else {
-                    //Show the list of games, & the current one.
-                    MetaDisplay.drawGameList(metaInfo.getGames(), currGameID, width, height);
-                }
+            	metaInfo.paintLibrary(width, height);
             } catch (Exception ex) {
-                throw new RuntimeException("LIB ERROR: " + ex.getClass().toString() + ": " + ex.getMessage());
+                throw new LiteException(this, ex, "LIB ERROR: " + ex.getClass().toString() + ": " + ex.getMessage());
             }
         } else if (rpg.getBaseRPG()==null) {
             try {
-                //Clear
-                MetaDisplay.clearCanvas(width, height);
-
-                //Show the game & its icon
-                MetaDisplay.drawHeader(width);
-                MetaDisplay.drawGameInfo(metaInfo.getGames()[currGameID], width, height);
+            	metaInfo.paintCurrentGame(width, height);
             } catch (Exception ex) {
                 throw new RuntimeException("LIST ERROR: " + ex.getClass().toString() + ": " + ex.getMessage());
             }
         } else {
-            //We're in the loop!
             try {
                 MetaDisplay.debugPaint(rpg, width, height);
             } catch (Throwable ex) {
-                //if (MetaDisplay.DEBUG_CONSOLE)
-                //    MetaDisplay.DEBUG_MSG = ex.getMessage();
                 throw new LiteException(this, ex, "");
             }
         }
-
     }
 
-
-    public OHRRPG getRPG() {
-        return rpg;
-    }
-
+    
+    /**
+     * Just process raw input here; handle it somewhere else.
+     * Input handling code is mostly stolen from our menu engine...
+     */
     public void handleKeys(int keyStates) {
-        if (rpg==null) {
-            //We're at the main loader screen
-            if (metaInfo.getGames()==null) {
-            } else if (metaInfo.getGames().length==0) { //Don't let them mess up on no input...
-            } else {
-                //We're at the list of games
-                if (gameSelectTimer==0) {
-                    if ((keyStates&InputAdapter.KEY_UP) !=0) {
-                        currGameID--;
-                        if (currGameID<0)
-                            currGameID = metaInfo.getGames().length-1;
-                        gameSelectTimer = 750;
-                    }
-                    if ((keyStates&InputAdapter.KEY_DOWN) !=0) {
-                        currGameID++;
-                        if (currGameID==metaInfo.getGames().length)
-                            currGameID = 0;
-                        gameSelectTimer = 750;
-                    }
-                    if ((keyStates&InputAdapter.KEY_ACCEPT) !=0) {
-                        //Load the current game
-                        rpg = new OHRRPG(loadListen);
-                        gameSelectTimer = 750;
-                    }
-                } else {
-                    //Timeout by key release?
-                    if ((keyStates&InputAdapter.KEY_UP) + (keyStates&InputAdapter.KEY_DOWN)==0)
-                        gameSelectTimer = 0;
-                }
-            }
-        } else if (rpg.getBaseRPG()==null) {
-            if (gameSelectTimer==0) {
-                if ((keyStates&InputAdapter.KEY_ACCEPT) !=0) {
-                    //Select a loader for this game.
-                    System.out.println("Loading game: " + metaInfo.getGames()[currGameID].fullName);
-                    metaInfo.stopLoadingGames();
-
-                    adaptGen.setGameName(metaInfo.getGames()[currGameID].name);
-
-                    RPGLoader loader = null;
-                    if (metaInfo.getGames()[currGameID].mobileFormat==0) {
-                    	throw new RuntimeException("RPG lump format not supported; please convert to XRPG.");
-               /*         loader = new LumpLoader(new RPGLoadAdapter() {
-                        	public ByteStreamReader getRPGFile() {
-                        		return new ByteStreamReader(this.getClass().getResourceAsStream(Meta.pathToGameFolder+metaInfo.getGames()[currGameID].name));
-                        	}
-                                public ByteStreamReader getLump(String lumpName) {
-                                    throw new RuntimeException("Lump Loaders can't get individual lump files with the getLump() method.");
-                                }
-                        });*/
-                    } else if (metaInfo.getGames()[currGameID].mobileFormat==1) {
-						if (!metaInfo.getGames()[currGameID].name.toUpperCase().equals(metaInfo.getGames()[currGameID].name)) {
-							throw new RuntimeException("Error! Version 1 requires that the game name be in upper case.");
-						}
-
-                        loader = new SensifiedLoader(metaInfo.getGames()[currGameID].name, adaptGen, metaInfo.getGames()[currGameID].numBytes);
-                    } else {
-                        throw new RuntimeException("Invalid RPG format: " + metaInfo.getGames()[currGameID].mobileFormat);
-                    }
-
-                    //Load the game
-                    if (loadListen!=null)
-                        loader.addSizeUpdateListener(loadListen);
-                    rpg.setBaseRPG(new RPG(loader, loadListen, DEFAULT_CACHE_SIZE));
-
-                    if (metaInfo.getGames()[currGameID].errorIcon!=null)
-                        LiteException.setErrorIcon(metaInfo.getGames()[currGameID].errorIcon);
-
-                    System.out.println("Game loaded");
-                    rpg.setCurrMap(rpg.getBaseRPG().getStartingMap());
-                    //DEBUG:
-                    //rpg.setCurrMap(1);
-                    System.out.println("Map Set");
-                    rpg.setCurrHero(currHeroID, rpg.getBaseRPG().getStartX(), rpg.getBaseRPG().getStartY());
-                    //DEBUG:
-                    //rpg.setCurrHero(currHeroID, 24,61);
-                    System.out.println("Hero Set");
-
-
-                    gameSelectTimer = 750;
-                }
-            } else {
-                //Timeout by key release?
-                if ((keyStates&InputAdapter.KEY_ACCEPT) ==0)
-                    gameSelectTimer = 0;
-            }
+        //The key autofires if pressed for a certain length of time.
+        if (keyStates==0) {
+            delayTimer = 0;
         } else {
-            //OHR key-detect order: MENU, ENTER, UP, DOWN, LEFT, RIGHT
-            if ((keyStates&InputAdapter.KEY_CANCEL)!=0 && !rpg.suspendedPlayer) {
-            	if (rpg.getCurrentQuitMenu()!=null) {
-            		if (gameSelectTimer==0) {
-            			rpg.hideQuitMenu();
-            			gameSelectTimer = 750;
-            		}
-            	} else {
-            		if (gameSelectTimer==0) {
-            			midletHook.switchEngine(Engine.MENU);
-            			gameSelectTimer = 1;
+            if (delayTimer<=0) {
+            	int key = -1;
+            	for (int i=0; i<keyDetectOrder.length; i++) {
+            		if ((keyStates&keyDetectOrder[i])!=0) {
+            			key = keyRealIDs[i];
+            			break;
             		}
             	}
-            } else if ((keyStates&InputAdapter.KEY_ACCEPT) !=0) {
-                if (gameSelectTimer==0) {
-                    if (rpg.getCurrTextBox()!=null)
-                        rpg.endTextBox();
-                    else if (rpg.getCurrBattlePrompt()!=null)
-                        rpg.endBattlePrompt();
-                    else  if (!rpg.suspendedPlayer) { //Don't do anything on suspend
-                        boolean interact = true;
-                        if (rpg.isRidingVehicle())
-                            interact = !rpg.tryAndDismount();
-                        if (interact)
-                            rpg.getActiveHero().interact();
-                    }
-                    gameSelectTimer = 1;
-                }
+            	if (key==-1)
+            		throw new LiteException(this, null, "Somehow, no input was pressed (but expected) for input: " + keyStates);
+            	
+            	//Actually handle this input based on the current state of the game
+            	if (rpg==null || rpg.getBaseRPG()==null)
+            		handlePregameInput(key);
+            	else
+            		handleGameInput(key);
+                
+                if (delayTimer==0)
+                    delayTimer = MULTIPRESS_DELAY;
             } else {
-                gameSelectTimer = 0;
-
-                if (rpg.heroCanMove()) {
-                    if ((keyStates&InputAdapter.KEY_UP) !=0) {
-                        rpg.stepHero(NPC.DIR_UP);
-                    } else if ((keyStates&InputAdapter.KEY_DOWN) !=0) {
-                        rpg.stepHero(NPC.DIR_DOWN);
-                    } else if ((keyStates&InputAdapter.KEY_LEFT) !=0) {
-                        rpg.stepHero(NPC.DIR_LEFT);
-                    } else if ((keyStates&InputAdapter.KEY_RIGHT) !=0) {
-                        rpg.stepHero(NPC.DIR_RIGHT);
-                    }
-                } else if (rpg.getCurrTextBox()!=null) {
-                    if ((keyStates&InputAdapter.KEY_UP) !=0) {
-                        rpg.getCurrTextBox().processInput(NPC.DIR_UP);
-                    } else if ((keyStates&InputAdapter.KEY_DOWN) !=0) {
-                        rpg.getCurrTextBox().processInput(NPC.DIR_DOWN);
-                    } else if ((keyStates&InputAdapter.KEY_LEFT) !=0) {
-                        rpg.getCurrTextBox().processInput(NPC.DIR_LEFT);
-                    } else if ((keyStates&InputAdapter.KEY_RIGHT) !=0) {
-                        rpg.getCurrTextBox().processInput(NPC.DIR_RIGHT);
-                    }
-                } else if (rpg.getCurrBattlePrompt()!=null) {
-                    if ((keyStates&InputAdapter.KEY_UP) !=0) {
-                        rpg.getCurrBattlePrompt().processInput(NPC.DIR_UP);
-                    } else if ((keyStates&InputAdapter.KEY_DOWN) !=0) {
-                        rpg.getCurrBattlePrompt().processInput(NPC.DIR_DOWN);
-                    } else if ((keyStates&InputAdapter.KEY_LEFT) !=0) {
-                        rpg.getCurrBattlePrompt().processInput(NPC.DIR_LEFT);
-                    } else if ((keyStates&InputAdapter.KEY_RIGHT) !=0) {
-                        rpg.getCurrBattlePrompt().processInput(NPC.DIR_RIGHT);
-                    }
-                }
+                delayTimer--;
+                if (delayTimer==0)
+                    delayTimer = -1; //Allow auto-fire.
             }
-
         }
     }
+    
+    
+    private void handleGameInput(int key) {
+    	//OHR key-detect order: MENU, ENTER, UP, DOWN, LEFT, RIGHT
+    	//...but, this is presupposed by handleInput, so let's just switch on it 
+    	//   and gain back some performance.
+    	switch (key) {
+    		case InputAdapter.KEY_CANCEL:
+    			//Skip if "suspend player" bitset is on.
+    			if (rpg.suspendedPlayer)
+    				break;
+    			
+    			//Handle our auto-quit menu?
+            	if (rpg.getCurrentQuitMenu()!=null)
+            		rpg.hideQuitMenu();
+            	else
+            		midletHook.switchEngine(Engine.MENU);
+    			break;
+    		case InputAdapter.KEY_ACCEPT:
+    			//Check active prompts first
+    			if (rpg.getCurrentQuitMenu()!=null)
+    				adaptGen.exitGame(true);
+    			else if (rpg.getCurrTextBox()!=null)
+                    rpg.endTextBox();
+                else if (rpg.getCurrBattlePrompt()!=null)
+                    rpg.endBattlePrompt();
+                else  if (!rpg.suspendedPlayer) { //Don't do anything on suspend
+                    boolean interact = true;
+                    if (rpg.isRidingVehicle())
+                        interact = !rpg.tryAndDismount();
+                    if (interact)
+                        rpg.getActiveHero().interact();
+                }
+    			break;
+    		default:
+    			if (rpg.heroCanMove()) {
+    				rpg.stepHero(key);
+    			} else if (rpg.getCurrTextBox()!=null) {
+    				rpg.getCurrTextBox().processInput(key);
+    			} else if (rpg.getCurrBattlePrompt()!=null) {
+    				rpg.getCurrBattlePrompt().processInput(key);
+    			}
+    	}
+    }
+    
+    
+    private void handlePregameInput(int key) {
+        if (rpg==null) {
+            //We're at the main loader screen
+        	if (metaInfo.navigateLibrary(key))
+        		rpg = new OHRRPG(loadListen);
+        } else {
+        	//Only handle "ACCEPT" here
+        	if (key!=InputAdapter.KEY_ACCEPT)
+        		return;
+        	
+        	//Prepare to load the game
+            MetaGame currentGame = metaInfo.getCurrentGame();
+            System.out.println("Loading game: " + currentGame.fullName);
+            metaInfo.stopLoadingGames();
+            adaptGen.setGameName(currentGame.name);
+            RPGLoader loader = null;
+            if (currentGame.mobileFormat==0) {
+            	throw new LiteException(this, new IllegalArgumentException(), "RPG lump format not supported; please convert to XRPG.");
+            } else if (currentGame.mobileFormat==1) {
+            	if (!currentGame.name.toUpperCase().equals(currentGame.name))
+            		throw new LiteException(this, new IllegalArgumentException(), "Error! Version 1 requires that the game name be in upper case.");
+            	loader = new SensifiedLoader(currentGame.name, adaptGen, currentGame.numBytes);
+            } else {
+                throw new LiteException(this, new IllegalArgumentException(), "Invalid RPG format: " + currentGame.mobileFormat);
+            }
+
+            //Load the game
+            if (loadListen!=null)
+            	loader.addSizeUpdateListener(loadListen);
+            rpg.setBaseRPG(new RPG(loader, loadListen, DEFAULT_CACHE_SIZE));
+            if (currentGame.errorIcon!=null)
+            	LiteException.setErrorIcon(currentGame.errorIcon);
+
+            //Start the game
+            System.out.println("Game loaded");
+            rpg.setCurrMap(rpg.getBaseRPG().getStartingMap());
+            //DEBUG:
+            //rpg.setCurrMap(1);
+            System.out.println("Map Set");
+            rpg.setCurrHero(currHeroID, rpg.getBaseRPG().getStartX(), rpg.getBaseRPG().getStartY());
+            //DEBUG:
+            //rpg.setCurrHero(currHeroID, 24,61);
+            System.out.println("Hero Set");
+        }
+    }
+    
+    
 
     public boolean runIdle() {
     	switch (idleState) {
@@ -291,25 +251,20 @@ public class GameEngine extends Engine {
 
 
     /**
-     * Update the game state. Updates are guarenteed to occur once per tick.
+     * Update the game state. Updates are guaranteed to occur once per tick.
      * @elapsed The actual number of ms elapsed in this tick, (possibly) for smoother updates.
      */
     public void updateScene(long elapsed) {
         if (rpg==null) {
             //We're at the main loader screen
             if (metaInfo.getGames()==null) {
-                if (metaInfo.gameListError) {
-                } else {
+                if (!metaInfo.gameListError) {
                     //Load the list of games.
                     System.out.println("Loading games list");
                     metaInfo.loadGamesList();
                     idleState = IDLE_GAME_LIST;
                 }
             } else {
-                //Update our crude timer
-                if (gameSelectTimer>0)
-                    gameSelectTimer = (int)Math.max(0, gameSelectTimer-elapsed);
-
                 //Interleave loading and input...
                 if (!metaInfo.allLoaded()) {
                 	//Load a few characters at a time
@@ -317,18 +272,18 @@ public class GameEngine extends Engine {
                 		metaInfo.continueLoading();
                 }
             }
-        } else if (rpg.getBaseRPG()==null) {
-                //Update our crude timer
-                if (gameSelectTimer>0)
-                    gameSelectTimer = (int)Math.max(0, gameSelectTimer-elapsed);
-        } else {
+        } else if (rpg.getBaseRPG()!=null) {
             //The game is running
             rpg.update(elapsed);
         }
     }
 
+    public OHRRPG getRPG() {
+        return rpg;
+    }
+    
     public void drawPercentage(long bytesLoaded, String caption) {
-        MetaDisplay.drawPercentage(bytesLoaded, metaInfo.getGames()[currGameID].numBytes, caption, width, height);
+        MetaDisplay.drawPercentage(bytesLoaded, metaInfo.getCurrentGame().numBytes, caption, width, height);
     }
 
     public void drawLoadingSign(int bkgrdColor, int fgrdColor, char displayChar) {
@@ -338,6 +293,9 @@ public class GameEngine extends Engine {
     public void communicate(Object stackFrame) {
         System.out.println("ENGINE returned to GAME");
         System.out.println(stackFrame.getClass().toString());
+        
+        //Reset key presses
+        delayTimer = MULTIPRESS_DELAY;
     }
 
     public void reset() {
@@ -351,8 +309,10 @@ public class GameEngine extends Engine {
     	
     	//Otherwise, we show our "quit" menu.
     	if (rpg.getCurrentQuitMenu()==null) {
-    		gameSelectTimer = 750;
     		rpg.showQuitMenu(adaptGen, width);
+    		
+    		//Reset key presses
+    		delayTimer = MULTIPRESS_DELAY;
     	}
     	return false;
     }

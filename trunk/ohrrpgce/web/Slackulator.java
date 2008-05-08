@@ -85,7 +85,12 @@ public class Slackulator extends JFrame implements KeyListener {
 				return true;
 			}
 		});
-		adaptGen = new AdapterGenerator(new int[]{SCREEN_WIDTH, SCREEN_HEIGHT});
+		adaptGen = new AdapterGenerator(new int[]{SCREEN_WIDTH, SCREEN_HEIGHT}, new Action() {
+			public boolean perform(Object caller) {
+				escHit(((Boolean)caller).booleanValue());
+				return false;
+			}
+		});
 		inputAd = new InputAdapter(this);
 		
 		this.addKeyListener(this);
@@ -118,8 +123,8 @@ public class Slackulator extends JFrame implements KeyListener {
 
 	
 	
-	private void escHit() {
-		if (!engineMgr.canExit())
+	private void escHit(boolean unconditional) {
+		if (!unconditional && !engineMgr.canExit())
 			return;
 		System.exit(1);
 	}
@@ -342,7 +347,7 @@ public class Slackulator extends JFrame implements KeyListener {
 			case KeyEvent.VK_DOWN:
 				return InputAdapter.KEY_DOWN;
 			case KeyEvent.VK_BACK_SPACE:
-				escHit();
+				escHit(false);
 				return 0;
 			case KeyEvent.VK_ESCAPE:
 			//case KeyEvent.VK_ALT:

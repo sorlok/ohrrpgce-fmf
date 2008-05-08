@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
 import ohrrpgce.adapter.AdapterGenerator;
+import ohrrpgce.adapter.InputAdapter;
+import ohrrpgce.data.NPC;
+import ohrrpgce.game.LiteException;
 
 
 /**
@@ -35,6 +38,8 @@ public class Meta {
     private AdapterGenerator adaptGen;
   //  private FileAdapter fileAdapt;
     
+    private int currentGameID;
+    
     public boolean gamesLibraryIsEmpty() {
         return (getGames()!=null && allGamesLoaded && getGames().length==0);
     }
@@ -45,7 +50,6 @@ public class Meta {
     
     public Meta(AdapterGenerator generator) {
     	this.adaptGen = generator;
-  //  	fileAdapt = adaptGen.createFileAdapter();
 	}
     
     public MetaGame[] getGames() {
@@ -134,18 +138,6 @@ public class Meta {
         currGame = new MetaGame();
         currProp=0;
         sb = new StringBuffer();
-        //cBuf = new char[1];
-        
-        //Prepare our "in-between" action.
-        /*RunnerMidlet.backgroundAction = new Action() {
-            public boolean perform(Object caller) {
-                if (allGamesLoaded)
-                    return true;
-                
-                continueLoading();
-                return allGamesLoaded;
-            }
-        };*/
     }
     
     
@@ -197,8 +189,85 @@ public class Meta {
             }
             
             stopLoadingGames();
+        }    
+    }
+    
+    
+    /**
+     * Paint the internal state of the library
+     */
+    public void paintLibrary(int width, int height) {
+        //Clear
+        MetaDisplay.clearCanvas(width, height);
+
+        //We're at the main loader screen
+        MetaDisplay.drawHeader(width);
+        if (this.getGames()==null) {
+            if (this.gameListError) {
+                //The game list doesn't exist, for some reason.
+            	throw new LiteException(this, null, "Invalid Game Library: OHRRPGCEFMF uses a text file to store the locations of installed games. This file (game_list.txt) was not found in the OHRRPGCEFMF.JAR file. Consequently, no games can be loaded.");
+            }
+            //Let the user know we're loading, in case this takes time...
+            MetaDisplay.drawError(new LiteException(this, null, "Reading Library: Please wait..."), width, height);
+        } else if (this.gamesLibraryIsEmpty()) {
+            //No games
+        	throw new LiteException(this, null, "No Games: Your games library does not contain any games. While this is not an error, it will certainly reduce the utility of this program.");
+        } else {
+            //Show the list of games, & the current one.
+            MetaDisplay.drawGameList(this.getGames(), currentGameID, width, height);
         }
+    }
+    
+    
+    /**
+     * Paint whichever game is currently selected.
+     */
+    public void paintCurrentGame(int width, int height) {
+        //Clear
+        MetaDisplay.clearCanvas(width, height);
+
+        //Show the game & its icon
+        MetaDisplay.drawHeader(width);
+        MetaDisplay.drawGameInfo(getCurrentGame(), width, height);
+    }
+    
+    
+    /**
+     * Return true if a game should be loaded.
+     */
+    public boolean navigateLibrary(int key) {
+   	    //Handle only relevant input
+        if (games==null || games.length==0)
+        	return false;
         
+        if (key==NPC.DIR_UP)
+        	this.incrementCurrentGameID(-1);
+        else if (key==NPC.DIR_DOWN)
+        	this.incrementCurrentGameID(1);
+        else if (key==InputAdapter.KEY_ACCEPT)
+        	return true;
+        
+        return false;
+    }
+    
+    
+    public void setCurrentGameID(int val) {
+    	this.currentGameID = val;
+    }
+    public void incrementCurrentGameID(int plus) {
+    	this.currentGameID += plus;
+    	if (currentGameID<0)
+    		currentGameID = games.length-1;
+    	else if (currentGameID>=games.length)
+    		currentGameID = 0;
+    }
+    public int getCurrentGameID() {
+    	return currentGameID;
+    }
+    
+    public MetaGame getCurrentGame() {
+    	return games[currentGameID];
     }
 
 }
+

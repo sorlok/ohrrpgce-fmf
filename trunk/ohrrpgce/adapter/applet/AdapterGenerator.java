@@ -11,6 +11,7 @@ import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 
 import ohrrpgce.game.LiteException;
+import ohrrpgce.menu.Action;
 import ohrrpgce.runtime.Meta;
 
 
@@ -32,11 +33,12 @@ public class AdapterGenerator implements ohrrpgce.adapter.AdapterGenerator {
 
 	private int[] screenSize;
 	
+	private Action closeAction;
 	
-	public AdapterGenerator(/*GraphicsAdapter_applet gContext, */int[] screenSize) {
+	public AdapterGenerator(/*GraphicsAdapter_applet gContext, */int[] screenSize, Action closeAction) {
 		//this.grahicsAdapt = gContext;
 		this.screenSize = screenSize;
-		//grahicsAdapt.createGraphicsAdapter(gContext);
+		this.closeAction = closeAction;
 	}
 	 
 	public ohrrpgce.adapter.ImageAdapter createImageAdapter(InputStream in) throws IOException {
@@ -136,6 +138,10 @@ public class AdapterGenerator implements ohrrpgce.adapter.AdapterGenerator {
 	
 	public String getGameName() {
 		return currGame;
+	}
+	
+	public void exitGame(boolean unconditional) {
+		closeAction.perform(new Boolean(unconditional));
 	}
 	
 }

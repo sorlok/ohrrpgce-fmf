@@ -22,6 +22,8 @@ public interface AdapterGenerator {
 	public abstract void setGameName(String name);
 	public abstract String getGameName();
 	
+	public abstract void exitGame(boolean unconditional);
+	
 	//public abstract FileAdapter createFileAdapter();
 	//public abstract InputAdapter createInputAdapter();
 }
