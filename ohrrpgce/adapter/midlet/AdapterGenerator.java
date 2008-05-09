@@ -5,6 +5,8 @@ import java.io.InputStream;
 import javax.microedition.lcdui.Font;
 
 import ohrrpgce.adapter.ImageAdapter;
+import ohrrpgce.menu.Action;
+import ohrrpgce.mobile.RunnerMidlet;
 import ohrrpgce.runtime.Meta;
 
 
@@ -24,7 +26,10 @@ public class AdapterGenerator implements ohrrpgce.adapter.AdapterGenerator {
 	public ImageAdapter createImageAdapter(InputStream in) throws IOException {
 		return new ohrrpgce.adapter.midlet.ImageAdapter(in);
 	}
-        
+
+        public void exitGame(boolean unconditional) {
+            RunnerMidlet.quit(unconditional);
+        }    
 
 	public ImageAdapter createImageAdapter(String path) throws IOException {
             return new ohrrpgce.adapter.midlet.ImageAdapter(path);

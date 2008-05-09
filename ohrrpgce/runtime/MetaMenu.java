@@ -238,7 +238,7 @@ public class MetaMenu {
     	if (cachedQuitMenu==null) {
 	    	int spacing = 10;
 	    	MenuFormatArgs mFormat = new MenuFormatArgs();
-	    	String mainIconsPath = Meta.pathToGameFolder + "main_icons\\";
+	    	String mainIconsPath = Meta.pathToGameFolder + "main_icons/";
 	    	
 	    	//Pull out our images
 	    	ImageAdapter imageL = null;
@@ -249,7 +249,7 @@ public class MetaMenu {
 	    		imageL = adaptGen.createImageAdapter(mainIconsPath + "temp_large.png");
 	    		imageR = adaptGen.createImageAdapter(mainIconsPath + "temp_large.png");
 	    		imageM = adaptGen.createImageAdapter(mainIconsPath + "quit_large.png");
-	    		imgC = adaptGen.createImageAdapter(Meta.pathToGameFolder + "hand.png");
+	    		imgC = adaptGen.createImageAdapter(Meta.pathToGameFolder + "hand.PNG");
 	    	} catch (IOException ex) {
 	    		throw new LiteException(MenuSlice.class, ex, "Couldn't make quit menu images");
 	    	}

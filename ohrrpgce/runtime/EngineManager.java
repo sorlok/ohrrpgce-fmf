@@ -19,6 +19,7 @@ public class EngineManager implements Runnable {
    // private GraphicsAdapter gAdapt;
     private AdapterGenerator adaptGen;
     private InputAdapter iAdapt;
+    private Exception bufferedError;
 	
 	public EngineManager(AdapterGenerator adaptGen, InputAdapter iAdapt) {
 		//Store geneators
@@ -76,6 +77,10 @@ public class EngineManager implements Runnable {
 	public boolean canExit() {
 		return getCurrentEngine().canExit();
 	}
+        
+        public void notifyOfError(Exception ex) {
+            bufferedError = ex;
+        }
 	
 	
 	   /**
@@ -99,6 +104,10 @@ public class EngineManager implements Runnable {
             for (boolean isInError=false;;) {
                 if (!isInError) {
                     try {
+                        //hmm...
+                        if (bufferedError!=null)
+                            throw bufferedError;
+                        
                         engines[currEngine].paintScene();
                     } catch (Throwable ex) {
                     	MetaDisplay.drawError( 
@@ -139,6 +148,10 @@ public class EngineManager implements Runnable {
                 //Process all input.
                 if (!isInError) {
                     try {
+                        //hmm...
+                        if (bufferedError!=null)
+                            throw bufferedError;
+                        
                         engines[currEngine].handleKeys(keyStates);
                     } catch (Throwable ex) {
                     	MetaDisplay.drawError( 
@@ -151,6 +164,10 @@ public class EngineManager implements Runnable {
                 //Update the game's internal state based on how much time has passed.
                 if (!isInError) {
                     try {
+                        //hmm...
+                        if (bufferedError!=null)
+                            throw bufferedError;
+                        
                         //System.out.println("TICK");
                         engines[currEngine].updateScene(currTime - prevTime);
                     } catch (Throwable ex) {
