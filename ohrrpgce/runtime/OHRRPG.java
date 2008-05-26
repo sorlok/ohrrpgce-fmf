@@ -84,9 +84,9 @@ public class OHRRPG {
         return ALLOWED_WALK_SPEEDS[loc];
     }
     
-        public int figureHP(int min, int max, int level) {
+        public int figureStat(int min, int max, int currLevel) {
             //For now...
-            return (level*(max-min))/99 + min;
+            return (currLevel*(max-min))/99 + min;
         }
     
         public OHRRPG(RPGLoadSizeListener gcListener) {
