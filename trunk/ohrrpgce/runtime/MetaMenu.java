@@ -84,6 +84,7 @@ public class MetaMenu {
     
     //Stats
     private static ImageSlice statsButton;
+    private static TextSlice statsLbl;
     
     //Equip
     private static ImageSlice equipButton;
@@ -148,6 +149,32 @@ public class MetaMenu {
     		}
     	};
     	lastSubMenuTransition = new SubMenuInTransition(currSpellGroup, currHeroPicture, -currHeroPicture.getWidth()/2, currHeroPicture.getPosY(), 20*3, spellsButton, -currHeroPicture.getWidth()/2+(spellsButton.getPosX()-currHeroPicture.getPosX()), currHeroPicture.getPosY(), 20, finalConnectFwd, finalConnectRev);
+    	currTransition = lastSubMenuTransition;
+    }
+    
+    private static void doStatsMenuIn() {
+    	currCursor = null;
+    	prevMode = mode;
+    	mode = STATS;
+
+    	Action finalConnectFwd = new Action() {
+    		public boolean perform(Object caller) {
+    			statsButton.connect(statsLbl, MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);		
+    			//currHeroPicture.connect(spellsLvlBigBox, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
+    			//currHeroPicture.connect(spellsUsageBigBox, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+    			return true;
+    		}
+    	};
+    	
+    	Action finalConnectRev = new Action() {
+    		public boolean perform(Object caller) {
+    			statsButton.disconnect(MenuSlice.CONNECT_RIGHT, MenuSlice.CFLAG_PAINT);		
+    			//currHeroPicture.disconnect(MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT);
+    			//currHeroPicture.disconnect(MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT);
+    			return true;
+    		}
+    	};
+    	lastSubMenuTransition = new SubMenuInTransition(statsLbl, currHeroPicture, currHeroPicture.getPosX(), currHeroPicture.getPosY()-currHeroPicture.getHeight()/2, 20*3, statsButton, currHeroPicture.getPosX(), -currHeroPicture.getHeight()/2+(statsButton.getPosY()-currHeroPicture.getPosY()), 20, finalConnectFwd, finalConnectRev);
     	currTransition = lastSubMenuTransition;
     }
     
@@ -638,13 +665,7 @@ public class MetaMenu {
         
         
         //Placeholders
-        mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
-        mFormat.fromAnchor = GraphicsAdapter.HCENTER | GraphicsAdapter.BOTTOM;
-        mFormat.toAnchor = GraphicsAdapter.HCENTER | GraphicsAdapter.TOP;
         try {
-        	statsButton = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder + imgStats));
-        	statsButton.addFocusGainedListener(highlightAction);
-        	
             mFormat.xHint = -DEFAULT_INTER_ELEMENT_SPACING;
             mFormat.yHint = 0;
             mFormat.fromAnchor = GraphicsAdapter.VCENTER | GraphicsAdapter.LEFT;
@@ -652,11 +673,34 @@ public class MetaMenu {
         	equipButton = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder + imgEquip));
         	equipButton.addFocusGainedListener(highlightAction);
         } catch (Exception ex) {
-        	throw new LiteException(MetaMenu.class, ex, "Stats/Equip button(s) couldn't be loaded.");
+        	throw new LiteException(MetaMenu.class, ex, "Equip button(s) couldn't be loaded.");
         }
-        currHeroPicture.connect(statsButton, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
         currHeroPicture.connect(equipButton, MenuSlice.CONNECT_LEFT, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
         
+        
+        //Load: stats
+        mFormat.xHint = 0;
+        mFormat.yHint = DEFAULT_INTER_ELEMENT_SPACING;
+        mFormat.fromAnchor = GraphicsAdapter.HCENTER | GraphicsAdapter.BOTTOM;
+        mFormat.toAnchor = GraphicsAdapter.HCENTER | GraphicsAdapter.TOP;
+        try {
+        	statsButton = new ImageSlice(mFormat, adaptGen.createImageAdapter(Meta.pathToGameFolder + imgStats));
+        	statsButton.addFocusGainedListener(highlightAction);
+        	statsButton.setAcceptListener(new Action() {
+        		public boolean perform(Object caller) {
+        			MetaMenu.doStatsMenuIn();
+        			return false;
+        		}
+        	});
+        } catch (Exception ex) {
+        	throw new LiteException(MetaMenu.class, ex, "Stats button couldn't be loaded.");
+        }
+        currHeroPicture.connect(statsButton, MenuSlice.CONNECT_BOTTOM, MenuSlice.CFLAG_PAINT|MenuSlice.CFLAG_CONTROL);
+
+        //Stats lbl
+        mFormat.fromAnchor = GraphicsAdapter.TOP | GraphicsAdapter.RIGHT;
+        mFormat.toAnchor = GraphicsAdapter.TOP | GraphicsAdapter.LEFT;
+        statsLbl = new TextSlice(mFormat, "Stats", rpg.font, true, true, false);
         
         //Load: spells
         mFormat.xHint = DEFAULT_INTER_ELEMENT_SPACING;
