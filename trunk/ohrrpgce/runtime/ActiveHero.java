@@ -15,10 +15,12 @@ import ohrrpgce.data.NPC;
 public class ActiveHero extends ActiveWalker {
     private Hero currHero;
     private static final int HERO_SPEED = 4; //Wiki:"The player moves 4 pixels each step. Only values that divide evenly into 20 are available."
-
+    
     private int level = 0;
-    private int hp;
-    private int hpBonus;
+    
+    //[Hero.stat_id][curr, max_natural, curr_bonuses, (later:battle_bonuses)]
+    //For hp/mp, this is easy. For attack, max_natural==curr, and curr_bonuses is from magical potions, etc.
+    private int[][] curr_stats;
     
     
     public ActiveHero(OHRRPG parent, Hero currHero, int posX, int posY) {
@@ -28,6 +30,16 @@ public class ActiveHero extends ActiveWalker {
         this.speed = OHRRPG.getWalkSpeed(HERO_SPEED);
         this.nativeSpeed = speed;
         setGraphics(currHero.getWalkabout(), currHero.walkaboutPaletteID);
+        
+        //Current stats
+        curr_stats = new int[Hero.STAT_MAX][4];
+        for (int i=0; i<Hero.STAT_MAX; i++) {
+        	curr_stats[i] = new int[4];
+        	curr_stats[i][0] = getParent().figureStat(currHero.getStatMin(i), currHero.getStatMax(i), level);
+        	curr_stats[i][1] = curr_stats[i][0];
+        	curr_stats[i][2] = 0;
+        	curr_stats[i][3] = 0;
+        }
     }    
     
 
@@ -86,20 +98,24 @@ public class ActiveHero extends ActiveWalker {
     protected boolean isHero() {
         return true;
     }
-    public int getHP() {
-        return hp;
+    
+    public int getStatCurrVal(int id) {
+        return curr_stats[id][0];
     }
-    public int getMaxHP() {
-        return getLevelHP() + hpBonus;
+    
+    public int getStatMaxValue(int id, boolean withBonuses) {
+    	if (withBonuses)
+    		return curr_stats[id][1];
+    	else
+    		return curr_stats[id][1] + curr_stats[id][2] + curr_stats[id][3];
     }
-    public void setHP(int val) {
-        hp = val;
+    
+    public void setStatCurrValue(int id, int val) {
+    	curr_stats[id][0] = val;
     }
-    public void boostMaxHP(int val) {
-        hpBonus += val;
-    }
-    public int getLevelHP() {
-        return getParent().figureHP(currHero.getStatMin(Hero.STAT_HP), currHero.getStatMax(Hero.STAT_HP), level);
+    
+    public void boostStatCurrValue(int id, int amt) {
+    	curr_stats[id][0] += amt;
     }
     
     

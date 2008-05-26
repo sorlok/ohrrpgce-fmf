@@ -23,7 +23,7 @@ public class Hero {
     public static final int STAT_COUNTER = 9;
     public static final int STAT_FOCUS = 10;
     public static final int STAT_EXTRA_HITS = 11;
-    private static final int STAT_MAX = 12;
+    public static final int STAT_MAX = 12;
     
     public static final int SPELL_MP_BASED = 0;
     public static final int SPELL_FF_STYLE = 1;
