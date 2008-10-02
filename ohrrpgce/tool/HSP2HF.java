@@ -159,6 +159,10 @@ public class HSP2HF extends JFrame {
 					System.exit(1);
 				String[] nameSplit = scriptSrc.name.split("\\.");
 				if (nameSplit.length!=2 || (!nameSplit[1].equals("HSX") && !nameSplit[1].equals("HSZ"))) {
+					if (scriptSrc.name.equals("SCRIPTS.BIN")) {
+						System.out.println("Skipping: " + scriptSrc.name);
+						continue;
+					}
 					System.out.println("Bad script lump: " + scriptSrc.name);
 					System.exit(1);
 				}
@@ -179,6 +183,48 @@ public class HSP2HF extends JFrame {
 			this.setSize(new Dimension(this.getWidth(), this.getHeight()+1)); //hackish...
 		}
 
+	}
+	
+	
+	
+	private void loadScriptSource(byte[] data) {
+		//Assume format 2
+		/*System.out.println("Testing");
+		System.out.println("  Offset in bytes: " + (data[0] + (data[1]<<8)));
+		System.out.println("  Script Variables: " + (data[2] + (data[3]<<8)));
+		System.out.println("  Script Arguments: " + (data[4] + (data[5]<<8)));
+		System.out.println("  Script Format Version: " + (data[6] + (data[7]<<8)));
+		System.out.println("  String Table Offset: " + Integer.toHexString(data[8]) + "  " + Integer.toHexString(data[9]) + "  " + Integer.toHexString(data[10]) + "  " + Integer.toHexString(data[11]));*/
+		System.out.println("Test: " + data[12] + "," + data[13] + "," + data[14]);
+		for (int i=12; i<data.length;) {
+			//Read kind, ID, length, & args; advance pointers.
+			int kind = data[i++] + (data[i++]<<8);
+			int id = data[i++] + (data[i++]<<8);
+			int[] args =  null;
+			if (kind==2 || kind==5 || kind==6 || kind==7)
+				args = new int[data[i++] + (data[i++]<<8)];
+			else if (kind==1 || kind==3 || kind==4)
+				args = new  int[0];
+			else {
+				System.out.println("Invalid kind: " + kind);
+				System.exit(1);
+			}
+			for (int k=0; k<args.length; k++) {
+				args[k] = data[i++] + (data[i++]<<8);
+			}
+			
+			System.out.print(kind + ":" + id + "  ");
+			if (args.length>0) {
+				System.out.print("[");
+				String comma = "";
+				for (int k=0; k<args.length; k++) {
+					System.out.print(comma + args[k]);
+					comma = ",";
+				}
+				System.out.print("]");
+			}
+			System.out.println();
+		}
 	}
 	
 
@@ -204,11 +250,13 @@ public class HSP2HF extends JFrame {
 		scriptNameLst.setBorder(BorderFactory.createTitledBorder("Scripts"));
 		scriptNameLst.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
-				//TEMP
-				if (idToName!=null) {
-					Script s = (Script)scriptNameLst.getSelectedValue();
-					System.out.println(" script: " + s.id + "  bytes of source: " + s.scriptSrc.data.length);
-				}
+				//Only deal with the last change.
+				if (e.getValueIsAdjusting())
+					return;
+				
+				//Now, load that into the panel
+				Script s = (Script)scriptNameLst.getSelectedValue();
+				loadScriptSource(s.scriptSrc.data);
 			}
 		});
 		
