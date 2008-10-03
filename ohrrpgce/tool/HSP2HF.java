@@ -195,33 +195,215 @@ public class HSP2HF extends JFrame {
 		System.out.println("  Script Arguments: " + (data[4] + (data[5]<<8)));
 		System.out.println("  Script Format Version: " + (data[6] + (data[7]<<8)));
 		System.out.println("  String Table Offset: " + Integer.toHexString(data[8]) + "  " + Integer.toHexString(data[9]) + "  " + Integer.toHexString(data[10]) + "  " + Integer.toHexString(data[11]));*/
-		System.out.println("Test: " + data[12] + "," + data[13] + "," + data[14]);
 		for (int i=12; i<data.length;) {
 			//Read kind, ID, length, & args; advance pointers.
-			int kind = data[i++] + (data[i++]<<8);
-			int id = data[i++] + (data[i++]<<8);
+			int startsAt = i-12;
+			int kind = data[i++] + (data[i++]<<8) + (data[i++]<<16) + (data[i++]<<24);
+			int id = data[i++] + (data[i++]<<8) + (data[i++]<<16) + (data[i++]<<24);
 			int[] args =  null;
 			if (kind==2 || kind==5 || kind==6 || kind==7)
-				args = new int[data[i++] + (data[i++]<<8)];
+				args = new int[data[i++] + (data[i++]<<8) + (data[i++]<<16) + (data[i++]<<24)];
 			else if (kind==1 || kind==3 || kind==4)
-				args = new  int[0];
+				args = null;
 			else {
 				System.out.println("Invalid kind: " + kind);
 				System.exit(1);
 			}
-			for (int k=0; k<args.length; k++) {
-				args[k] = data[i++] + (data[i++]<<8);
+			if (args!=null) {
+				for (int k=0; k<args.length; k++) {
+					args[k] = (int)data[i++] + (((int)data[i++])<<8) + (((int)data[i++])<<16) + (((int)data[i++])<<24);
+				}
 			}
 			
-			System.out.print(kind + ":" + id + "  ");
-			if (args.length>0) {
-				System.out.print("[");
+			//Temp: print details
+			System.out.print("@" + startsAt/4 + " ");
+			if (kind==1) {
+				System.out.print("<" + id + ">      ");
+			} else if (kind==3) {
+				System.out.print("var[" + id + "]G   ");
+			} else if (kind==4) {
+				System.out.print("var[" + id + "]L   ");
+			} else if (kind==7) {
+				System.out.println(((Script)idToName.get(new Integer(id))).name + "(");
 				String comma = "";
 				for (int k=0; k<args.length; k++) {
-					System.out.print(comma + args[k]);
+					System.out.print(comma + "{"+args[k]+"}");
 					comma = ",";
 				}
-				System.out.print("]");
+				System.out.print(");  ");
+			} else if (kind==5) {
+				switch (id) {
+					case 0:
+						System.out.print("rand({"+args[0]+"}, {"+args[1]+"})");
+						break;
+					case 1:
+						System.out.print("{"+args[0]+"}**{"+args[1]+"}");
+						break;
+					case 2:
+						System.out.print("{"+args[0]+"}%{"+args[1]+"}");
+						break;
+					case 3:
+						System.out.print("{"+args[0]+"}/{"+args[1]+"}");
+						break;
+					case 4:
+						System.out.print("{"+args[0]+"}*{"+args[1]+"}");
+						break;
+					case 5:
+						System.out.print("{"+args[0]+"}-{"+args[1]+"}");
+						break;
+					case 6:
+						System.out.print("{"+args[0]+"}+{"+args[1]+"}");
+						break;
+					case 7:
+						System.out.print("{"+args[0]+"}^{"+args[1]+"}");
+						break;
+					case 8:
+						System.out.print("{"+args[0]+"}|{"+args[1]+"}");
+						break;
+					case 9:
+						System.out.print("{"+args[0]+"}&{"+args[1]+"}");
+						break;
+					case 10:
+						System.out.print("{"+args[0]+"}=={"+args[1]+"}");
+						break;
+					case 11:
+						System.out.print("{"+args[0]+"}!={"+args[1]+"}");
+						break;
+					case 12:
+						System.out.print("{"+args[0]+"}<{"+args[1]+"}");
+						break;
+					case 13:
+						System.out.print("{"+args[0]+"}>{"+args[1]+"}");
+						break;
+					case 14:
+						System.out.print("{"+args[0]+"}<={"+args[1]+"}");
+						break;
+					case 15:
+						System.out.print("{"+args[0]+"}>={"+args[1]+"}");
+						break;
+					case 16:
+						System.out.print("{"+args[0]+"}={"+args[1]+"}");
+						break;
+					case 17:
+						System.out.print("{"+args[0]+"}+={"+args[1]+"}");
+						break;
+					case 18:
+						System.out.print("{"+args[0]+"}+={"+args[1]+"}");
+						break;
+					case 19:
+						System.out.print("!{"+args[0]+"}");
+						break;
+					case 20:
+						System.out.print("{"+args[0]+"}&&{"+args[1]+"}");
+						break;
+					case 21:
+						System.out.print("{"+args[0]+"}||{"+args[1]+"}");
+						break;
+					case 22:
+						System.out.print("{"+args[0]+"}^^{"+args[1]+"}");
+						break;
+				}
+				System.out.print("   ");
+			} else if (kind==2) {
+				String comma = null;
+				switch (id) {
+					case 0:
+						System.out.print("do(");
+						comma = "";
+						for (int k=0; k<args.length; k++) {
+							System.out.print(comma + "{"+args[k]+"}");
+							comma = ",";
+						}
+						System.out.print(");  ");
+						break;
+					case 1:
+						System.out.print("begin (unexpected)");
+						break;
+					case 2:
+						System.out.print("end (unexpected)");
+						break;
+					case 3:
+						System.out.println("return(");
+						comma = "";
+						for (int k=0; k<args.length; k++) {
+							System.out.print(comma + "{"+args[k]+"}");
+							comma = ",";
+						}
+						System.out.print(");  ");
+						break;
+					case 4:
+						System.out.print("if {"+args[0]+"} then {"+args[1]+"} else {"+args[2]+"}  ");
+						break;
+					case 5:
+						System.out.print("then(");
+						comma = "";
+						for (int k=0; k<args.length; k++) {
+							System.out.print(comma + "{"+args[k]+"}");
+							comma = ",";
+						}
+						System.out.print(");  ");
+						break;
+					case 6:
+						System.out.print("else(");
+						comma = "";
+						for (int k=0; k<args.length; k++) {
+							System.out.print(comma + "{"+args[k]+"}");
+							comma = ",";
+						}
+						System.out.print(");  ");
+						break;
+					case 7:
+						System.out.print("for(var[{"+args[0]+"}]L i={"+args[1]+"}; i!={"+args[2]+"}; i+={"+args[3]+"}) do {"+args[4]+"};  ");
+						break;
+					case 10:
+						System.out.print("while({"+args[0]+"}) do {"+args[1]+"}  ");
+						break;
+					case 11:
+						System.out.print("break {"+args[0]+"}  ");
+						break;
+					case 12:
+						System.out.print("continue {"+args[0]+"}  ");
+						break;
+					case 13:
+						System.out.print("exit_script();  ");
+						break;
+					case 14:
+						System.out.print("exit_returning("+args[0]+"});  ");
+						break;
+					case 15:
+						System.out.print("switch(");
+						comma = "";
+						for (int k=0; k<args.length; k++) {
+							System.out.print(comma + "{"+args[k]+"}");
+							comma = ",";
+						}
+						System.out.print(");  ");
+						break;
+					case 16:
+						System.out.print("case (unexpected)");
+						break;
+				}
+			} else if (kind==6) {
+				System.out.print("built-in[{"+id+"}](");
+				String comma = "";
+				for (int k=0; k<args.length; k++) {
+					System.out.print(comma + "{"+args[k]+"}");
+					comma = ",";
+				}
+				System.out.print(");  ");
+			} else {
+				//Stack trace
+				System.out.print("????   ");
+				System.out.print(kind + ":" + id + " ");
+				if (args!=null) {
+					System.out.print("[");
+					String comma = "";
+					for (int k=0; k<args.length; k++) {
+						System.out.print(comma + args[k]);
+						comma = ",";
+					}
+					System.out.print("]");
+				}
 			}
 			System.out.println();
 		}
@@ -256,6 +438,7 @@ public class HSP2HF extends JFrame {
 				
 				//Now, load that into the panel
 				Script s = (Script)scriptNameLst.getSelectedValue();
+				System.out.println("\n" + s.name);
 				loadScriptSource(s.scriptSrc.data);
 			}
 		});
