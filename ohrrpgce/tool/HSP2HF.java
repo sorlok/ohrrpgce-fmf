@@ -339,16 +339,16 @@ public class HSP2HF extends JFrame {
 						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}!={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 12:
-						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}<{<a href="+args[1]+">"+args[1]+"</a>}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}&lt;{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 13:
-						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}>{<a href="+args[1]+">"+args[1]+"</a>}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}&gt;{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 14:
-						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}<={<a href="+args[1]+">"+args[1]+"</a>}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}&lt;={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 15:
-						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}>={<a href="+args[1]+">"+args[1]+"</a>}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}&gt;={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 16:
 						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}={<a href="+args[1]+">"+args[1]+"</a>}");
@@ -363,7 +363,7 @@ public class HSP2HF extends JFrame {
 						srcSnippet.append("!{<a href="+args[0]+">"+args[0]+"</a>}");
 						break;
 					case 20:
-						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}&&{<a href="+args[1]+">"+args[1]+"</a>}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}&amp;&amp;{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 21:
 						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}||{<a href="+args[1]+">"+args[1]+"</a>}");
