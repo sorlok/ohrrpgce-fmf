@@ -35,9 +35,12 @@ public class HSP2HF extends JFrame {
 	//Sources
 	//private ScriptSourceRenderer scriptSrcModel;
 	//private ArrayList scriptSrcInOrder;
+	private JScrollPane srcScrollPnl;
 	private Hashtable atIDToScriptSrc;
 	private ScriptSrc currScriptSrc;
 	
+	//See end of file (too messy)
+	//private static final String[] built_in = {}
 	
 	public HSP2HF() {
 		//Init
@@ -283,13 +286,14 @@ public class HSP2HF extends JFrame {
 			//Create a "source" snippet
 			StringBuilder srcSnippet = new StringBuilder();
 			if (kind==1) {
-				srcSnippet.append(id);
+				srcSnippet.append("<span style='font-weight: bold; color: #0000CC;'>"+id+"</span>");
 			} else if (kind==3) {
 				srcSnippet.append("var[" + id + "]G");
 			} else if (kind==4) {
 				srcSnippet.append("var[" + id + "]L");
 			} else if (kind==7) {
-				srcSnippet.append("<b>"+((Script)idToName.get(new Integer(id))).name + "</b>(");
+				Script scr = (Script)idToName.get(new Integer(id));
+				srcSnippet.append("<a href=S"+scr.id+">"+scr.name + "</a>(");
 				String comma = "";
 				for (int k=0; k<args.length; k++) {
 					srcSnippet.append(comma + "{<a href="+args[k]+">"+args[k]+"</a>}");
@@ -299,73 +303,73 @@ public class HSP2HF extends JFrame {
 			} else if (kind==5) {
 				switch (id) {
 					case 0:
-						srcSnippet.append("rand(<a href="+args[0]+">{"+args[0]+"}</a>, <a href="+args[1]+">{"+args[1]+"}</a>);");
+						srcSnippet.append("rand({<a href="+args[0]+">"+args[0]+"</a>}, {<a href="+args[1]+">"+args[1]+"</a>});");
 						break;
 					case 1:
-						srcSnippet.append("{"+args[0]+"}**{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}**{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 2:
-						srcSnippet.append("{"+args[0]+"}%{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}%{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 3:
-						srcSnippet.append("{"+args[0]+"}/{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}/{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 4:
-						srcSnippet.append("{"+args[0]+"}*{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}*{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 5:
 						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}-{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 6:
-						srcSnippet.append("{"+args[0]+"}+{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}+{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 7:
-						srcSnippet.append("{"+args[0]+"}^{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}^{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 8:
-						srcSnippet.append("{"+args[0]+"}|{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}|{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 9:
-						srcSnippet.append("{"+args[0]+"}&{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}&{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 10:
-						srcSnippet.append("{"+args[0]+"}=={"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}=={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 11:
-						srcSnippet.append("{"+args[0]+"}!={"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}!={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 12:
-						srcSnippet.append("{"+args[0]+"}<{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}<{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 13:
-						srcSnippet.append("{"+args[0]+"}>{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}>{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 14:
-						srcSnippet.append("{"+args[0]+"}<={"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}<={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 15:
-						srcSnippet.append("{"+args[0]+"}>={"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}>={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 16:
-						srcSnippet.append("{"+args[0]+"}={"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 17:
-						srcSnippet.append("{"+args[0]+"}+={"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}+={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 18:
-						srcSnippet.append("{"+args[0]+"}+={"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}-={<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 19:
-						srcSnippet.append("!{"+args[0]+"}");
+						srcSnippet.append("!{<a href="+args[0]+">"+args[0]+"</a>}");
 						break;
 					case 20:
-						srcSnippet.append("{"+args[0]+"}&&{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}&&{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 21:
-						srcSnippet.append("{"+args[0]+"}||{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}||{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 22:
-						srcSnippet.append("{"+args[0]+"}^^{"+args[1]+"}");
+						srcSnippet.append("{<a href="+args[0]+">"+args[0]+"</a>}^^{<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 				}
 			} else if (kind==2) {
@@ -375,7 +379,7 @@ public class HSP2HF extends JFrame {
 						srcSnippet.append("do(");
 						comma = "";
 						for (int k=0; k<args.length; k++) {
-							srcSnippet.append(comma + "{"+args[k]+"}");
+							srcSnippet.append(comma + "{<a href="+args[k]+">"+args[k]+"</a>}");
 							comma = ",";
 						}
 						srcSnippet.append(");");
@@ -390,19 +394,19 @@ public class HSP2HF extends JFrame {
 						srcSnippet.append("return(");
 						comma = "";
 						for (int k=0; k<args.length; k++) {
-							srcSnippet.append(comma + "{"+args[k]+"}");
+							srcSnippet.append(comma + "<a href="+args[k]+">{"+args[k]+"</a>}");
 							comma = ",";
 						}
 						srcSnippet.append(");  ");
 						break;
 					case 4:
-						srcSnippet.append("if {"+args[0]+"} then {"+args[1]+"} else {"+args[2]+"}");
+						srcSnippet.append("if {<a href="+args[0]+">"+args[0]+"</a>} then {<a href="+args[1]+">"+args[1]+"</a>} else {<a href="+args[2]+">"+args[2]+"</a>}");
 						break;
 					case 5:
 						srcSnippet.append("then(");
 						comma = "";
 						for (int k=0; k<args.length; k++) {
-							srcSnippet.append(comma + "{"+args[k]+"}");
+							srcSnippet.append(comma + "{<a href="+args[k]+">"+args[k]+"</a>}");
 							comma = ",";
 						}
 						srcSnippet.append(");");
@@ -411,34 +415,34 @@ public class HSP2HF extends JFrame {
 						srcSnippet.append("else(");
 						comma = "";
 						for (int k=0; k<args.length; k++) {
-							srcSnippet.append(comma + "{"+args[k]+"}");
+							srcSnippet.append(comma + "{<a href="+args[k]+">"+args[k]+"</a>}");
 							comma = ",";
 						}
 						srcSnippet.append(");");
 						break;
 					case 7:
-						srcSnippet.append("for(var[{"+args[0]+"}]L i={"+args[1]+"}; i!={"+args[2]+"}; i+={"+args[3]+"}) do {"+args[4]+"};");
+						srcSnippet.append("for(var[{<a href="+args[0]+">"+args[0]+"</a>}] = {<a href="+args[1]+">"+args[1]+"</a>}; var!={<a href="+args[2]+">"+args[2]+"</a>}; var+={<a href="+args[3]+">"+args[3]+"</a>}) do {<a href="+args[4]+">"+args[4]+"</a>};");
 						break;
 					case 10:
-						srcSnippet.append("while({"+args[0]+"}) do {"+args[1]+"}");
+						srcSnippet.append("while({<a href="+args[0]+">"+args[0]+"</a>}) do {<a href="+args[1]+">"+args[1]+"</a>}");
 						break;
 					case 11:
-						srcSnippet.append("break {"+args[0]+"}");
+						srcSnippet.append("break {<a href="+args[0]+">"+args[0]+"</a>}");
 						break;
 					case 12:
-						srcSnippet.append("continue {"+args[0]+"}");
+						srcSnippet.append("continue {<a href="+args[0]+">"+args[0]+"</a>}");
 						break;
 					case 13:
 						srcSnippet.append("exit_script();");
 						break;
 					case 14:
-						srcSnippet.append("exit_returning("+args[0]+"});");
+						srcSnippet.append("exit_returning({<a href="+args[0]+">"+args[0]+"</a>});");
 						break;
 					case 15:
 						srcSnippet.append("switch(");
 						comma = "";
 						for (int k=0; k<args.length; k++) {
-							srcSnippet.append(comma + "{"+args[k]+"}");
+							srcSnippet.append(comma + "{<a href="+args[k]+">"+args[k]+"</a>}");
 							comma = ",";
 						}
 						srcSnippet.append(");");
@@ -448,10 +452,13 @@ public class HSP2HF extends JFrame {
 						break;
 				}
 			} else if (kind==6) {
-				srcSnippet.append("built-in[{"+id+"}](");
+				if (id<built_in.length && id>=0)
+					srcSnippet.append("<span style='font-weight: bold;'>"+built_in[id]+"</span>(");
+				else
+					srcSnippet.append("<span style='font-weight: bold;'>built_in["+id+"]</span>(");
 				String comma = "";
 				for (int k=0; k<args.length; k++) {
-					srcSnippet.append(comma + "{"+args[k]+"}");
+					srcSnippet.append(comma + "{<a href="+args[k]+">"+args[k]+"</a>}");
 					comma = ",";
 				}
 				srcSnippet.append(");");
@@ -477,6 +484,19 @@ public class HSP2HF extends JFrame {
 	}
 	
 
+	
+	private void loadScriptSrc(Script s) {
+		System.out.println("\n" + s.name);
+		loadScriptSource(s.scriptSrc.data);
+		
+		//un-scroll
+		srcScrollPnl.getVerticalScrollBar().setValue(0);
+		
+		//Reset size...
+		setSize(new Dimension(getWidth(), getHeight()+flipflop)); //hackish...
+		flipflop *= -1;
+	}
+	
 
 	private void initComponents() {
 		//Our top panel
@@ -504,13 +524,7 @@ public class HSP2HF extends JFrame {
 					return;
 				
 				//Now, load that into the panel
-				Script s = (Script)scriptNameLst.getSelectedValue();
-				System.out.println("\n" + s.name);
-				loadScriptSource(s.scriptSrc.data);
-				
-				//Reset size...
-				setSize(new Dimension(getWidth(), getHeight()+flipflop)); //hackish...
-				flipflop *= -1;
+				loadScriptSrc((Script)scriptNameLst.getSelectedValue());
 			}
 		});
 		
@@ -576,8 +590,9 @@ public class HSP2HF extends JFrame {
 			JPanel jp = new JPanel(new BorderLayout());
 			jp.add(scriptContentsPnl, BorderLayout.NORTH);
 			//jp.add(new JPanel(), BorderLayout.CENTER);
-			JScrollPane jsp = new JScrollPane(jp, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			cp.add(jsp, gbc);
+			srcScrollPnl = new JScrollPane(jp, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			srcScrollPnl.getVerticalScrollBar().setUnitIncrement(50);
+			cp.add(srcScrollPnl, gbc);
 		}
 	}
 	
@@ -697,8 +712,19 @@ public class HSP2HF extends JFrame {
 				public void hyperlinkUpdate(HyperlinkEvent ev) {
 					if (ev.getEventType()==HyperlinkEvent.EventType.ACTIVATED)  {
 						try {
-							int x = Integer.parseInt(ev.getDescription());
-							swapIn(((ScriptSrc)atIDToScriptSrc.get(new Integer(x))));
+							int x = 0;
+							boolean script = false;
+							if (ev.getDescription().charAt(0)=='S') {
+								x = Integer.parseInt(ev.getDescription().substring(1));
+								script = true;
+							} else {
+								x = Integer.parseInt(ev.getDescription());
+							}
+							
+							if (script)
+								loadScriptSrc((Script)idToName.get(new Integer(x)));
+							else
+								swapIn(((ScriptSrc)atIDToScriptSrc.get(new Integer(x))));
 						} catch (NumberFormatException ex) {}
 					}
 				}
@@ -757,5 +783,57 @@ public class HSP2HF extends JFrame {
 	public static void main(String[] args) {
 		new HSP2HF();
 	}
+	
+	
+	private static final String[] built_in = {"noop", "wait", "waitforall", 
+		"waitforhero", "waitfornpc", "suspendnpcs", "suspendplayer", "resumenpcs", 
+		"resumeplayer", "waitforkey", "walkhero", "showtextbox", "checktag", "settag", 
+		"#INVALID", "usedoor", "fightformation", "getitem", "deleteitem", "leader", 
+		"getmoney", "losemoney", "paymoney", "unequip", "forceequip", "setheroframe", 
+		"setNPCframe", "suspendoverlay", "playsong", "stopsong", "keyval", 
+		"rankincaterpillar", "showbackdrop", "showmap", "dismountvehicle", "useNPC", 
+		"#INVALID", "useshop", "camerafollowshero", "camerafollowsnpc", "pancamera", 
+		"focuscamera", "waitforcamera", "herox", "heroy", "npcx", "npcy", 
+		"suspendobstruction", "resumeobstruction", "suspendherowalls", 
+		"suspendNPCwalls", "resumeherowalls", "walknpc", "setherodirection", 
+		"setnpcdirection", "getdefaultweapon", "setdefaultweapon", 
+		"suspendcatapillar", "resumecatapillar", "waitfortextbox", "equipwhere", 
+		"teleporttomap", "suspendrandomenemys", "resumerandomenemys", "getherostat", 
+		"resumeoverlay", "addhero", "deletehero", "swapouthero", "swapinhero", 
+		"roominactiveparty", "lockhero", "unlockhero", "gameover", "setdeathscript", 
+		"fadescreenout", "fadescreenin", "showvalue", "alterNPC", "shownovalue", 
+		"currentmap", "setherospeed", "inventory", "setherostat", "suspendboxadvance", 
+		"resumeboxadvance", "advancetextbox", "setheroposition", "setNPCposition", 
+		"swapbyposition", "findhero", "checkequipment", "daysofplay", "hoursofplay", 
+		"minutesofplay", "resumeNPCwalls", "setheroz", "readmapblock", 
+		"writemapblock", "readpassblock", "writepassblock", "NPCdirection,", 
+		"herodirection", "resetpalette", "tweakpalette", "readcolor", "writecolor", 
+		"updatepalette", "seedrandom", "greyscalepalette", "setheropicture", 
+		"setheropalette", "getheropicture", "getheropalette", "readglobal", 
+		"writeglobal", "heroiswalking", "NPCiswalking", "suspendcaterpillar", 
+		"resumecaterpillar", "NPCreference", "NPCatspot", "getNPCID", "NPCcopycount", 
+		"changeNPCID", "createNPC", "destroyNPC", "teachspell", "forgetspell", 
+		"readspell", "writespell", "knowsspell", "canlearnspell", "herobyslot", 
+		"herobyrank", "puthero", "putnpc", "putcamera", "heropixelx", "heropixely", 
+		"npcpixelx", "npcpixely", "camerapixelx", "camerapixely", "loadtileset", 
+		"pickhero", "renameherobyslot", "readgeneral", "writegeneral", "#INVALID", 
+		"statusscreen", "showminimap", "spellsmenu", "itemsmenu", "equipmenu", 
+		"savemenu", "#INVALID", "ordermenu", "teammenu", "initmouse", "mousepixelx", 
+		"mousepixely", "mousebutton", "putmouse", "mouseregion", "npcatpixel", 
+		"saveinslot", "lastsaveslot", "suspendrandomenemies", "resumerandomenemies", 
+		"savemenu", "saveslotused", "importglobals", "exportglobals", "loadfromslot", 
+		"deletesave", "runscriptbyid", "NPCiswalking", "readgmap", "writegmap", 
+		"mapwidth", "mapheight", "readNPC", "setherolevel", "giveexperience", 
+		"herolevelled", "spellslearnt", "getmusicvolume", "setmusicvolume", 
+		"getformationsong", "setformationsong", "heroframe", "npcframe", "npcextra", 
+		"setnpcextra", "loadsound", "freesound", "playsound", "pausesound", 
+		"stopsound", "system", "system", "system", "current", "get", "set", "get", 
+		"get", "get", "get", "showstring", "clearstring", "appendascii", 
+		"appendnumber", "copystring", "concatenatestrings", "stringlength", 
+		"deletechar", "replacechar", "asciifromstring", "positionstring", 
+		"setstringbit", "getstringbit", "stringcolor", "stringx", "stringy", 
+		"systemday", "systemmonth", "systemyear", "stringcompare", "readenemydata", 
+		"writeenemydata", "trace", "getsongname", "loadmenu", "keyispressed"
+	};
 }
 
