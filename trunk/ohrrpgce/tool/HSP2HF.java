@@ -233,15 +233,18 @@ public class HSP2HF extends JFrame {
 		atIDToScriptSrc.clear();
 		currScriptSrc = null;
 		scriptContentsPnl.removeAll();
+		int offsetWords = 0;
 		for (int i=12; i<data.length;) {
 			//Read kind, ID, length, & args; advance pointers.
-			int startsAt = (i-12)/4;
 			int kind = (data[i++]&0xFF) | ((((int)data[i++])*0x100)&0xFF00) | ((((int)data[i++])*0x10000)&0xFF0000) | (((int)(data[i++])*0x1000000)&0xFF000000);
 		    int id = (data[i++]&0xFF) | ((((int)data[i++])*0x100)&0xFF00) | ((((int)data[i++])*0x10000)&0xFF0000) | (((int)(data[i++])*0x1000000)&0xFF000000);
+		    int startsAt = offsetWords;
+		    offsetWords += 2;
 			int[] args =  null;
-			if (kind==2 || kind==5 || kind==6 || kind==7)
+			if (kind==2 || kind==5 || kind==6 || kind==7) {
 				args = new int[(data[i++]&0xFF) | ((((int)data[i++])*0x100)&0xFF00) | ((((int)data[i++])*0x10000)&0xFF0000) | (((int)(data[i++])*0x1000000)&0xFF000000)];
-			else if (kind==1 || kind==3 || kind==4)
+				offsetWords++;
+			} else if (kind==1 || kind==3 || kind==4)
 				args = null;
 			else {
 				System.out.println("Invalid kind: " + kind);
@@ -250,6 +253,7 @@ public class HSP2HF extends JFrame {
 			if (args!=null) {
 				for (int k=0; k<args.length; k++) {
 					args[k] = (data[i++]&0xFF) | ((((int)data[i++])*0x100)&0xFF00) | ((((int)data[i++])*0x10000)&0xFF0000) | (((int)(data[i++])*0x1000000)&0xFF000000);
+					offsetWords++;
 				}
 			}
 			
