@@ -25,12 +25,14 @@ public class HSP2HF extends JFrame {
 	
 	private JPanel toolbarPnl;
 	private JList scriptNameLst;
+	private JButton compileBtn;
 	private JPanel scriptContentsPnl;
 	private int flipflop = 1;
 	
 	//Scripts
 	private DefaultListModel scriptNameModel;
 	private Hashtable idToName;
+	private Script currScript;
 	
 	//Sources
 	//private ScriptSourceRenderer scriptSrcModel;
@@ -220,12 +222,56 @@ public class HSP2HF extends JFrame {
 	}
 	
 	
+	private void crossCompileScript() {
+		//First, verify
+		ScriptSrc sID0 = null;
+		Object[] scripts = atIDToScriptSrc.values().toArray();
+		boolean oneError = false;
+		for (int i=0; i<scripts.length; i++) {
+			ScriptSrc s = (ScriptSrc)scripts[i];
+			if (s.getArgs()!=null)  {
+				for (int k=0; k<s.getArgs().length; k++) {
+					if (atIDToScriptSrc.get(new Integer(s.getArgs()[k]))==null) {
+						//Error
+						s.flashError(true);
+						oneError = true;
+					}
+				}
+			}
+			if (s.atID==0)
+				sID0 = s;
+			else
+				System.out.println(s.toHFString(true));
+		}
+		
+		if (oneError) {
+			System.out.println("Error! ID out of range...");
+			scriptContentsPnl.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.red), "Source"));
+			return;
+		}
+		
+		System.out.println("\n#Init local variables");
+		for (int i=currScript.args.length-1; i>=0; i--) {
+			System.out.print(""+i);
+			System.out.print("   swap");
+			System.out.println("   @L[]");
+		}
+		
+		System.out.println("\n#Main script loop");
+		System.out.println(sID0.toHFString(false));
+		
+		System.out.println("Ready to begin!");
+		
+	}
+	
 	
 	private void loadScriptSource(byte[] data) {
 		//Assume format 2
-		/*System.out.println("Testing");
-		System.out.println("  Offset in bytes: " + (data[0] + (data[1]<<8)));
-		System.out.println("  Script Variables: " + (data[2] + (data[3]<<8)));
+		//System.out.println("Testing");
+		int byteOffsetOfHeader = ((data[0]&0xFF) + ((data[1]<<8)&0xFF00));
+		System.out.println("  Header offset in bytes: " + byteOffsetOfHeader);
+		
+		/*System.out.println("  Script Variables: " + (data[2] + (data[3]<<8)));
 		System.out.println("  Script Arguments: " + (data[4] + (data[5]<<8)));
 		System.out.println("  Script Format Version: " + (data[6] + (data[7]<<8)));
 		System.out.println("  String Table Offset: " + Integer.toHexString(data[8]) + "  " + Integer.toHexString(data[9]) + "  " + Integer.toHexString(data[10]) + "  " + Integer.toHexString(data[11]));*/
@@ -234,7 +280,7 @@ public class HSP2HF extends JFrame {
 		currScriptSrc = null;
 		scriptContentsPnl.removeAll();
 		int offsetWords = 0;
-		for (int i=12; i<data.length;) {
+		for (int i=byteOffsetOfHeader; i<data.length;) {
 			//Read kind, ID, length, & args; advance pointers.
 			int kind = (data[i++]&0xFF) | ((((int)data[i++])*0x100)&0xFF00) | ((((int)data[i++])*0x10000)&0xFF0000) | (((int)(data[i++])*0x1000000)&0xFF000000);
 		    int id = (data[i++]&0xFF) | ((((int)data[i++])*0x100)&0xFF00) | ((((int)data[i++])*0x10000)&0xFF0000) | (((int)(data[i++])*0x1000000)&0xFF000000);
@@ -481,7 +527,7 @@ public class HSP2HF extends JFrame {
 			}
 			
 			//Add it to the hashtable, and to the list  
-			ScriptSrc curr = new ScriptSrc(startsAt, atIDToScriptSrc.size(), kindName, srcSnippet.toString());
+			ScriptSrc curr = new ScriptSrc(startsAt, atIDToScriptSrc.size(), kindName, srcSnippet.toString(), kind, id, args);
 			atIDToScriptSrc.put(new Integer(curr.atID), curr);
 			scriptContentsPnl.add(curr);
 		}
@@ -491,6 +537,7 @@ public class HSP2HF extends JFrame {
 	
 	private void loadScriptSrc(Script s) {
 		System.out.println("\n" + s.name);
+		currScript = s;
 		loadScriptSource(s.scriptSrc.data);
 		
 		//un-scroll
@@ -512,6 +559,15 @@ public class HSP2HF extends JFrame {
 			}
 		});
 		toolbarPnl.add(bt);
+	
+		compileBtn = new JButton("Cross-Compile");
+		compileBtn.setEnabled(false);
+		compileBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				crossCompileScript();
+			}
+		});
+		toolbarPnl.add(compileBtn);
 		
 		//Left panel
 		scriptNameModel = new DefaultListModel();
@@ -520,7 +576,8 @@ public class HSP2HF extends JFrame {
 		scriptNameLst.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		scriptNameModel.addElement("(no scripts)");
 		scriptNameLst.setBackground(toolbarPnl.getBackground());
-		scriptNameLst.setBorder(BorderFactory.createTitledBorder("Scripts"));
+		scriptNameLst.setFont(new Font("Arial", Font.PLAIN, 12));
+		scriptNameLst.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Scripts"));
 		scriptNameLst.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
 				//Only deal with the last change.
@@ -529,13 +586,15 @@ public class HSP2HF extends JFrame {
 				
 				//Now, load that into the panel
 				loadScriptSrc((Script)scriptNameLst.getSelectedValue());
+				compileBtn.setEnabled(true);
+				scriptContentsPnl.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Source"));
 			}
 		});
 		
 		//Right panel
 		scriptContentsPnl = new JPanel();
 		scriptContentsPnl.setLayout(new GridLayout(0, 1));
-		scriptContentsPnl.setBorder(BorderFactory.createTitledBorder("Source"));
+		scriptContentsPnl.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Source"));
 	}
 	
 	
@@ -674,15 +733,26 @@ public class HSP2HF extends JFrame {
 		private int realID;
 		private String bgColor;
 		
+		//For compiling
+		private int hsz_kind;
+		private int hsz_id;
+		private int[] hsz_args;
+		private ArrayList hf_commands;
+		
 		private JEditorPane scriptSrcLbl;
 		private JPanel upperPnlLeft;
 		
-		public ScriptSrc(int atID, int realID, String kindName, String srcSnippet) {
+		public ScriptSrc(int atID, int realID, String kindName, String srcSnippet, int hsz_kind, int hsz_id, int[] hsz_args) {
 			this.atID = atID;
 			this.realID = realID;
 			this.kindName = kindName;
 			this.srcSnippet = srcSnippet;
 			initPnl();
+			
+			this.hsz_kind = hsz_kind;
+			this.hsz_id = hsz_id;
+			this.hsz_args = hsz_args;
+			initCompiler();
 		}
 		
 		public void flashID(boolean on) {
@@ -693,6 +763,146 @@ public class HSP2HF extends JFrame {
 			upperPnlLeft.setBackground(c);
 		}
 		
+		public void flashError(boolean on) {
+			Color c = Color.red;
+			if (!on)
+				c = this.getBackground();
+			
+			upperPnlLeft.setBackground(c);
+		}
+		
+		
+		private void initCompiler() {
+			//Prepare our source
+			hf_commands = new ArrayList();
+			switch(hsz_kind) {
+				case 1:
+					//"Number"
+					hf_commands.add(""+hsz_id);
+					break;
+				case 2:
+					//"Flow Control"
+					switch (hsz_id) {
+						case 0:
+							//"do"
+							hf_commands.add("do_start");
+							for (int i=0; i<hsz_args.length; i++)
+								hf_commands.add("\\LOC"+hsz_args[i]+"()");
+							hf_commands.add("do_end");
+							break;
+						default:
+							System.out.println("Still deciding on flow commands!");
+					}
+					break;
+				case 3:
+					hf_commands.add(""+hsz_id);
+					hf_commands.add("G[]@");
+					break;
+				case 4:
+					hf_commands.add(""+hsz_id);
+					hf_commands.add("L[]@");
+					break;
+				case 5:
+					char lgMod = 'L';
+					int temp = hsz_args[0];
+					if (hsz_id==16 && hsz_args[0]<0) {
+						hsz_args[0] = -hsz_args[0]-1;
+						lgMod = 'G';
+					}
+					
+					for (int i=0; i<hsz_args.length; i++)
+						hf_commands.add("\\LOC"+hsz_args[i]+"()");
+					
+					hsz_args[0] = temp;
+					
+					switch (hsz_id) {
+						case 0:
+							hf_commands.add("random");
+							break;
+						case 1:
+							hf_commands.add("<undefined>");
+							break;
+						case 2:
+							hf_commands.add("<undefined>");
+							break;
+						case 3:
+							hf_commands.add("/");
+							break;
+						case 4:
+							hf_commands.add("*");
+							break;
+						case 5:
+							hf_commands.add("-");
+							break;
+						case 6:
+							hf_commands.add("+");
+							break;
+						case 7:
+							hf_commands.add("<undefined>");
+							break;
+						case 8:
+							hf_commands.add("<undefined>");
+							break;
+						case 9:
+							hf_commands.add("<undefined>");
+							break;
+						case 10:
+							hf_commands.add("<undefined>");
+							break;
+						case 11:
+							hf_commands.add("<undefined>");
+							break;
+						case 12:
+							hf_commands.add("<undefined>");
+							break;
+						case 13:
+							hf_commands.add("<undefined>");
+							break;
+						case 14:
+							hf_commands.add("<undefined>");
+							break;
+						case 15:
+							hf_commands.add("<undefined>");
+							break;
+						case 16:
+							hf_commands.add("@"+lgMod+"[]");
+							break;
+						case 17:
+							hf_commands.add("<undefined>");
+							break;
+						case 18:
+							hf_commands.add("<undefined>");
+							break;
+						case 19:
+							hf_commands.add("<undefined>");
+							break;
+						case 20:
+							hf_commands.add("<undefined>");
+							break;
+						case 21:
+							hf_commands.add("<undefined>");
+							break;
+						case 22:
+							hf_commands.add("<undefined>");
+							break;
+					}
+					break;
+				case 6:
+					for (int i=0; i<hsz_args.length; i++)
+						hf_commands.add("\\LOC"+hsz_args[i]+"()");
+					
+					hf_commands.add("\\BLT"+hsz_id+"()");
+					break;
+				case 7:
+					for (int i=0; i<hsz_args.length; i++)
+						hf_commands.add("\\LOC"+hsz_args[i]+"()");
+					
+					hf_commands.add("\\LOC"+hsz_id+"()");
+					break;
+			}
+		}
+		
+	
 		private void initPnl() {
 			int bgColor = 0xD0FFE6;
 			if (this.realID%2==0)
@@ -780,6 +990,22 @@ public class HSP2HF extends JFrame {
 		}
 		public String getSrcSnippet() {
 			return this.srcSnippet;
+		}
+		public int[] getArgs() {
+			return hsz_args;
+		}
+		public String toHFString(boolean wrap) {
+			StringBuilder sb = new StringBuilder();
+			if (wrap)
+				sb.append("\\LOC"+atID+"{\n");
+			for (int i=0; i<hf_commands.size(); i++) {
+				if (wrap)
+					sb.append("  ");
+				sb.append(hf_commands.get(i).toString()+"\n");
+			}
+			if (wrap)
+				sb.append("}\n");
+			return sb.toString();
 		}
 	}
 	
